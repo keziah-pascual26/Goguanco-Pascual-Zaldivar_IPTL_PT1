@@ -30,12 +30,12 @@ createStoryButton.addEventListener('click', openCreateStoryModal);
 // Close modal when overlay is clicked
 overlay.addEventListener('click', closeCreateStoryModal);
 
-// Add stories function
+// Add Stories
 function addStories() {
     const mediaInput = document.getElementById('mediaInput');
     const storyTitleInput = document.getElementById('storyTitle');
     const files = Array.from(mediaInput.files);
-    const storyTitle = storyTitleInput.value.trim();
+    const storyTitle = storyTitleInput.value.trim() || "Untitled Story";
 
     if (files.length === 0) {
         alert('Please select at least one image or video.');
@@ -46,7 +46,6 @@ function addStories() {
         const storyElement = document.createElement('div');
         storyElement.classList.add('story');
         const url = URL.createObjectURL(file);
-        const title = storyTitle || "Untitled Story";
 
         if (file.type.startsWith('image/')) {
             const img = document.createElement('img');
@@ -62,14 +61,18 @@ function addStories() {
             return;
         }
 
-        storyElement.addEventListener('click', () => {
-            storyQueue = Array.from(storiesContainer.children)
-                .map(child => ({
-                    src: child.querySelector('img, video').src,
-                    type: child.querySelector('img') ? 'image' : 'video',
-                    title: title
-                }));
+        // Add story details to queue
+        const storyData = {
+            src: url,
+            type: file.type.startsWith('image/') ? 'image' : 'video',
+            title: storyTitle
+        };
 
+        // Push story to queue
+        storyQueue.push(storyData);
+
+        // Attach click event to view the story
+        storyElement.addEventListener('click', () => {
             currentStoryIndex = storyQueue.findIndex(item => item.src === url);
             showStory(currentStoryIndex);
         });
@@ -77,76 +80,74 @@ function addStories() {
         storiesContainer.appendChild(storyElement);
     });
 
+    // Reset form inputs
     storyTitleInput.value = '';
     mediaInput.value = '';
-    closeCreateStoryModal(); // Close modal
+
+    // Close modal after adding story
+    closeCreateStoryModal();
 }
 
-// Show story function
+// Show Story in Viewer
 function showStory(index) {
     if (index < 0 || index >= storyQueue.length) {
-        storyViewer.classList.remove('active');
-        clearTimeout(progressTimeout);
+        closeStoryViewer();
         return;
     }
 
     const story = storyQueue[index];
-    storyViewerContent.innerHTML = ''; // Clear the content
+    storyViewerContent.innerHTML = '';
     storyViewerTitle.textContent = story.title;
 
+    // Create close button
     const closeButton = document.createElement('button');
     closeButton.textContent = 'Close';
     closeButton.classList.add('close-button');
-    closeButton.addEventListener('click', () => {
-        const video = storyViewerContent.querySelector('video');
-        if (video) {
-            video.pause();
-            video.currentTime = 0;
-        }
-        storyViewer.classList.remove('active');
-        clearTimeout(progressTimeout);
-    });
+    closeButton.addEventListener('click', closeStoryViewer);
     storyViewerContent.appendChild(closeButton);
 
     if (story.type === 'image') {
         const img = document.createElement('img');
         img.src = story.src;
         storyViewerContent.appendChild(img);
-        updateProgressBar(5000, () => showStory(index + 1)); // 5 seconds for image
+        updateProgressBar(5000, () => showStory(index + 1));
     } else if (story.type === 'video') {
         const video = document.createElement('video');
         video.src = story.src;
         video.autoplay = true;
-        video.muted = false;
+        video.controls = false;
+        video.muted = false; // Ensure video has sound
         storyViewerContent.appendChild(video);
 
         video.onloadedmetadata = () => {
-            updateProgressBar(15000, () => { // 15 seconds for video
+            updateProgressBar(video.duration * 1000 || 15000, () => {
                 video.pause();
-                video.currentTime = 0;
                 showStory(index + 1);
             });
-        };
-
-        video.onerror = (error) => {
-            console.error('Error loading video:', error);
         };
     }
 
     storyViewer.classList.add('active');
 }
 
-// Progress bar update
+// Close Story Viewer
+function closeStoryViewer() {
+    clearTimeout(progressTimeout);
+    storyViewer.classList.remove('active');
+    storyViewerContent.innerHTML = '';
+}
+
+// Update Progress Bar
 function updateProgressBar(duration, callback) {
-    let startTime = Date.now();
-    function update() {
-        let elapsed = Date.now() - startTime;
-        let progress = Math.min((elapsed / duration) * 100, 100);
-        progressBar.style.width = progress + '%';
-        if (elapsed >= duration) {
-            clearTimeout(progressTimeout);
-            callback();
-        }
-    }
-    progressTimeout = setInterval(update, 50);
+    if (!progressBar) return;
+
+    progressBar.style.width = '0%';
+    progressBar.style.transition = 'none';
+
+    requestAnimationFrame(() => {
+        progressBar.style.transition = `width ${duration}ms linear`;
+        progressBar.style.width = '100%';
+
+        progressTimeout = setTimeout(callback, duration);
+    });
 }
