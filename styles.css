@@ -345,6 +345,7 @@ header, footer {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Glow effect for active cropping */
 }
 
+/*story number indicators */
 #story-indicators {
     display: flex;
     justify-content: center;
@@ -368,4 +369,44 @@ header, footer {
 
 .story-indicator.inactive {
     background-color: #ccc; /* Color for inactive bars */
+}
+
+
+/* story navigation prev and next */
+
+/* Container for story viewer */
+.story-viewer-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+/* Style for navigation buttons */
+.navigation-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    padding: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    z-index: 2; /* Ensure buttons appear above the story */
+}
+
+/* Position the Previous button on the left */
+#previousButton {
+    left: 10px;
+}
+
+/* Position the Next button on the right */
+#nextButton {
+    right: 10px;
+}
+
+/* Hide the buttons by default */
+#previousButton, #nextButton {
+    display: none;
 }

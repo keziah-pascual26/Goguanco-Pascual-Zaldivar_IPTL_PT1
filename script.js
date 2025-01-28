@@ -153,7 +153,7 @@ function addStories() {
 // Show Story in Viewer function with different time limits for images and videos
 function showStory(index) {
     if (index < 0 || index >= storyQueue.length) {
-        closeStoryViewer();
+        closeStoryViewer();  // Close viewer if out of bounds
         return;
     }
 
@@ -173,7 +173,7 @@ function showStory(index) {
         const img = document.createElement('img');
         img.src = story.src;
         storyViewerContent.appendChild(img);
-        updateProgressBar(5000, () => showStory(index + 1)); // 5 seconds for image
+        updateProgressBar(5000, () => showStory(index + 1));  // 5 seconds for image
     } else if (story.type === 'video') {
         const video = document.createElement('video');
         video.src = story.src;
@@ -192,15 +192,13 @@ function showStory(index) {
     }
 
     createStoryIndicators();
-
-    // Update indicator
     currentStoryIndex = index;
     updateActiveIndicator();
     storyViewer.classList.add('active');
 
     // Show navigation buttons
-    document.getElementById('previousButton').style.display = 'block';
-    document.getElementById('nextButton').style.display = 'block';
+    document.getElementById('previousButton').style.display = index > 0 ? 'block' : 'none';  // Show Previous button if not on first story
+    document.getElementById('nextButton').style.display = index < storyQueue.length - 1 ? 'block' : 'none';  // Show Next button if not on last story
 }
 
 // Close Story Viewer
