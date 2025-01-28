@@ -149,9 +149,10 @@ function addStories() {
 
     // Close modal after adding story
     closeCreateStoryModal();
+    createStoryIndicators();
 }
 
-// Show Story in Viewer
+/// Show Story in Viewer
 function showStory(index) {
     if (index < 0 || index >= storyQueue.length) {
         closeStoryViewer();
@@ -169,11 +170,12 @@ function showStory(index) {
     closeButton.addEventListener('click', closeStoryViewer);
     storyViewerContent.appendChild(closeButton);
 
+    // Display story content (image or video)
     if (story.type === 'image') {
         const img = document.createElement('img');
         img.src = story.src;
         storyViewerContent.appendChild(img);
-        updateProgressBar(5000, () => showStory(index + 1));
+        updateProgressBar(5000, () => showStory(index + 1)); // 5 seconds for image
     } else if (story.type === 'video') {
         const video = document.createElement('video');
         video.src = story.src;
@@ -182,8 +184,7 @@ function showStory(index) {
         storyViewerContent.appendChild(video);
 
         video.onloadedmetadata = () => {
-            updateProgressBar(15000, () => {
-                // Stop video and its audio after 15 seconds
+            updateProgressBar(15000, () => {  // 15 seconds for video
                 video.pause();
                 video.currentTime = 0; // Reset video to the beginning
                 showStory(index + 1);
@@ -191,7 +192,14 @@ function showStory(index) {
         };
     }
 
+    // Update indicator
+    currentStoryIndex = index;
+    updateActiveIndicator();
     storyViewer.classList.add('active');
+
+    // Show navigation buttons
+    document.getElementById('previousButton').style.display = 'block';
+    document.getElementById('nextButton').style.display = 'block';
 }
 
 // Close Story Viewer
@@ -215,3 +223,42 @@ function updateProgressBar(duration, callback) {
         progressTimeout = setTimeout(callback, duration);
     });
 }
+
+// Story number indicators
+
+let stories = [];  // Your stories data array
+
+// Create Story Indicators based on the number of stories
+function createStoryIndicators() {
+    const indicatorsContainer = document.getElementById('story-indicators');
+    indicatorsContainer.innerHTML = '';  // Clear existing indicators
+    
+    // Ensure there are stories to display
+    if (storyQueue.length === 0) return;
+
+    // Create an indicator for each story in the queue
+    storyQueue.forEach((story, index) => {
+        const indicator = document.createElement('div');
+        indicator.classList.add('story-indicator');
+        indicator.classList.add(index === 0 ? 'active' : 'inactive'); // First story is active by default
+        indicatorsContainer.appendChild(indicator);
+    });
+}
+
+/// Update active indicator when the story changes
+function updateActiveIndicator() {
+    const indicators = document.querySelectorAll('.story-indicator');
+    if (indicators.length === 0) return; // Exit if no indicators exist
+
+    indicators.forEach((indicator, index) => {
+        if (index === currentStoryIndex) {
+            indicator.classList.remove('inactive');
+            indicator.classList.add('active');
+        } else {
+            indicator.classList.remove('active');
+            indicator.classList.add('inactive');
+        }
+    });
+}
+
+

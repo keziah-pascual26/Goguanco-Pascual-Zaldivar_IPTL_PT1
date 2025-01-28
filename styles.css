@@ -345,4 +345,26 @@ header, footer {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Glow effect for active cropping */
 }
 
+.story-indicators-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.story-indicator {
+    width: 10px;
+    height: 10px;
+    margin: 0 5px;
+    border-radius: 50%;
+    background-color: #ccc;
+    transition: background-color 0.3s ease;
+}
+
+.story-indicator.active {
+    background-color: #4caf50; /* Active indicator color */
+}
+
+.story-indicator.inactive {
+    background-color: #bbb; /* Inactive indicator color */
+}
 
