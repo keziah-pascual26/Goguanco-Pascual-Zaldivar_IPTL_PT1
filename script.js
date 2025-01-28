@@ -145,12 +145,12 @@ function addStories() {
     mediaInput.value = '';
 
     createStoryIndicators();
-    
+
     // Close modal after adding story
     closeCreateStoryModal();
 }
 
-// Show Story in Viewer with updated indicators
+// Show Story in Viewer function with different time limits for images and videos
 function showStory(index) {
     if (index < 0 || index >= storyQueue.length) {
         closeStoryViewer();
@@ -168,11 +168,12 @@ function showStory(index) {
     closeButton.addEventListener('click', closeStoryViewer);
     storyViewerContent.appendChild(closeButton);
 
+    // Display story content (image or video)
     if (story.type === 'image') {
         const img = document.createElement('img');
         img.src = story.src;
         storyViewerContent.appendChild(img);
-        updateProgressBar(5000, () => showStory(index + 1)); // 5 seconds per image
+        updateProgressBar(5000, () => showStory(index + 1)); // 5 seconds for image
     } else if (story.type === 'video') {
         const video = document.createElement('video');
         video.src = story.src;
@@ -180,6 +181,7 @@ function showStory(index) {
         video.muted = false; // Ensure video has sound
         storyViewerContent.appendChild(video);
 
+        // Ensure video plays for 15 seconds before switching story
         video.onloadedmetadata = () => {
             updateProgressBar(15000, () => {  // 15 seconds for video
                 video.pause();
@@ -189,10 +191,16 @@ function showStory(index) {
         };
     }
 
+    createStoryIndicators();
+
     // Update indicator
     currentStoryIndex = index;
-    updateActiveIndicator();  // Update indicator position
+    updateActiveIndicator();
     storyViewer.classList.add('active');
+
+    // Show navigation buttons
+    document.getElementById('previousButton').style.display = 'block';
+    document.getElementById('nextButton').style.display = 'block';
 }
 
 // Close Story Viewer
@@ -202,21 +210,22 @@ function closeStoryViewer() {
     storyViewerContent.innerHTML = '';
 }
 
-// Update Progress Bar
+// Update Progress Bar function with dynamic time duration
 function updateProgressBar(duration, callback) {
     if (!progressBar) return;
 
     progressBar.style.width = '0%';
-    progressBar.style.transition = 'none';
+    progressBar.style.transition = 'none';  // Disable transition initially for smooth transition
 
-    requestAnimationFrame(() => {
+    // Set the transition for the width of the progress bar
+    setTimeout(() => {
         progressBar.style.transition = `width ${duration}ms linear`;
         progressBar.style.width = '100%';
+    }, 0); // Ensuring transition happens immediately after setup
 
-        progressTimeout = setTimeout(callback, duration);
-    });
+    // After the specified duration, call the callback to switch to the next story
+    progressTimeout = setTimeout(callback, duration);
 }
-
 // Story number indicators
 
 let stories = [];  // Your stories data array
