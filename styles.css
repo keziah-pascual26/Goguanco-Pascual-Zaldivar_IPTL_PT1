@@ -3,7 +3,7 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-     background-color: #f5efd4;
+    background-color: #f5efd4;
 }
 
 header, footer {
@@ -43,7 +43,6 @@ header, footer {
     gap: 15px;
     flex-wrap: wrap; /* Allows wrapping on smaller screens */
 }
-
 
 .user-info {
     display: flex;
@@ -116,25 +115,37 @@ header, footer {
 }
 
 /* story */
-
 .stories-container {
     padding: 20px;
     background-color: #fff;
     margin: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     text-align: center;
+    display: flex;
+    flex-wrap: wrap; /* Allows stories to wrap to the next row */
+    gap: 15px; /* Spacing between stories */
+}
+
+/* Smiski Stories heading container */
+.stories-header {
+    width: 100%;
+    text-align: center; /* Center align the text */
+    margin-bottom: 20px; /* Add some space below the header */
 }
 
 /* Updated .story */
 .story {
-    width: 120px;
+    width: 120px; /* Adjust width as needed */
     height: 213px; /* Adjusted for 9:16 aspect ratio */
-    margin-right: 10px;
-    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #ddd; /* Optional border for better visuals */
+    border-radius: 8px;
     overflow: hidden;
-    position: relative;
+    background-color: #f9f9f9; /* Optional background color */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional shadow for depth */
     cursor: pointer;
-    background-color: #a6a6a6;
 }
 
 /* Centering the "+" symbol inside .add-story */
@@ -198,7 +209,6 @@ header, footer {
     margin: 10px 0;
 }
 
-
 /* Story Viewer Styling */
 .story-viewer {
     display: none;
@@ -253,8 +263,6 @@ header, footer {
 .close-button:hover {
     background-color: darkred;
 }
-
-
 
 /* Progress Bar Styling */
 .progress-bar {

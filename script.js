@@ -115,13 +115,14 @@ function showStory(index) {
         const video = document.createElement('video');
         video.src = story.src;
         video.autoplay = true;
-        video.controls = false;
         video.muted = false; // Ensure video has sound
         storyViewerContent.appendChild(video);
 
         video.onloadedmetadata = () => {
-            updateProgressBar(video.duration * 1000 || 15000, () => {
+            updateProgressBar(15000, () => {
+                // Stop video and its audio after 15 seconds
                 video.pause();
+                video.currentTime = 0; // Reset video to the beginning
                 showStory(index + 1);
             });
         };
