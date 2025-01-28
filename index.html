@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Social Media Platform</title>
+    <title>The Smiski Shelf</title>
     <link rel="stylesheet" href="styles.css">
     <script src="script.js" defer></script>
 </head>
@@ -11,26 +11,53 @@
 
     <!-- Header-->
     <header class="header">
-        <div class="logo">
-            <h1>My Social</h1>
+        <div class="logo-container">
+            <img src="logo.png" alt="Logo" class="logo-image">
+            <h1 class="logo-text">The Smiski Shelf</h1>
         </div>
         <nav class="nav">
-            <a href="#">Home</a>
-            <a href="#">Messages</a>
-            <a href="#">Profile</a>
+            <div class="user-info">
+                <span class="greeting">Hello, User!</span>
+                <img src="user-profile.png" alt="User" class="user-image">
+            </div>
         </nav>
     </header>
 
-    <!-- Main Content-->
+    <!-- Banner -->
+    <div class="banner">
+        <div class="text">
+            <h1>The Smiski Shelf</h1>
+            <p>Where Every Smiski Has a Story</p>
+            <button id="createStoryButton">Create your Smiski Story</button>
+        </div>
+        <img src="banner-pic.png" alt="Smiski" class="image" />
+    </div>
+
+
+    <!-- create story 
     <div class="upload-container">
-        <h2>Create a Story</h2>
+        <h2>Smiski Stories</h2>
         <input type="file" id="mediaInput" accept="image/*, video/*" multiple>
         <input type="text" id="storyTitle" placeholder="Enter story title">
         <button onclick="addStories()">Post Stories</button>
     </div>
+    -->
 
+    <!-- + function 
     <div class="stories-container" id="storiesContainer">
+        <h2>Smiski Stories</h2>
         <div class="story add-story" onclick="document.getElementById('mediaInput').click()">
+            +
+        </div>
+    </div>
+
+    -->
+
+    <!-- Smiski Stories Section -->
+    <div class="stories-container" id="storiesContainer">
+        <h2>Smiski Stories</h2>
+        <div class="story add-story" onclick="document.getElementById('createStoryModal').classList.add('active'); document.getElementById('overlay').classList.add('active');">
+
             +
         </div>
     </div>
@@ -43,9 +70,24 @@
         </div>
     </div>
 
+    <!-- Create Story Modal -->
+    <div id="createStoryModal" class="create-story-modal">
+        <div class="modal-content">
+            <h2>Create Your Smiski Story</h2>
+            <input type="file" id="mediaInput" accept="image/*, video/*" multiple>
+            <input type="text" id="storyTitle" placeholder="Enter story title">
+            <button onclick="addStories()">Post Story</button>
+            <button onclick="closeCreateStoryModal()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Overlay for dimming the background when Create Story Modal is opened -->
+    <div id="overlay" class="overlay"></div>
+    
+
     <!-- Footer -->
     <footer class="footer">
-        <p>&copy; 2025 My Social Platform</p>
+        <p>&copy; 2025 The Smiski Shelf</p>
     </footer>
 </body>
 </html>
