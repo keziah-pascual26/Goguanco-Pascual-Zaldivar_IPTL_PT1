@@ -81,7 +81,7 @@
             <input type="text" id="storyTitle" placeholder="Enter story title">
             
             <!-- Image Editing Section -->
-            <div id="imageEditor">
+            <div id="imageEditor" style="display: none;">
                 <h3>Edit Image</h3>
                 <div>
                     <button onclick="rotateImage()">Rotate</button>
@@ -94,7 +94,7 @@
             </div>
 
             <!-- Video Editing Section -->
-            <div id="videoEditor">
+            <div id="videoEditor" style="display: none;">
                 <h3>Edit Video</h3>
                 <div>
                     <button onclick="trimVideo()">Trim Video</button>
@@ -108,7 +108,6 @@
             <button onclick="closeCreateStoryModal()">Cancel</button>
         </div>
     </div>
-
 
     <!-- Overlay for dimming the background when Create Story Modal is opened -->
     <div id="overlay" class="overlay"></div>

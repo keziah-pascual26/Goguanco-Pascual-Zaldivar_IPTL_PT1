@@ -12,6 +12,68 @@ let storyQueue = [];
 let currentStoryIndex = 0;
 let progressTimeout;
 
+function handleMediaUpload(event) {
+    const file = event.target.files[0]; // Get the uploaded file
+    const imageEditor = document.getElementById('imageEditor');
+    const videoEditor = document.getElementById('videoEditor');
+    const imagePreview = document.getElementById('imagePreview');
+    const videoPreview = document.getElementById('videoPreview');
+    const videoSource = document.getElementById('videoSource');
+    
+    // Hide both editors initially
+    imageEditor.style.display = 'none';
+    videoEditor.style.display = 'none';
+
+    if (file) {
+        const fileType = file.type;
+        
+        // Check if the uploaded file is an image
+        if (fileType.startsWith('image/')) {
+            imageEditor.style.display = 'block'; // Show the image editor
+            const reader = new FileReader();
+            reader.onload = function() {
+                imagePreview.src = reader.result; // Set image preview source
+            }
+            reader.readAsDataURL(file);
+        } 
+        // Check if the uploaded file is a video
+        else if (fileType.startsWith('video/')) {
+            videoEditor.style.display = 'block'; // Show the video editor
+            const reader = new FileReader();
+            reader.onload = function() {
+                videoSource.src = reader.result; // Set video preview source
+                videoPreview.load(); // Reload the video element to display the preview
+            }
+            reader.readAsDataURL(file);
+        }
+    }
+}
+
+// Placeholder functions for image/video actions (to be implemented later)
+function rotateImage() {
+    console.log('Rotate image');
+}
+
+function cropImage() {
+    console.log('Crop image');
+}
+
+function resizeImage() {
+    console.log('Resize image');
+}
+
+function trimVideo() {
+    console.log('Trim video');
+}
+
+function addStories() {
+    console.log('Post story');
+}
+
+function closeCreateStoryModal() {
+    document.getElementById('createStoryModal').style.display = 'none';
+}
+
 
 // Open Create Story Modal
 function openCreateStoryModal() {
