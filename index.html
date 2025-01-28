@@ -75,12 +75,40 @@
     <div id="createStoryModal" class="create-story-modal">
         <div class="modal-content">
             <h2>Create Your Smiski Story</h2>
-            <input type="file" id="mediaInput" accept="image/*, video/*" multiple>
+            
+            <!-- Image and Video Input -->
+            <input type="file" id="mediaInput" accept="image/*, video/*" multiple onchange="handleMediaUpload(event)">
             <input type="text" id="storyTitle" placeholder="Enter story title">
+            
+            <!-- Image Editing Section -->
+            <div id="imageEditor">
+                <h3>Edit Image</h3>
+                <div>
+                    <button onclick="rotateImage()">Rotate</button>
+                    <button onclick="cropImage()">Crop</button>
+                    <button onclick="resizeImage()">Resize</button>
+                </div>
+                <div id="cropper-container">
+                    <img id="imagePreview" src="" alt="Image Preview">
+                </div>
+            </div>
+
+            <!-- Video Editing Section -->
+            <div id="videoEditor">
+                <h3>Edit Video</h3>
+                <div>
+                    <button onclick="trimVideo()">Trim Video</button>
+                </div>
+                <video id="videoPreview" controls>
+                    <source id="videoSource" src="" type="video/mp4">
+                </video>
+            </div>
+            
             <button onclick="addStories()">Post Story</button>
             <button onclick="closeCreateStoryModal()">Cancel</button>
         </div>
     </div>
+
 
     <!-- Overlay for dimming the background when Create Story Modal is opened -->
     <div id="overlay" class="overlay"></div>

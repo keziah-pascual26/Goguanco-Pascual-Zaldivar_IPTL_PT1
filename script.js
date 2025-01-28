@@ -12,6 +12,7 @@ let storyQueue = [];
 let currentStoryIndex = 0;
 let progressTimeout;
 
+
 // Open Create Story Modal
 function openCreateStoryModal() {
     createStoryModal.style.display = 'block';

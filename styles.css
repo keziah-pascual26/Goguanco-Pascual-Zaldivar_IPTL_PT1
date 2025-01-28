@@ -290,3 +290,59 @@ header, footer {
     color: #729c2f;
     padding: 10px 0;
 }
+
+/* Cropper Container - To display the cropping tool */
+#cropper-container {
+    width: 100%;
+    max-width: 500px;
+    margin: 20px auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px dashed #729c2f; /* A dashed border to indicate the cropping area */
+    padding: 10px;
+    position: relative;
+}
+
+/* Preview container for cropped image */
+.preview-container {
+    width: 150px; /* Size of the preview box */
+    height: 150px;
+    overflow: hidden;
+    border: 1px solid #ddd; /* Optional border for the preview box */
+    margin-top: 10px;
+}
+
+/* Style for the image inside the cropping container */
+#cropper-container img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px; /* Rounded corners for cropped images */
+}
+
+/* Progress bar added for trimming or loading effects (if any) */
+.progress-bar {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    height: 5px;
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress {
+    height: 100%;
+    background-color: #1877f2;
+    width: 0%; /* Progress width will change dynamically during trimming */
+    transition: width linear;
+}
+
+/* Optional Styling for when cropping is active */
+.cropper-active {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Glow effect for active cropping */
+}
+
+
