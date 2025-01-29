@@ -99,6 +99,10 @@ header, footer {
   background: #feeb29;
 }
 
+button img {
+    pointer-events: none; /* Ensure the image doesn't block clicks */
+}
+
 .image {
   width: 150px;
   height: auto;
