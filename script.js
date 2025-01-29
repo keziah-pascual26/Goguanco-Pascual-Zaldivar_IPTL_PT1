@@ -306,13 +306,12 @@ function showStory(index) {
 
     // Create a wrapper to enforce the 9:16 aspect ratio
     const storyContainer = document.createElement('div');
-    storyContainer.classList.add('story-container'); 
+    storyContainer.classList.add('story-container');
 
     if (story.type === 'image') {
         const img = document.createElement('img');
         img.src = story.src;
-        img.style.transform = `rotate(${story.rotation}deg) scale(${story.resizeFactor})`;  
-        img.classList.add('story-media'); // Apply aspect ratio constraints
+        img.classList.add('story-media'); // Ensures full width
         storyContainer.appendChild(img);
         updateProgressBar(5000, () => showStory(index + 1));
     } else if (story.type === 'video') {
@@ -320,13 +319,14 @@ function showStory(index) {
         video.src = story.src;
         video.autoplay = true;
         video.muted = false;
-        video.classList.add('story-media'); // Apply aspect ratio constraints
+        video.playsInline = true;
+        video.classList.add('story-media'); // Ensures full width
         storyContainer.appendChild(video);
 
         video.onloadedmetadata = () => {
             updateProgressBar(15000, () => {
                 video.pause();
-                video.currentTime = 0; 
+                video.currentTime = 0;
                 showStory(index + 1);
             });
         };
@@ -336,6 +336,7 @@ function showStory(index) {
     storyViewerContent.appendChild(storyContainer);
     storyViewer.classList.add('active');
 }
+
 
 
 

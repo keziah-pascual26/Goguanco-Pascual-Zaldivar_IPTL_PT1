@@ -415,9 +415,9 @@ header, footer {
 
 .story-container {
     position: relative;
-    width: 100vw; /* Full screen width */
-    max-width: 360px; /* Prevent excessive width on large screens */
-    aspect-ratio: 9 / 16; /* Enforce 9:16 ratio */
+    width: 100vw;  /* Full viewport width */
+    max-width: 360px; /* Limit max width to a typical phone width */
+    aspect-ratio: 9 / 16; /* Maintain 9:16 ratio */
     overflow: hidden;
     background-color: black;
     display: flex;
@@ -426,11 +426,11 @@ header, footer {
 }
 
 .story-media {
-    width: 100%; /* Make it occupy the full width */
-    height: 100%; /* Keep height proportional */
-    object-fit: cover; /* Ensure it fills the container */
-    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensures media fills the container */
 }
+
 
 
 
