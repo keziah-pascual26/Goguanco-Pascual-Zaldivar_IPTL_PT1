@@ -210,21 +210,37 @@ function showStory(index) {
         const img = document.createElement('img');
         img.src = story.src;
         mediaElement = img;
+        storyViewerContent.appendChild(img);
+        updateProgressBar(5000, () => showStory(index + 1)); // Image duration set to 5 seconds
     } else if (story.type === 'video') {
         const video = document.createElement('video');
         video.src = story.src;
         video.autoplay = true;
+        video.muted = false;
         video.controls = false;
         mediaElement = video;
 
-        // Update the progress bar based on the video's time
-        video.addEventListener('timeupdate', function () {
-            const progress = (video.currentTime / video.duration) * 100;
-            updateProgressBar(progress);
-        });
-    }
+        storyViewerContent.appendChild(video);
 
-    storyViewerContent.appendChild(mediaElement);
+        video.onloadedmetadata = () => {
+            video.play();
+            const playDuration = Math.min(15000, video.duration * 1000); // Limit video duration to 15 seconds or the video's natural duration
+            updateProgressBar(playDuration, () => {
+                video.pause();
+                video.currentTime = 0;
+                showStory(index + 1);
+            });
+        };
+
+        // Ensure the video will be stopped after 15 seconds
+        setTimeout(() => {
+            if (!video.paused) {
+                video.pause();
+                video.currentTime = 0;
+                showStory(index + 1);
+            }
+        }, 15000); // 15 seconds limit for the video
+    }
 
     // Initialize the reaction counts for this story if not already set
     if (!reactionCounts[index]) {
@@ -255,6 +271,14 @@ function showStory(index) {
         progressBarContainer.appendChild(progressBar);
         storyViewerContent.appendChild(progressBarContainer);
     }
+
+    document.getElementById('previousButton').addEventListener('click', () => {
+        showStory(currentStoryIndex - 1); // Go to previous story
+    });
+
+    document.getElementById('nextButton').addEventListener('click', () => {
+        showStory(currentStoryIndex + 1); // Go to next story
+    });
 }
 
 
