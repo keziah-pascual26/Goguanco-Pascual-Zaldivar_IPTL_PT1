@@ -425,11 +425,69 @@ header, footer {
     justify-content: center;
 }
 
-.story-media {
-    max-width: 100%;  /* Ensure the video doesn't overflow */
-    height: auto;     /* Maintain aspect ratio */
-    object-fit: cover; /* Optional, you can experiment with "contain" for better fitting */
+.story-container img{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 360px;
+    height: 100%;
 }
+
+#editorSection {
+    padding: 20px;
+    background-color: #f7f7f7;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 900px;
+    margin: 20px auto;
+    display: none;
+}
+
+#imageEditor, #videoEditor {
+    margin-bottom: 20px;
+}
+
+#imageEditor h3, #videoEditor h3 {
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 15px;
+}
+
+.image-resize-controls {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.image-resize-controls span {
+    align-self: center;
+    font-size: 16px;
+}
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+#cropper-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+
+
 
 
 

@@ -113,7 +113,13 @@
                     <div>
                         <button onclick="rotateImage()">Rotate</button>
                         <button onclick="cropImage()">Crop</button>
-                        <button onclick="resizeImage()">Resize</button>
+                        <!-- Image Resizing Section -->
+                        <div class="image-resize-controls">
+                            <span>Resize:</span>
+                            <button id="minimizeButton" onclick="minimizeImage()">-</button>
+                            <button id="maximizeButton" onclick="maximizeImage()">+</button>
+                        </div>
+
                     </div>
                     <div id="cropper-container">
                         <img id="imagePreview" src="" alt="Image Preview">

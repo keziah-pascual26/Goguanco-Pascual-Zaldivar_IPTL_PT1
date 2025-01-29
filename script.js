@@ -135,6 +135,7 @@ function showPreview(file) {
 const MAX_RESIZE = 2; // 200% size
 const MIN_RESIZE = 0.5; // 50% size
 
+// Resize function to resize the image
 function resizeImage() {
     console.log('Resize image');
     
@@ -151,6 +152,31 @@ function resizeImage() {
         console.log('No image found or image is hidden.');
     }
 }
+
+// Minimize Image (Reduce size)
+function minimizeImage() {
+    const img = document.getElementById('imagePreview');
+    
+    if (img && img.style.display !== 'none') {
+        // Decrease resizeFactor and apply scaling transformation
+        resizeFactor = Math.max(resizeFactor - 0.1, MIN_RESIZE);
+        img.style.transition = 'transform 0.3s';  // Smooth transition
+        img.style.transform = `scale(${resizeFactor})`;
+    }
+}
+
+// Maximize Image (Increase size)
+function maximizeImage() {
+    const img = document.getElementById('imagePreview');
+    
+    if (img && img.style.display !== 'none') {
+        // Increase resizeFactor and apply scaling transformation
+        resizeFactor = Math.min(resizeFactor + 0.1, MAX_RESIZE);
+        img.style.transition = 'transform 0.3s';  // Smooth transition
+        img.style.transform = `scale(${resizeFactor})`;
+    }
+}
+
 
 
 function trimVideo() {
@@ -286,6 +312,7 @@ function addStories() {
 }
 
 
+
 // Show Story in Viewer
 function showStory(index) {
     if (index < 0 || index >= storyQueue.length) {
@@ -311,7 +338,10 @@ function showStory(index) {
     if (story.type === 'image') {
         const img = document.createElement('img');
         img.src = story.src;
-        img.classList.add('story-media'); // Ensures full width
+
+        // Apply rotation and resize factor stored in story data
+        img.style.transform = `rotate(${story.rotation}deg) scale(${story.resizeFactor})`;
+
         storyContainer.appendChild(img);
         updateProgressBar(5000, () => showStory(index + 1));
     } else if (story.type === 'video') {
@@ -320,7 +350,7 @@ function showStory(index) {
         video.autoplay = true;
         video.muted = false;
         video.playsInline = true;
-        video.style.width = '100%';  // Set the width to be responsive (or any fixed size you want)
+        video.style.width = '100%';  // Set the width to be responsive
         video.style.height = 'auto';
         storyContainer.appendChild(video);
 
@@ -337,6 +367,7 @@ function showStory(index) {
     storyViewerContent.appendChild(storyContainer);
     storyViewer.classList.add('active');
 }
+
 
 
 
