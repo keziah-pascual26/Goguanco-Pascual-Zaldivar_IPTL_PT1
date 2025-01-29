@@ -9,7 +9,7 @@
 </head>
 <body>
 
-    <!-- Header-->
+    <!-- Header -->
     <header class="header">
         <div class="logo-container">
             <img src="logo.png" alt="Logo" class="logo-image">
@@ -33,26 +33,6 @@
         <img src="banner-pic.png" alt="Smiski" class="image" />
     </div>
 
-
-    <!-- create story 
-    <div class="upload-container">
-        <h2>Smiski Stories</h2>
-        <input type="file" id="mediaInput" accept="image/*, video/*" multiple>
-        <input type="text" id="storyTitle" placeholder="Enter story title">
-        <button onclick="addStories()">Post Stories</button>
-    </div>
-    -->
-
-    <!-- + function 
-    <div class="stories-container" id="storiesContainer">
-        <h2>Smiski Stories</h2>
-        <div class="story add-story" onclick="document.getElementById('mediaInput').click()">
-            +
-        </div>
-    </div>
-
-    -->
-
     <!-- Smiski Stories Section -->
     <div class="stories-container" id="storiesContainer">
         <div class="stories-header">
@@ -63,11 +43,34 @@
         </div>
     </div>
 
+    <!-- Story Viewer -->
     <div class="story-viewer" id="storyViewer">
         <div class="story-viewer-title" id="storyViewerTitle"></div>
+        <button id="previousButton" class="navigation-button">Previous</button>
         <div class="story-viewer-content" id="storyViewerContent"></div>
+        <button id="nextButton" class="navigation-button">Next</button>
+        <div id="story-indicators"></div>
         <div class="progress-bar">
             <div class="progress" id="progressBar"></div>
+        </div>
+
+        <!-- Story Reactions Panel (Initially Hidden) -->
+        <div class="reaction-panel" id="reactionPanel">
+            <div class="reactions">
+                <button class="reaction" data-reaction="like">Like</button>
+                <button class="reaction" data-reaction="love">Love</button>
+                <button class="reaction" data-reaction="haha">Haha</button>
+                <button class="reaction" data-reaction="sad">Sad</button>
+                <button class="reaction" data-reaction="angry">Angry</button>
+                <button id="moreReactionsButton">More</button>
+                <div id="reactionCounts" style="display: none;">
+                    <p>Like: <span id="likeCount">0</span></p>
+                    <p>Love: <span id="loveCount">0</span></p>
+                    <p>Haha: <span id="hahaCount">0</span></p>
+                    <p>Sad: <span id="sadCount">0</span></p>
+                    <p>Angry: <span id="angryCount">0</span></p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -145,11 +148,8 @@
 
     <!-- Overlay for dimming the background when Create Story Modal is opened -->
     <div id="overlay" class="overlay"></div>
-    
 
     <!-- Footer -->
     <footer class="footer">
         <p>&copy; 2025 The Smiski Shelf</p>
     </footer>
-</body>
-</html>
