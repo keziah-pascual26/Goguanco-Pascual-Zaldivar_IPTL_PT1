@@ -25,50 +25,47 @@ function handleMediaUpload(event) {
     const videoPreview = document.getElementById('videoPreview');
     const videoSource = document.getElementById('videoSource');
     const previewContainer = document.getElementById('previewContainer');
-    const editorSection = document.getElementById('editorSection');
     
-    // Hide both editors and preview initially
+    // Hide both editors initially
     imageEditor.style.display = 'none';
     videoEditor.style.display = 'none';
+
+    // Hide preview initially
     imagePreview.style.display = 'none';
     videoPreview.style.display = 'none';
-    editorSection.style.display = 'none';
-    
-    // Clear any previous content from the preview
-    imagePreview.src = '';
-    videoSource.src = '';
 
-    // Check if a file is selected
+    // Hide editor section initially
+    document.getElementById('editorSection').style.display = 'none';
+
     if (file) {
         const fileType = file.type;
-
-        // Show the appropriate editor and preview based on the file type
+        
+        // Show the appropriate editor and preview based on file type
         if (fileType.startsWith('image/')) {
             imageEditor.style.display = 'block'; 
             const reader = new FileReader();
             reader.onload = function() {
+                // Set the image preview source and display it
                 imagePreview.src = reader.result;
                 imagePreview.style.display = 'block';  // Show image preview
-                previewContainer.style.display = 'block';  // Show the preview container
             }
             reader.readAsDataURL(file);
         } else if (fileType.startsWith('video/')) {
             videoEditor.style.display = 'block'; 
             const reader = new FileReader();
             reader.onload = function() {
+                // Set the video preview source and display it
                 videoSource.src = reader.result;
                 videoPreview.style.display = 'block';  // Show video preview
                 videoPreview.load();  // Ensure the video is ready to play
-                previewContainer.style.display = 'block';  // Show the preview container
             }
             reader.readAsDataURL(file);
         }
-
-        // Show the editor section once a media is selected
-        editorSection.style.display = 'block';
     }
-}
 
+    // Show the preview container once the media is selected
+    previewContainer.style.display = 'block';
+}
 
 // Function to show the editor section when "Edit" button is clicked
 function editStory() {
@@ -124,12 +121,10 @@ function showPreview(file) {
 
     // Check if the file is an image or video and show accordingly
     if (file.type.startsWith('image')) {
-        // Set the image preview source and display it
         imagePreview.src = URL.createObjectURL(file);
         imagePreview.style.display = 'block';
         previewContainer.style.display = 'block';  // Show the preview container
     } else if (file.type.startsWith('video')) {
-        // Set the video preview source and display it
         videoSource.src = URL.createObjectURL(file);
         videoPreview.style.display = 'block';
         previewContainer.style.display = 'block';  // Show the preview container
@@ -253,40 +248,6 @@ createStoryButton.addEventListener('click', openCreateStoryModal);
 // Close modal when overlay is clicked
 overlay.addEventListener('click', closeCreateStoryModal);
 
-// Handle Media Upload
-function handleMediaUpload(event) {
-    const file = event.target.files[0];
-    const imageEditor = document.getElementById('imageEditor');
-    const videoEditor = document.getElementById('videoEditor');
-    const imagePreview = document.getElementById('imagePreview');
-    const videoPreview = document.getElementById('videoPreview');
-    const videoSource = document.getElementById('videoSource');
-    
-    imageEditor.style.display = 'none';
-    videoEditor.style.display = 'none';
-
-    if (file) {
-        const fileType = file.type;
-        
-        if (fileType.startsWith('image/')) {
-            imageEditor.style.display = 'block';
-            const reader = new FileReader();
-            reader.onload = function() {
-                imagePreview.src = reader.result;
-            }
-            reader.readAsDataURL(file);
-        } else if (fileType.startsWith('video/')) {
-            videoEditor.style.display = 'block';
-            const reader = new FileReader();
-            reader.onload = function() {
-                videoSource.src = reader.result;
-                videoPreview.load();
-            }
-            reader.readAsDataURL(file);
-        }
-    }
-}
-
 // Handle the reaction button click event
 document.querySelectorAll('.reaction').forEach(button => {
     button.addEventListener('click', function(event) {
@@ -380,6 +341,8 @@ function addStories() {
 
 
 // Show Story in Viewer
+
+
 // Reaction Button Click Handler
 document.getElementById('storyViewerContent').addEventListener('click', function(event) {
     // Check if the clicked element is a reaction button
