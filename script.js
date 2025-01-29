@@ -91,18 +91,22 @@ function editStory() {
 function rotateImage() {
     const imagePreview = document.getElementById('imagePreview');
     
-    // Increment the rotation angle by 90 degrees
+    if (!imagePreview) return;
+
+    // Increment rotation angle
     rotationAngle += 90;
-    
+    if (rotationAngle >= 360) rotationAngle = 0;  // Reset at full rotation
+
     // Apply the rotation to the image preview
-    imagePreview.style.transform = `rotate(${rotationAngle}deg)`;
-    imagePreview.style.transition = 'transform 0.5s';  // Add a smooth transition for the rotation
-    
-    // Update the current story data with the rotation angle
+    imagePreview.style.transform = `rotate(${rotationAngle}deg) scale(${resizeFactor})`;
+    imagePreview.style.transition = 'transform 0.5s';  
+
+    // Ensure the global data is updated correctly
     if (currentStoryData) {
         currentStoryData.rotationAngle = rotationAngle;
     }
 }
+
 
 function cropImage() {
     console.log('Crop image');
@@ -115,21 +119,25 @@ function showPreview(file) {
     const videoPreview = document.getElementById('videoPreview');
     const videoSource = document.getElementById('videoSource');
 
-    // Hide both image and video initially
+    // Reset previews
     imagePreview.style.display = 'none';
     videoPreview.style.display = 'none';
 
-    // Check if the file is an image or video and show accordingly
+    // Ensure preview container follows 9:16 ratio
+    previewContainer.style.display = 'block'; 
+    previewContainer.style.width = '300px'; // Adjust as needed
+    previewContainer.style.height = (300 * 16) / 9 + 'px'; // Maintain 9:16 ratio
+
     if (file.type.startsWith('image')) {
         imagePreview.src = URL.createObjectURL(file);
         imagePreview.style.display = 'block';
-        previewContainer.style.display = 'block';  // Show the preview container
     } else if (file.type.startsWith('video')) {
         videoSource.src = URL.createObjectURL(file);
+        videoPreview.load();
         videoPreview.style.display = 'block';
-        previewContainer.style.display = 'block';  // Show the preview container
     }
 }
+
 
 
 // Max and min resize limits
@@ -178,34 +186,8 @@ function maximizeImage() {
     }
 }
 
-
-
 function trimVideo() {
     console.log('Trim video');
-}
-
-function addStories() {
-    console.log('Post story');
-}
-
-// Close Create Story Modal and Reset Inputs
-function closeCreateStoryModal() {
-    // Hide the modal and overlay
-    document.getElementById('createStoryModal').style.display = 'none';
-    document.getElementById('overlay').style.display = 'none';
-    
-    // Reset all form fields
-    document.getElementById('storyTitle').value = '';  // Reset the text input
-    document.getElementById('mediaInput').value = '';  // Reset the file input for images/videos
-    document.getElementById('audioInput').value = '';  // Reset the file input for audio
-    
-    // Hide the preview and editor sections
-    document.getElementById('previewContainer').style.display = 'none';
-    document.getElementById('imagePreview').style.display = 'none';
-    document.getElementById('videoPreview').style.display = 'none';
-    document.getElementById('imageEditor').style.display = 'none';
-    document.getElementById('videoEditor').style.display = 'none';
-    document.getElementById('editorSection').style.display = 'none';
 }
 
 // Open Create Story Modal
@@ -220,19 +202,30 @@ function openCreateStoryModal() {
 
 // Function to reset modal inputs when opening the modal
 function resetModalInputs() {
-    // Reset all form fields
-    document.getElementById('storyTitle').value = '';  // Reset the text input
-    document.getElementById('mediaInput').value = '';  // Reset the file input for images/videos
-    document.getElementById('audioInput').value = '';  // Reset the file input for audio
-    
-    // Hide the preview and editor sections
+    document.getElementById('storyTitle').value = '';  
+    document.getElementById('mediaInput').value = '';  
+    document.getElementById('audioInput').value = '';  
+
     document.getElementById('previewContainer').style.display = 'none';
     document.getElementById('imagePreview').style.display = 'none';
     document.getElementById('videoPreview').style.display = 'none';
     document.getElementById('imageEditor').style.display = 'none';
     document.getElementById('videoEditor').style.display = 'none';
     document.getElementById('editorSection').style.display = 'none';
+    document.getElementById('rotateImage').style.display = 'none';
+
+    // Reset the rotation of the preview image
+    const imagePreview = document.getElementById('imagePreview');
+    if (imagePreview) {
+        imagePreview.style.transform = 'rotate(0deg) scale(1)'; // Reset rotation and scale
+    }
+
+    // **RESET rotation and scaling globally**
+    rotationAngle = 0;
+    resizeFactor = 1;
 }
+
+
 
 // Close Create Story Modal
 function closeCreateStoryModal() {
@@ -285,14 +278,13 @@ function addStories() {
     files.forEach((file, index) => {
         const storyElement = document.createElement('div');
         storyElement.classList.add('story');
-        storyElement.setAttribute('data-index', storyQueue.length);  // Set data-index as the story index in the queue
+        storyElement.setAttribute('data-index', storyQueue.length);  
 
         const url = URL.createObjectURL(file);
 
         if (file.type.startsWith('image/')) {
             const img = document.createElement('img');
             img.src = url;
-            // Apply the rotation and resizing to the image
             img.style.transform = `rotate(${rotationAngle}deg) scale(${resizeFactor})`; 
             storyElement.appendChild(img);
         } else if (file.type.startsWith('video/')) {
@@ -305,18 +297,16 @@ function addStories() {
             return;
         }
 
-        // Add story details to queue, including rotation angle and resize factor
+        // Add story details to queue
         const storyData = {
             src: url,
             type: file.type.startsWith('image/') ? 'image' : 'video',
             title: storyTitle,
             rotation: rotationAngle,
-            resizeFactor: resizeFactor  // Store the resize factor
+            resizeFactor: resizeFactor
         };
 
         storyQueue.push(storyData);
-
-        // Initialize reaction counts for each new story
         reactionCounts[storyQueue.length - 1] = { like: 0, love: 0, haha: 0, sad: 0, angry: 0 };
 
         // Attach click event to view the story
@@ -328,6 +318,16 @@ function addStories() {
         storiesContainer.appendChild(storyElement);
     });
 
+    // **RESET rotation and resize after posting**
+    rotationAngle = 0;
+    resizeFactor = 1;
+
+    // Reset preview image transformation
+    const previewImage = document.getElementById('imagePreview');
+    if (previewImage) {
+        previewImage.style.transform = 'rotate(0deg) scale(1)';
+    }
+
     // Reset form inputs
     storyTitleInput.value = '';
     mediaInput.value = '';
@@ -337,6 +337,8 @@ function addStories() {
     // Close modal after adding story
     closeCreateStoryModal();
 }
+
+
 
 
 
@@ -471,14 +473,6 @@ function showStory(index) {
         progressBarContainer.appendChild(progressBar);
         storyViewerContent.appendChild(progressBarContainer);
     }
-
-    document.getElementById('previousButton').addEventListener('click', () => {
-        showStory(currentStoryIndex - 1); // Go to previous story
-    });
-
-    document.getElementById('nextButton').addEventListener('click', () => {
-        showStory(currentStoryIndex + 1); // Go to next story
-    });
 }
 
 
@@ -540,18 +534,6 @@ function updateActiveIndicator() {
         }
     });
 }
-
-document.getElementById('previousButton').addEventListener('click', () => {
-    if (currentStoryIndex > 0) {
-        showStory(currentStoryIndex - 1); // Go to the previous story
-    }
-});
-
-document.getElementById('nextButton').addEventListener('click', () => {
-    if (currentStoryIndex < storyQueue.length - 1) {
-        showStory(currentStoryIndex + 1); // Go to the next story
-    }
-});
 
 // Toggle visibility of the reaction buttons
 function toggleReactions(visible) {
