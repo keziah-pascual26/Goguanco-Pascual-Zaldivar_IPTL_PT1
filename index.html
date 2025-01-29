@@ -93,6 +93,10 @@
                     <label for="audioInput">Add background music or voiceover</label>
                     <input type="file" id="audioInput" accept="audio/*">
                 </div>
+                <!-- Audio Player for Preview -->
+                <audio id="audioPreview" controls style="display:none;">
+                    Your browser does not support the audio element.
+                </audio>
             </div>
 
             <!-- Right Side Preview -->
@@ -132,6 +136,7 @@
                 <div id="videoEditor" style="display: none;">
                     <h3>Edit Video</h3>
                     <div>
+                        <button id="muteButton" onclick="toggleMute()">Mute</button>
                         <button onclick="trimVideo()">Trim Video</button>
                     </div>
                     <video id="videoPreview" controls>

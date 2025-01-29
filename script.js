@@ -261,7 +261,7 @@ document.querySelectorAll('.reaction').forEach(button => {
 });
 
 
-// Add Stories function - Modified to ensure correct indexing
+// Modified addStories function to include audio with image/video stories
 function addStories() {
     console.log('Post story');
     
@@ -282,6 +282,15 @@ function addStories() {
 
         const url = URL.createObjectURL(file);
 
+        let storyData = {
+            src: url,
+            type: file.type.startsWith('image/') ? 'image' : 'video',
+            title: storyTitle,
+            rotation: rotationAngle,
+            resizeFactor: resizeFactor,
+            audio: audioUrl  // Store the audio URL with the story data
+        };
+
         if (file.type.startsWith('image/')) {
             const img = document.createElement('img');
             img.src = url;
@@ -291,21 +300,28 @@ function addStories() {
             const video = document.createElement('video');
             video.src = url;
             video.controls = false;
+            // Set the video to the current mute state
+            video.muted = isMuted;
             storyElement.appendChild(video);
         } else {
             alert('Unsupported file type.');
             return;
         }
 
-        // Add story details to queue
-        const storyData = {
-            src: url,
-            type: file.type.startsWith('image/') ? 'image' : 'video',
-            title: storyTitle,
-            rotation: rotationAngle,
-            resizeFactor: resizeFactor
-        };
+        // Attach audio if available (audioUrl is set)
+        if (audioUrl) {
+            const audio = document.createElement('audio');
+            audio.src = audioUrl;
+            audio.controls = false;  // You can set controls as needed
+            audio.loop = true; // Optional: make it loop (or false to play once)
+            audio.pause(); // Ensure the audio is not playing automatically
+            storyElement.appendChild(audio);
 
+            // Store the audio element in the storyData for later use
+            storyData.audioElement = audio;
+        }
+
+        // Add story details to queue
         storyQueue.push(storyData);
         reactionCounts[storyQueue.length - 1] = { like: 0, love: 0, haha: 0, sad: 0, angry: 0 };
 
@@ -336,7 +352,33 @@ function addStories() {
 
     // Close modal after adding story
     closeCreateStoryModal();
+
+    // **Reset the audio attached and reset the audio URL**
+    audioUrl = null;  // Clear the audio URL
+    const audioPreview = document.querySelector('audio');
+    if (audioPreview) {
+        // Remove the audio element from the DOM
+        audioPreview.pause();  // Pause the audio
+        audioPreview.currentTime = 0;  // Reset the playback position
+        audioPreview.remove();  // Remove the audio element from the DOM
+    }
+
+    // Reset the mute state to unmuted for the next story
+    isMuted = false;
+
+    // Reset the mute button text for the next story
+    const muteButton = document.getElementById('muteButton');
+    if (muteButton) {
+        muteButton.textContent = 'Mute';  // Reset mute button text
+    }
+
+    // Clear the audio input field (if any)
+    const audioInput = document.getElementById('audioInput');
+    if (audioInput) {
+        audioInput.value = ''; // Clear audio input
+    }
 }
+
 
 
 
@@ -384,7 +426,7 @@ let isStoryViewed = false; // Flag to check if a story is being viewed
 // Initialize reaction counts
 let reactionCounts = {}; // Global object to store reaction counts for each story
 
-// Show the story in the viewer
+// Modified showStory function to start audio playback when the story is viewed
 function showStory(index) {
     if (index < 0 || index >= storyQueue.length) {
         closeStoryViewer();
@@ -405,6 +447,7 @@ function showStory(index) {
     const storyContainer = document.createElement('div');
     storyContainer.classList.add('story-container');
 
+    // Handle image story
     if (story.type === 'image') {
         const img = document.createElement('img');
         img.src = story.src;
@@ -413,18 +456,37 @@ function showStory(index) {
         img.style.transform = `rotate(${story.rotation}deg) scale(${story.resizeFactor})`;
 
         storyContainer.appendChild(img);
-        updateProgressBar(5000, () => showStory(index + 1));
-    } else if (story.type === 'video') {
+
+        // Play audio when the image is viewed (if available)
+        if (story.audioElement) {
+            story.audioElement.play().catch(error => {
+                console.error('Audio playback failed:', error);
+            });
+
+            // Stop the audio after 5 seconds (for image story)
+            setTimeout(() => {
+                story.audioElement.pause();
+                story.audioElement.currentTime = 0;
+            }, 5000); // Stop audio after 5 seconds
+        }
+
+        // Set the progress bar duration to 5 seconds for image stories
+        updateProgressBar(5000, () => showStory(index + 1)); 
+    } 
+    // Handle video story
+    else if (story.type === 'video') {
         const video = document.createElement('video');
         video.src = story.src;
         video.autoplay = true;
-        video.muted = false;
+        video.muted = isMuted; // Respect the global mute state
         video.playsInline = true;
         video.style.width = '100%';  // Set the width to be responsive
         video.style.height = 'auto';
         storyContainer.appendChild(video);
 
+        // Ensure video metadata is loaded before starting the progress bar
         video.onloadedmetadata = () => {
+            // Set the progress bar duration to 15 seconds for video stories
             updateProgressBar(15000, () => {
                 video.pause();
                 video.currentTime = 0;
@@ -439,11 +501,25 @@ function showStory(index) {
                 video.currentTime = 0;
                 showStory(index + 1);
             }
-        }, 15000); // 15 seconds limit for the video
+        }, 15000); // 15 seconds for video stories
+
+        // Play audio when the video is viewed (if available)
+        if (story.audioElement) {
+            story.audioElement.play().catch(error => {
+                console.error('Audio playback failed:', error);
+            });
+
+            // Stop the audio after 15 seconds (same as the video)
+            setTimeout(() => {
+                story.audioElement.pause();
+                story.audioElement.currentTime = 0;
+            }, 15000); // Stop audio after 15 seconds
+        }
     }
 
     // Append the story container to the viewer
     storyViewerContent.appendChild(storyContainer);
+
     // Initialize the reaction counts for this story if not already set
     if (!reactionCounts[index]) {
         reactionCounts[index] = { like: 0, love: 0, haha: 0, sad: 0, angry: 0 };
@@ -474,6 +550,8 @@ function showStory(index) {
         storyViewerContent.appendChild(progressBarContainer);
     }
 }
+
+
 
 
 
@@ -585,4 +663,88 @@ function updateReactionCounts(storyIndex) {
     document.getElementById('hahaCount').textContent = counts.haha;
     document.getElementById('sadCount').textContent = counts.sad;
     document.getElementById('angryCount').textContent = counts.angry;
+}
+
+
+document.getElementById('audioInput').addEventListener('change', handleAudioUpload);
+
+function handleAudioUpload(event) {
+    const audioInput = event.target;
+    const audioPreview = document.getElementById('audioPreview');
+
+    // Check if a file is selected
+    if (audioInput.files && audioInput.files[0]) {
+        const file = audioInput.files[0];
+
+        // Check if the file is an audio file (optional additional validation)
+        if (file.type.startsWith('audio/')) {
+            // Create a URL for the selected file
+            const audioUrl = URL.createObjectURL(file);
+
+            // Set the audio source to the file URL
+            audioPreview.src = audioUrl;
+            
+            // Show the audio player
+            audioPreview.style.display = 'block';
+        } else {
+            alert('Please upload a valid audio file (mp3, wav, etc.).');
+        }
+    } else {
+        // Hide the audio player if no file is selected
+        audioPreview.style.display = 'none';
+    }
+}
+
+document.getElementById('audioInput').addEventListener('change', handleAudioUpload);
+
+let audioUrl = null;
+
+function handleAudioUpload(event) {
+    const audioInput = event.target;
+    const audioPreview = document.getElementById('audioPreview');
+
+    // Check if a file is selected
+    if (audioInput.files && audioInput.files[0]) {
+        const file = audioInput.files[0];
+
+        // Check if the file is an audio file
+        if (file.type.startsWith('audio/')) {
+            // Create a URL for the selected file
+            audioUrl = URL.createObjectURL(file);
+
+            // Set the audio source to the file URL
+            audioPreview.src = audioUrl;
+
+            // Show the audio player
+            audioPreview.style.display = 'block';
+        } else {
+            alert('Please upload a valid audio file (mp3, wav, etc.).');
+        }
+    } else {
+        // Hide the audio player if no file is selected
+        audioPreview.style.display = 'none';
+    }
+}
+
+// Global variable to track mute state
+let isMuted = false;
+
+// Function to toggle mute on the video
+function toggleMute() {
+    const video = document.getElementById('videoPreview');
+    const muteButton = document.getElementById('muteButton');
+    
+    // Toggle the mute state globally
+    isMuted = !isMuted;
+    
+    // Mute or unmute the preview video
+    if (video) {
+        video.muted = isMuted;
+    }
+    
+    // Update button text based on mute state
+    muteButton.textContent = isMuted ? 'Unmute' : 'Mute';
+    
+    // Also update all posted stories based on the global mute state
+    updateStoryMuteState();
 }
