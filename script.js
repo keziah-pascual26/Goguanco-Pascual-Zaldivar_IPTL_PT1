@@ -64,7 +64,27 @@ function handleMediaUpload(event) {
     }
 }
 
-// Add Stories
+// Handle the reaction button click event
+document.querySelectorAll('.reaction').forEach(button => {
+    button.addEventListener('click', function(event) {
+        const reactionType = event.target.getAttribute('data-reaction');
+        const storyIndex = currentStoryIndex; // Get current story index
+
+        // If this is the first time reactions are added for this story, initialize them
+        if (!reactionCounts[storyIndex]) {
+            reactionCounts[storyIndex] = { like: 0, love: 0, haha: 0, sad: 0, angry: 0 };
+        }
+
+        // Increment the count for the reaction type
+        reactionCounts[storyIndex][reactionType]++;
+
+        // Update the UI with the new counts
+        updateReactionCounts(storyIndex);
+    });
+});
+
+
+// Add Stories function - Modified to ensure correct indexing
 function addStories() {
     const mediaInput = document.getElementById('mediaInput');
     const storyTitleInput = document.getElementById('storyTitle');
@@ -76,10 +96,10 @@ function addStories() {
         return;
     }
 
-    files.forEach((file, index) => {  // Add 'index' as a second argument here
+    files.forEach((file, index) => {
         const storyElement = document.createElement('div');
         storyElement.classList.add('story');
-        storyElement.setAttribute('data-index', storyQueue.length);  // Add data-index to each story
+        storyElement.setAttribute('data-index', storyQueue.length);  // Set data-index as the story index in the queue
 
         const url = URL.createObjectURL(file);
 
@@ -106,6 +126,9 @@ function addStories() {
 
         storyQueue.push(storyData);
 
+        // Initialize reaction counts for each new story
+        reactionCounts[storyQueue.length - 1] = { like: 0, love: 0, haha: 0, sad: 0, angry: 0 };
+
         // Attach click event to view the story
         storyElement.addEventListener('click', () => {
             currentStoryIndex = storyQueue.findIndex(item => item.src === url);
@@ -125,12 +148,46 @@ function addStories() {
     closeCreateStoryModal();
 }
 
+// Reaction Button Click Handler
+document.getElementById('storyViewerContent').addEventListener('click', function(event) {
+    // Check if the clicked element is a reaction button
+    if (event.target.classList.contains('reaction')) {
+        const reactionType = event.target.getAttribute('data-reaction');
+        
+        // Find the story index dynamically from the story viewer
+        const storyIndex = currentStoryIndex; // Directly use the currentStoryIndex
+
+        if (!reactionCounts[storyIndex]) {
+            // Initialize reaction counts if they don't exist yet
+            reactionCounts[storyIndex] = { like: 0, love: 0, haha: 0, sad: 0, angry: 0 };
+        }
+
+        // Increment the corresponding reaction count for the current story
+        reactionCounts[storyIndex][reactionType]++;
+
+        // Update the displayed reaction counts for the current story
+        updateReactionCounts(storyIndex);
+    }
+});
+
+// Function to update the reaction counts in the UI
+function updateReactionCounts(storyIndex) {
+    const counts = reactionCounts[storyIndex];
+
+    // Update the reaction counts for the current story
+    document.getElementById('likeCount').textContent = counts.like;
+    document.getElementById('loveCount').textContent = counts.love;
+    document.getElementById('hahaCount').textContent = counts.haha;
+    document.getElementById('sadCount').textContent = counts.sad;
+    document.getElementById('angryCount').textContent = counts.angry;
+}
+
 let isStoryViewed = false; // Flag to check if a story is being viewed
 
 // Initialize reaction counts
 let reactionCounts = {}; // Global object to store reaction counts for each story
 
-// Show Story in Viewer function with dynamic time limits for images and videos
+// Show the story in the viewer
 function showStory(index) {
     if (index < 0 || index >= storyQueue.length) {
         closeStoryViewer();
@@ -138,7 +195,7 @@ function showStory(index) {
     }
 
     const story = storyQueue[index];
-    storyViewerContent.innerHTML = '';
+    storyViewerContent.innerHTML = ''; // Clear previous story content
     storyViewerTitle.textContent = story.title;
 
     const closeButton = document.createElement('button');
@@ -147,62 +204,39 @@ function showStory(index) {
     closeButton.addEventListener('click', closeStoryViewer);
     storyViewerContent.appendChild(closeButton);
 
-    // Initialize reactionCounts for this story if not already set
-    if (!reactionCounts[index]) {
-        reactionCounts[index] = { like: 0, love: 0, haha: 0, sad: 0, angry: 0 };
-    }
-
-    // Set the flag to true as a story is being viewed
-    isStoryViewed = true;
-
-    // Enable reactions only when a story is being viewed
-    toggleReactions(true);
-
+    // Add media content (image/video) based on story type
     if (story.type === 'image') {
         const img = document.createElement('img');
         img.src = story.src;
         storyViewerContent.appendChild(img);
-        updateProgressBar(5000, () => showStory(index + 1)); // Image duration set to 5 seconds
     } else if (story.type === 'video') {
         const video = document.createElement('video');
         video.src = story.src;
         video.autoplay = true;
-        video.muted = false;
         video.controls = false;
         storyViewerContent.appendChild(video);
-
-        video.onloadedmetadata = () => {
-            video.play();
-            const playDuration = Math.min(15000, video.duration * 1000); // Limit video duration to 15 seconds or the video's natural duration
-            updateProgressBar(playDuration, () => {
-                video.pause();
-                video.currentTime = 0;
-                showStory(index + 1);
-            });
-        };
-
-        // Ensure the video will be stopped after 15 seconds
-        setTimeout(() => {
-            if (!video.paused) {
-                video.pause();
-                video.currentTime = 0;
-                showStory(index + 1);
-            }
-        }, 15000); // 15 seconds limit for the video
     }
 
+    // Initialize the reaction counts for this story if not already set
+    if (!reactionCounts[index]) {
+        reactionCounts[index] = { like: 0, love: 0, haha: 0, sad: 0, angry: 0 };
+    }
+
+    // Enable reactions only when a story is being viewed
+    toggleReactions(true);
+
+    // Update the displayed reaction counts for the current story
+    updateReactionCounts(index);
+
+    // Set the flag to true as a story is being viewed
+    isStoryViewed = true;
+
+    // Create story indicators, if needed
     createStoryIndicators();
     currentStoryIndex = index;
     updateActiveIndicator();
     storyViewer.classList.add('active');
-
-    document.getElementById('previousButton').style.display = index > 0 ? 'block' : 'none';
-    document.getElementById('nextButton').style.display = index < storyQueue.length - 1 ? 'block' : 'none';
-
-    // Update reaction panel with current story's counts
-    updateReactionCounts(index);
 }
-
 // Close Story Viewer
 function closeStoryViewer() {
     clearTimeout(progressTimeout);
@@ -267,10 +301,10 @@ document.getElementById('nextButton').addEventListener('click', () => {
     showStory(currentStoryIndex + 1); // Go to next story
 });
 
-//* Show/Hide Reactions Panel
-function toggleReactions(show) {
-    const reactionCounts = document.getElementById('reactionCounts');
-    reactionCounts.style.display = show ? 'block' : 'none';
+// Toggle visibility of the reaction buttons
+function toggleReactions(visible) {
+    const reactionsPanel = document.getElementById('reactionPanel');
+    reactionsPanel.style.display = visible ? 'block' : 'none';
 }
 
 // Show/Hide Reaction Counts when "More" is clicked
@@ -307,10 +341,11 @@ document.getElementById('storyViewerContent').addEventListener('click', function
     }
 });
 
-// Update the displayed reaction counts
+// Update the displayed reaction counts for the current story
 function updateReactionCounts(storyIndex) {
     const counts = reactionCounts[storyIndex] || { like: 0, love: 0, haha: 0, sad: 0, angry: 0 };
 
+    // Update the HTML elements for each reaction type
     document.getElementById('likeCount').textContent = counts.like;
     document.getElementById('loveCount').textContent = counts.love;
     document.getElementById('hahaCount').textContent = counts.haha;
