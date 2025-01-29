@@ -74,40 +74,68 @@
     <!-- Create Story Modal -->
     <div id="createStoryModal" class="create-story-modal">
         <div class="modal-content">
+            <!-- Title -->
             <h2>Create Your Smiski Story</h2>
-            
-            <!-- Image and Video Input -->
-            <input type="file" id="mediaInput" accept="image/*, video/*" multiple onchange="handleMediaUpload(event)">
-            <input type="text" id="storyTitle" placeholder="Enter story title">
-            
-            <!-- Image Editing Section -->
-            <div id="imageEditor" style="display: none;">
-                <h3>Edit Image</h3>
-                <div>
-                    <button onclick="rotateImage()">Rotate</button>
-                    <button onclick="cropImage()">Crop</button>
-                    <button onclick="resizeImage()">Resize</button>
+
+            <!-- Left Side Inputs -->
+            <div class="input-section">
+                <input type="text" id="storyTitle" placeholder="Enter story title">
+                
+                <div class="file-upload">
+                    <label for="mediaInput">Choose files</label>
+                    <input type="file" id="mediaInput" accept="image/*, video/*" multiple onchange="handleMediaUpload(event)">
                 </div>
-                <div id="cropper-container">
-                    <img id="imagePreview" src="" alt="Image Preview">
+
+                <div class="audio-upload">
+                    <label for="audioInput">Add background music or voiceover</label>
+                    <input type="file" id="audioInput" accept="audio/*">
                 </div>
             </div>
 
-            <!-- Video Editing Section -->
-            <div id="videoEditor" style="display: none;">
-                <h3>Edit Video</h3>
-                <div>
-                    <button onclick="trimVideo()">Trim Video</button>
+            <!-- Right Side Preview -->
+            <div class="preview-section">
+                <div id="previewContainer" style="display: none;">
+                    <!-- Image or Video Preview will appear here -->
+                    <img id="imagePreview" src="" alt="Image Preview" style="display: none;">
+                    <video id="videoPreview" controls style="display: none;">
+                        <source id="videoSource" src="" type="video/mp4">
+                    </video>
                 </div>
-                <video id="videoPreview" controls>
-                    <source id="videoSource" src="" type="video/mp4">
-                </video>
             </div>
-            
+
+            <!-- Edit Button -->
+            <button class="edit-button" onclick="editStory()">Edit</button>
+
+            <!-- Image and Video Editing Section (Initially Hidden) -->
+            <div id="editorSection" style="display: none;">
+                <div id="imageEditor" style="display: none;">
+                    <h3>Edit Image</h3>
+                    <div>
+                        <button onclick="rotateImage()">Rotate</button>
+                        <button onclick="cropImage()">Crop</button>
+                        <button onclick="resizeImage()">Resize</button>
+                    </div>
+                    <div id="cropper-container">
+                        <img id="imagePreview" src="" alt="Image Preview">
+                    </div>
+                </div>
+
+                <div id="videoEditor" style="display: none;">
+                    <h3>Edit Video</h3>
+                    <div>
+                        <button onclick="trimVideo()">Trim Video</button>
+                    </div>
+                    <video id="videoPreview" controls>
+                        <source id="videoSource" src="" type="video/mp4">
+                    </video>
+                </div>
+            </div>
+
             <button onclick="addStories()">Post Story</button>
             <button onclick="closeCreateStoryModal()">Cancel</button>
         </div>
     </div>
+
 
     <!-- Overlay for dimming the background when Create Story Modal is opened -->
     <div id="overlay" class="overlay"></div>

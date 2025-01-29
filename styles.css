@@ -114,6 +114,7 @@ header, footer {
   }
 }
 
+
 /* story */
 .stories-container {
     padding: 20px;
@@ -174,7 +175,6 @@ header, footer {
     opacity: 0.8; /* Slight opacity change on hover */
 }
 
-/* Overlay Styles */
 .overlay {
     display: none; /* Hidden by default */
     position: fixed;
@@ -183,30 +183,144 @@ header, footer {
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
-    z-index: 1000; /* Make sure it's behind the modal */
+    z-index: 1000; /* Keep this lower than the modal */
 }
 
 /* Modal Styles */
-.create-story-modal {
-    display: none; /* Hidden by default */
+#createStoryModal {
+    width: 700px; /* Adjusted for better spacing */
+    height: auto; /* Let content define height */
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow: auto;
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     background: white;
-    padding: 20px;
-    z-index: 1001;
+    padding: 30px;
+    border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-    border-radius: 8px;
+    z-index: 1100;
+    display: none;
 }
 
+/* Modal Content Layout */
 .create-story-modal .modal-content {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+/* Title */
+.create-story-modal h2 {
+    text-align: center;
+    width: 100%;
+    font-size: 22px;
+    margin-bottom: 20px;
+}
+
+/* Left-side Inputs */
+.create-story-modal .input-section {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Input Fields */
+.create-story-modal input {
+    width: 90%;
+    padding: 10px;
+    border: none;
+    background: #ddd; /* Light gray background */
+    border-radius: 5px;
     text-align: center;
 }
 
-.create-story-modal input,
+/* File Upload */
+.create-story-modal .file-upload {
+    background: #f6f0f0; /* Light pinkish background */
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+/* Add Music/Voiceover Button */
+.create-story-modal .audio-upload {
+    background: #f6f0f0;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+/* Preview Box */
+.create-story-modal .preview-section {
+    width: 45%;
+    min-height: 200px;
+    background: #f6f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border-radius: 10px;
+}
+
+/* Edit Button */
+.create-story-modal .edit-button {
+    background: #f6f0f0;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-align: center;
+    cursor: pointer;
+    border: none;
+    margin-top: 15px;
+}
+
+/* Buttons */
 .create-story-modal button {
-    margin: 10px 0;
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 15px;
+    text-align: center;
+}
+
+.create-story-modal button:hover {
+    background-color: #0056b3;
+}
+
+/* Modal Content Alignment Adjustments */
+.create-story-modal .input-section {
+    flex: 1;
+    margin-right: 20px;
+}
+
+.create-story-modal .preview-section {
+    flex: 1;
+    margin-left: 20px;
+}
+
+
+/* Editor Styles */
+#imageEditor,
+#videoEditor {
+    width: 100%; /* Ensures it doesn't exceed modal size */
+    height: 300px; /* Adjust as needed */
+    overflow: hidden;
+    display: none; /* Initially hidden */
+}
+
+/* Video and Image Previews */
+#imagePreview, #videoPreview {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
 }
 
 /* Story Viewer Styling */
@@ -290,20 +404,6 @@ header, footer {
     color: #729c2f;
     padding: 10px 0;
 }
-
-/* Cropper Container - To display the cropping tool */
-#cropper-container {
-    width: 100%;
-    max-width: 500px;
-    margin: 20px auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border: 2px dashed #729c2f; /* A dashed border to indicate the cropping area */
-    padding: 10px;
-    position: relative;
-}
-
 /* Preview container for cropped image */
 .preview-container {
     width: 150px; /* Size of the preview box */
@@ -313,36 +413,29 @@ header, footer {
     margin-top: 10px;
 }
 
-/* Style for the image inside the cropping container */
-#cropper-container img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px; /* Rounded corners for cropped images */
-}
-
-/* Progress bar added for trimming or loading effects (if any) */
-.progress-bar {
-    position: absolute;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 80%;
-    height: 5px;
-    background-color: rgba(255, 255, 255, 0.3);
-    border-radius: 3px;
+.story-container {
+    position: relative;
+    width: 100vw; /* Full screen width */
+    max-width: 360px; /* Prevent excessive width on large screens */
+    aspect-ratio: 9 / 16; /* Enforce 9:16 ratio */
     overflow: hidden;
+    background-color: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.progress {
-    height: 100%;
-    background-color: #1877f2;
-    width: 0%; /* Progress width will change dynamically during trimming */
-    transition: width linear;
+.story-media {
+    width: 100%; /* Make it occupy the full width */
+    height: 100%; /* Keep height proportional */
+    object-fit: cover; /* Ensure it fills the container */
+    position: absolute;
 }
 
-/* Optional Styling for when cropping is active */
-.cropper-active {
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Glow effect for active cropping */
-}
+
+
+
+
+
 
 
