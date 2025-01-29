@@ -205,17 +205,26 @@ function showStory(index) {
     storyViewerContent.appendChild(closeButton);
 
     // Add media content (image/video) based on story type
+    let mediaElement = null;
     if (story.type === 'image') {
         const img = document.createElement('img');
         img.src = story.src;
-        storyViewerContent.appendChild(img);
+        mediaElement = img;
     } else if (story.type === 'video') {
         const video = document.createElement('video');
         video.src = story.src;
         video.autoplay = true;
         video.controls = false;
-        storyViewerContent.appendChild(video);
+        mediaElement = video;
+
+        // Update the progress bar based on the video's time
+        video.addEventListener('timeupdate', function () {
+            const progress = (video.currentTime / video.duration) * 100;
+            updateProgressBar(progress);
+        });
     }
+
+    storyViewerContent.appendChild(mediaElement);
 
     // Initialize the reaction counts for this story if not already set
     if (!reactionCounts[index]) {
@@ -236,7 +245,19 @@ function showStory(index) {
     currentStoryIndex = index;
     updateActiveIndicator();
     storyViewer.classList.add('active');
+
+    // Create the progress bar if it doesn't exist
+    if (!document.querySelector('.progress-bar')) {
+        const progressBarContainer = document.createElement('div');
+        progressBarContainer.classList.add('progress-bar-container');
+        const progressBar = document.createElement('div');
+        progressBar.classList.add('progress-bar');
+        progressBarContainer.appendChild(progressBar);
+        storyViewerContent.appendChild(progressBarContainer);
+    }
 }
+
+
 // Close Story Viewer
 function closeStoryViewer() {
     clearTimeout(progressTimeout);
@@ -294,11 +315,15 @@ function updateActiveIndicator() {
 }
 
 document.getElementById('previousButton').addEventListener('click', () => {
-    showStory(currentStoryIndex - 1); // Go to previous story
+    if (currentStoryIndex > 0) {
+        showStory(currentStoryIndex - 1); // Go to the previous story
+    }
 });
 
 document.getElementById('nextButton').addEventListener('click', () => {
-    showStory(currentStoryIndex + 1); // Go to next story
+    if (currentStoryIndex < storyQueue.length - 1) {
+        showStory(currentStoryIndex + 1); // Go to the next story
+    }
 });
 
 // Toggle visibility of the reaction buttons
