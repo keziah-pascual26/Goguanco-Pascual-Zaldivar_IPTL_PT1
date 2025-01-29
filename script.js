@@ -425,7 +425,6 @@ function showStory(index) {
         closeStoryViewer();
         return;
     }
-
     const story = storyQueue[index];
     storyViewerContent.innerHTML = ''; // Clear previous story content
     storyViewerTitle.textContent = story.title;
@@ -499,6 +498,11 @@ function showStory(index) {
     updateActiveIndicator();
     storyViewer.classList.add('active');
 
+    // Show navigation buttons
+    document.getElementById('previousButton').style.display = index > 0 ? 'block' : 'none';  // Show Previous button if not on first story
+    document.getElementById('nextButton').style.display = index < storyQueue.length - 1 ? 'block' : 'none';  // Show Next button if not on last story
+
+
     // Create the progress bar if it doesn't exist
     if (!document.querySelector('.progress-bar')) {
         const progressBarContainer = document.createElement('div');
@@ -509,13 +513,6 @@ function showStory(index) {
         storyViewerContent.appendChild(progressBarContainer);
     }
 
-    document.getElementById('previousButton').addEventListener('click', () => {
-        showStory(currentStoryIndex - 1); // Go to previous story
-    });
-
-    document.getElementById('nextButton').addEventListener('click', () => {
-        showStory(currentStoryIndex + 1); // Go to next story
-    });
 }
 
 
@@ -579,15 +576,11 @@ function updateActiveIndicator() {
 }
 
 document.getElementById('previousButton').addEventListener('click', () => {
-    if (currentStoryIndex > 0) {
-        showStory(currentStoryIndex - 1); // Go to the previous story
-    }
+    showStory(currentStoryIndex - 1);
 });
 
 document.getElementById('nextButton').addEventListener('click', () => {
-    if (currentStoryIndex < storyQueue.length - 1) {
-        showStory(currentStoryIndex + 1); // Go to the next story
-    }
+    showStory(currentStoryIndex + 1);
 });
 
 // Toggle visibility of the reaction buttons
