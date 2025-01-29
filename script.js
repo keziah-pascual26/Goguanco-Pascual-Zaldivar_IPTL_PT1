@@ -634,3 +634,24 @@ function updateReactionCounts(storyIndex) {
     document.getElementById('sadCount').textContent = counts.sad;
     document.getElementById('angryCount').textContent = counts.angry;
 }
+
+
+document.addEventListener('keydown', function(event) {
+    if (!isStoryViewed) return; // Only allow navigation when a story is open
+
+    if (event.key === 'ArrowRight') {
+        // Show the next story if not on the last one
+        if (currentStoryIndex < storyQueue.length - 1) {
+            showStory(currentStoryIndex + 1);
+        }
+    } else if (event.key === 'ArrowLeft') {
+        // Show the previous story if not on the first one
+        if (currentStoryIndex > 0) {
+            showStory(currentStoryIndex - 1);
+        }
+    } else if (event.key === 'Escape') {
+        // Close the story viewer
+        closeStoryViewer();
+    }
+});
+

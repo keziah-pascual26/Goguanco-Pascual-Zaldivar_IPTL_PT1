@@ -619,6 +619,19 @@ button:hover {
     cursor: pointer;
 }
 
+.reaction img {
+    width: 24px; /* Adjust the width of the icons */
+    height: 24px; /* Adjust the height of the icons */
+    vertical-align: middle; /* Align images properly */
+}
+
+.reaction {
+    background: none; /* Remove default background */
+    border: none; /* Remove borders */
+    padding: 5px; /* Adjust padding for spacing */
+}
+
+
 
 
 
