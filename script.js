@@ -320,7 +320,8 @@ function showStory(index) {
         video.autoplay = true;
         video.muted = false;
         video.playsInline = true;
-        video.classList.add('story-media'); // Ensures full width
+        video.style.width = '100%';  // Set the width to be responsive (or any fixed size you want)
+        video.style.height = 'auto';
         storyContainer.appendChild(video);
 
         video.onloadedmetadata = () => {
