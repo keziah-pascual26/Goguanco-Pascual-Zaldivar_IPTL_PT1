@@ -637,21 +637,77 @@ function updateReactionCounts(storyIndex) {
 
 
 document.addEventListener('keydown', function(event) {
-    if (!isStoryViewed) return; // Only allow navigation when a story is open
+    if (!isStoryViewed) return;  // Prevent actions if story is not viewed
 
-    if (event.key === 'ArrowRight') {
-        // Show the next story if not on the last one
-        if (currentStoryIndex < storyQueue.length - 1) {
-            showStory(currentStoryIndex + 1);
-        }
-    } else if (event.key === 'ArrowLeft') {
-        // Show the previous story if not on the first one
-        if (currentStoryIndex > 0) {
-            showStory(currentStoryIndex - 1);
-        }
-    } else if (event.key === 'Escape') {
-        // Close the story viewer
-        closeStoryViewer();
+    switch(event.key) {
+        // Handle Right Arrow key - Show next story
+        case 'ArrowRight':
+            if (currentStoryIndex < storyQueue.length - 1) showStory(currentStoryIndex + 1);
+            break;
+        
+        // Handle Left Arrow key - Show previous story
+        case 'ArrowLeft':
+            if (currentStoryIndex > 0) showStory(currentStoryIndex - 1);
+            break;
+        
+        // Handle Spacebar - Play/Pause video
+        case ' ':
+            case 'Spacebar':
+                event.preventDefault(); // Prevent default spacebar behavior (scrolling)
+                const video = document.querySelector('#storyViewerContent video');
+                if (video) {
+                    // Toggle play/pause
+                    if (video.paused) {
+                        video.play();
+                    } else {
+                        video.pause();
+                    }
+                }
+                break;
+        
+        // Handle Enter key - View the current story
+        case 'Enter':
+            showStory(currentStoryIndex);
+            break;
+
+        // Handle Home key - Jump to the first story
+        case 'Home':
+            showStory(0);
+            break;
+
+        // Handle End key - Jump to the last story
+        case 'End':
+            showStory(storyQueue.length - 1);
+            break;
+
+        // Handle PageDown key - Show the next 5 stories
+        case 'PageDown':
+            showStory(currentStoryIndex + 5);
+            break;
+
+        // Handle PageUp key - Show the previous 5 stories
+        case 'PageUp':
+            showStory(currentStoryIndex - 5);
+            break;
+
+        // Handle F1 key - Show help message
+        case 'F1':
+            alert('Help: Use arrow keys to navigate, Enter to view a story.');
+            break;
+
+        // Handle M key - Mute/Unmute video
+        case 'm':
+            case 'M':
+                const videoMute = document.querySelector('#storyViewerContent video');
+                if (videoMute) {
+                    // Toggle mute
+                    videoMute.muted = !videoMute.muted;
+                }
+                break;
+
+        // Handle Escape key (ESC) - Close story viewer
+        case 'Escape':
+            closeStoryViewer();
+            break;
     }
 });
-
