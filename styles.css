@@ -99,6 +99,11 @@ header, footer {
   background: #feeb29;
 }
 
+button img {
+    pointer-events: none; /* Ensure the image doesn't block clicks */
+}
+
+
 .image {
   width: 150px;
   height: auto;
@@ -642,14 +647,6 @@ button:hover {
     object-fit: contain; /* Keeps the aspect ratio intact */
 }
 
-
-
-
-
-
-
-
-
 .reaction img {
     width: 24px; /* Adjust the width of the icons */
     height: 24px; /* Adjust the height of the icons */
@@ -662,7 +659,13 @@ button:hover {
     padding: 5px; /* Adjust padding for spacing */
 }
 
-
+/* Style for the character counter */
+.char-counter {
+    font-size: 0.8rem; /* Makes text smaller */
+    color: #555; /* Slightly dim color */
+    margin-top: 1px; /* Adds space between textarea and counter */
+    display: block; /* Ensures it appears on a new line */
+}
 
 
 

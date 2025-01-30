@@ -94,6 +94,12 @@
             <div class="input-section">
                 <input type="text" id="storyTitle" placeholder="Enter story title">
                 
+                <!-- Story Description with Character Limit -->
+                <textarea id="storyDescription" placeholder="Enter story description (Max: 100 characters)" 
+                    maxlength="100" oninput="updateCharCount()"></textarea>
+                <p id="charCount" class="char-counter">100 characters remaining</p>
+                <button>Save</button>
+
                 <div class="file-upload">
                     <label for="mediaInput">Choose files</label>
                     <input type="file" id="mediaInput" accept="image/*, video/*" multiple onchange="handleMediaUpload(event)">
@@ -155,7 +161,7 @@
                 </div>
             </div>
 
-            <button onclick="addStories()">Post Story</button>
+            <button onclick="addStories(), saveStory()">Post Story</button>
             <button onclick="closeCreateStoryModal()">Cancel</button>
         </div>
     </div>

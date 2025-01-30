@@ -232,6 +232,7 @@ function closeCreateStoryModal() {
     resizeFactor = 1;  // Reset to the default size factor
     createStoryModal.style.display = 'none';
     overlay.style.display = 'none'; // Hide the overlay
+    
 }
 
 
@@ -554,11 +555,15 @@ function showStory(index) {
         storyViewerContent.appendChild(progressBarContainer);
     }
 
+    // Check if the story has a description (caption) and display it
+    if (story.description) {
+        const descriptionContainer = document.createElement('div');
+        descriptionContainer.classList.add('story-description-container');
+        descriptionContainer.innerHTML = `<p><strong>Description:</strong> ${story.description}</p>`;
+        storyViewerContent.appendChild(descriptionContainer);
+    }
+
 }
-
-
-
-
 
 
 
@@ -835,4 +840,41 @@ document.addEventListener('keydown', function(event) {
             closeStoryViewer();
             break;
     }
+});
+
+function updateCharCount() {
+        let textArea = document.getElementById("storyDescription");
+        let charCount = document.getElementById("charCount");
+        let remaining = 100 - textArea.value.length;
+        charCount.textContent = remaining + " characters remaining";
+    }
+
+
+// Function to save the story with the description
+function saveStory() {
+    const title = document.getElementById('storyTitle').value.trim(); // Trim any whitespace
+    const description = document.getElementById('storyDescription').value.trim(); // Trim any whitespace
+    
+    console.log('Title:', title);
+console.log('Description:', description);
+
+    if (title && description) {
+        const story = {
+            title: title,
+            description: description,
+            media: [], // Add media files if needed
+        };
+        
+        // Push the new story into the storyQueue
+        storyQueue.push(story);
+        alert('Story saved successfully!');
+        closeCreateStoryModal(); // Close modal after saving
+    } else {
+        alert('Please fill in both title and description!');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const title = document.getElementById('storyTitle').value.trim();
+    console.log('Title:', title);  // Check the value when the DOM is ready
 });
