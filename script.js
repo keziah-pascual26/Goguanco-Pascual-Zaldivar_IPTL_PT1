@@ -25,50 +25,47 @@ function handleMediaUpload(event) {
     const videoPreview = document.getElementById('videoPreview');
     const videoSource = document.getElementById('videoSource');
     const previewContainer = document.getElementById('previewContainer');
-    const editorSection = document.getElementById('editorSection');
     
-    // Hide both editors and preview initially
+    // Hide both editors initially
     imageEditor.style.display = 'none';
     videoEditor.style.display = 'none';
+
+    // Hide preview initially
     imagePreview.style.display = 'none';
     videoPreview.style.display = 'none';
-    editorSection.style.display = 'none';
-    
-    // Clear any previous content from the preview
-    imagePreview.src = '';
-    videoSource.src = '';
 
-    // Check if a file is selected
+    // Hide editor section initially
+    document.getElementById('editorSection').style.display = 'none';
+
     if (file) {
         const fileType = file.type;
-
-        // Show the appropriate editor and preview based on the file type
+        
+        // Show the appropriate editor and preview based on file type
         if (fileType.startsWith('image/')) {
             imageEditor.style.display = 'block'; 
             const reader = new FileReader();
             reader.onload = function() {
+                // Set the image preview source and display it
                 imagePreview.src = reader.result;
                 imagePreview.style.display = 'block';  // Show image preview
-                previewContainer.style.display = 'block';  // Show the preview container
             }
             reader.readAsDataURL(file);
         } else if (fileType.startsWith('video/')) {
             videoEditor.style.display = 'block'; 
             const reader = new FileReader();
             reader.onload = function() {
+                // Set the video preview source and display it
                 videoSource.src = reader.result;
                 videoPreview.style.display = 'block';  // Show video preview
                 videoPreview.load();  // Ensure the video is ready to play
-                previewContainer.style.display = 'block';  // Show the preview container
             }
             reader.readAsDataURL(file);
         }
-
-        // Show the editor section once a media is selected
-        editorSection.style.display = 'block';
     }
-}
 
+    // Show the preview container once the media is selected
+    previewContainer.style.display = 'block';
+}
 
 // Function to show the editor section when "Edit" button is clicked
 function editStory() {
@@ -94,18 +91,22 @@ function editStory() {
 function rotateImage() {
     const imagePreview = document.getElementById('imagePreview');
     
-    // Increment the rotation angle by 90 degrees
+    if (!imagePreview) return;
+
+    // Increment rotation angle
     rotationAngle += 90;
-    
+    if (rotationAngle >= 360) rotationAngle = 0;  // Reset at full rotation
+
     // Apply the rotation to the image preview
-    imagePreview.style.transform = `rotate(${rotationAngle}deg)`;
-    imagePreview.style.transition = 'transform 0.5s';  // Add a smooth transition for the rotation
-    
-    // Update the current story data with the rotation angle
+    imagePreview.style.transform = `rotate(${rotationAngle}deg) scale(${resizeFactor})`;
+    imagePreview.style.transition = 'transform 0.5s';  
+
+    // Ensure the global data is updated correctly
     if (currentStoryData) {
         currentStoryData.rotationAngle = rotationAngle;
     }
 }
+
 
 function cropImage() {
     console.log('Crop image');
@@ -118,23 +119,25 @@ function showPreview(file) {
     const videoPreview = document.getElementById('videoPreview');
     const videoSource = document.getElementById('videoSource');
 
-    // Hide both image and video initially
+    // Reset previews
     imagePreview.style.display = 'none';
     videoPreview.style.display = 'none';
 
-    // Check if the file is an image or video and show accordingly
+    // Ensure preview container follows 9:16 ratio
+    previewContainer.style.display = 'block'; 
+    previewContainer.style.width = '300px'; // Adjust as needed
+    previewContainer.style.height = (300 * 16) / 9 + 'px'; // Maintain 9:16 ratio
+
     if (file.type.startsWith('image')) {
-        // Set the image preview source and display it
         imagePreview.src = URL.createObjectURL(file);
         imagePreview.style.display = 'block';
-        previewContainer.style.display = 'block';  // Show the preview container
     } else if (file.type.startsWith('video')) {
-        // Set the video preview source and display it
         videoSource.src = URL.createObjectURL(file);
+        videoPreview.load();
         videoPreview.style.display = 'block';
-        previewContainer.style.display = 'block';  // Show the preview container
     }
 }
+
 
 
 // Max and min resize limits
@@ -183,34 +186,8 @@ function maximizeImage() {
     }
 }
 
-
-
 function trimVideo() {
     console.log('Trim video');
-}
-
-function addStories() {
-    console.log('Post story');
-}
-
-// Close Create Story Modal and Reset Inputs
-function closeCreateStoryModal() {
-    // Hide the modal and overlay
-    document.getElementById('createStoryModal').style.display = 'none';
-    document.getElementById('overlay').style.display = 'none';
-    
-    // Reset all form fields
-    document.getElementById('storyTitle').value = '';  // Reset the text input
-    document.getElementById('mediaInput').value = '';  // Reset the file input for images/videos
-    document.getElementById('audioInput').value = '';  // Reset the file input for audio
-    
-    // Hide the preview and editor sections
-    document.getElementById('previewContainer').style.display = 'none';
-    document.getElementById('imagePreview').style.display = 'none';
-    document.getElementById('videoPreview').style.display = 'none';
-    document.getElementById('imageEditor').style.display = 'none';
-    document.getElementById('videoEditor').style.display = 'none';
-    document.getElementById('editorSection').style.display = 'none';
 }
 
 // Open Create Story Modal
@@ -225,19 +202,30 @@ function openCreateStoryModal() {
 
 // Function to reset modal inputs when opening the modal
 function resetModalInputs() {
-    // Reset all form fields
-    document.getElementById('storyTitle').value = '';  // Reset the text input
-    document.getElementById('mediaInput').value = '';  // Reset the file input for images/videos
-    document.getElementById('audioInput').value = '';  // Reset the file input for audio
-    
-    // Hide the preview and editor sections
+    document.getElementById('storyTitle').value = '';  
+    document.getElementById('mediaInput').value = '';  
+    document.getElementById('audioInput').value = '';  
+
     document.getElementById('previewContainer').style.display = 'none';
     document.getElementById('imagePreview').style.display = 'none';
     document.getElementById('videoPreview').style.display = 'none';
     document.getElementById('imageEditor').style.display = 'none';
     document.getElementById('videoEditor').style.display = 'none';
     document.getElementById('editorSection').style.display = 'none';
+    document.getElementById('rotateImage').style.display = 'none';
+
+    // Reset the rotation of the preview image
+    const imagePreview = document.getElementById('imagePreview');
+    if (imagePreview) {
+        imagePreview.style.transform = 'rotate(0deg) scale(1)'; // Reset rotation and scale
+    }
+
+    // **RESET rotation and scaling globally**
+    rotationAngle = 0;
+    resizeFactor = 1;
 }
+
+
 
 // Close Create Story Modal
 function closeCreateStoryModal() {
@@ -252,40 +240,6 @@ createStoryButton.addEventListener('click', openCreateStoryModal);
 
 // Close modal when overlay is clicked
 overlay.addEventListener('click', closeCreateStoryModal);
-
-// Handle Media Upload
-function handleMediaUpload(event) {
-    const file = event.target.files[0];
-    const imageEditor = document.getElementById('imageEditor');
-    const videoEditor = document.getElementById('videoEditor');
-    const imagePreview = document.getElementById('imagePreview');
-    const videoPreview = document.getElementById('videoPreview');
-    const videoSource = document.getElementById('videoSource');
-    
-    imageEditor.style.display = 'none';
-    videoEditor.style.display = 'none';
-
-    if (file) {
-        const fileType = file.type;
-        
-        if (fileType.startsWith('image/')) {
-            imageEditor.style.display = 'block';
-            const reader = new FileReader();
-            reader.onload = function() {
-                imagePreview.src = reader.result;
-            }
-            reader.readAsDataURL(file);
-        } else if (fileType.startsWith('video/')) {
-            videoEditor.style.display = 'block';
-            const reader = new FileReader();
-            reader.onload = function() {
-                videoSource.src = reader.result;
-                videoPreview.load();
-            }
-            reader.readAsDataURL(file);
-        }
-    }
-}
 
 // Handle the reaction button click event
 document.querySelectorAll('.reaction').forEach(button => {
@@ -307,7 +261,7 @@ document.querySelectorAll('.reaction').forEach(button => {
 });
 
 
-// Add Stories function - Modified to ensure correct indexing
+// Modified addStories function to include audio with image/video stories
 function addStories() {
     console.log('Post story');
     
@@ -324,38 +278,51 @@ function addStories() {
     files.forEach((file, index) => {
         const storyElement = document.createElement('div');
         storyElement.classList.add('story');
-        storyElement.setAttribute('data-index', storyQueue.length);  // Set data-index as the story index in the queue
+        storyElement.setAttribute('data-index', storyQueue.length);  
 
         const url = URL.createObjectURL(file);
+
+        let storyData = {
+            src: url,
+            type: file.type.startsWith('image/') ? 'image' : 'video',
+            title: storyTitle,
+            rotation: rotationAngle,
+            resizeFactor: resizeFactor,
+            audio: audioUrl  // Store the audio URL with the story data
+        };
 
         if (file.type.startsWith('image/')) {
             const img = document.createElement('img');
             img.src = url;
-            // Apply the rotation and resizing to the image
             img.style.transform = `rotate(${rotationAngle}deg) scale(${resizeFactor})`; 
             storyElement.appendChild(img);
         } else if (file.type.startsWith('video/')) {
             const video = document.createElement('video');
             video.src = url;
             video.controls = false;
+            // Set the video to the current mute state
+            video.muted = isMuted;
             storyElement.appendChild(video);
         } else {
             alert('Unsupported file type.');
             return;
         }
 
-        // Add story details to queue, including rotation angle and resize factor
-        const storyData = {
-            src: url,
-            type: file.type.startsWith('image/') ? 'image' : 'video',
-            title: storyTitle,
-            rotation: rotationAngle,
-            resizeFactor: resizeFactor  // Store the resize factor
-        };
+        // Attach audio if available (audioUrl is set)
+        if (audioUrl) {
+            const audio = document.createElement('audio');
+            audio.src = audioUrl;
+            audio.controls = false;  // You can set controls as needed
+            audio.loop = true; // Optional: make it loop (or false to play once)
+            audio.pause(); // Ensure the audio is not playing automatically
+            storyElement.appendChild(audio);
 
+            // Store the audio element in the storyData for later use
+            storyData.audioElement = audio;
+        }
+
+        // Add story details to queue
         storyQueue.push(storyData);
-
-        // Initialize reaction counts for each new story
         reactionCounts[storyQueue.length - 1] = { like: 0, love: 0, haha: 0, sad: 0, angry: 0 };
 
         // Attach click event to view the story
@@ -367,6 +334,16 @@ function addStories() {
         storiesContainer.appendChild(storyElement);
     });
 
+    // **RESET rotation and resize after posting**
+    rotationAngle = 0;
+    resizeFactor = 1;
+
+    // Reset preview image transformation
+    const previewImage = document.getElementById('imagePreview');
+    if (previewImage) {
+        previewImage.style.transform = 'rotate(0deg) scale(1)';
+    }
+
     // Reset form inputs
     storyTitleInput.value = '';
     mediaInput.value = '';
@@ -375,11 +352,41 @@ function addStories() {
 
     // Close modal after adding story
     closeCreateStoryModal();
+
+    // **Reset the audio attached and reset the audio URL**
+    audioUrl = null;  // Clear the audio URL
+    const audioPreview = document.querySelector('audio');
+    if (audioPreview) {
+        // Remove the audio element from the DOM
+        audioPreview.pause();  // Pause the audio
+        audioPreview.currentTime = 0;  // Reset the playback position
+        audioPreview.remove();  // Remove the audio element from the DOM
+    }
+
+    // Reset the mute state to unmuted for the next story
+    isMuted = false;
+
+    // Reset the mute button text for the next story
+    const muteButton = document.getElementById('muteButton');
+    if (muteButton) {
+        muteButton.textContent = 'Mute';  // Reset mute button text
+    }
+
+    // Clear the audio input field (if any)
+    const audioInput = document.getElementById('audioInput');
+    if (audioInput) {
+        audioInput.value = ''; // Clear audio input
+    }
 }
 
 
 
+
+
+
 // Show Story in Viewer
+
+
 // Reaction Button Click Handler
 document.getElementById('storyViewerContent').addEventListener('click', function(event) {
     // Check if the clicked element is a reaction button
@@ -419,7 +426,7 @@ let isStoryViewed = false; // Flag to check if a story is being viewed
 // Initialize reaction counts
 let reactionCounts = {}; // Global object to store reaction counts for each story
 
-// Show the story in the viewer
+// Modified showStory function to start audio playback when the story is viewed
 function showStory(index) {
     if (index < 0 || index >= storyQueue.length) {
         closeStoryViewer();
@@ -439,6 +446,7 @@ function showStory(index) {
     const storyContainer = document.createElement('div');
     storyContainer.classList.add('story-container');
 
+    // Handle image story
     if (story.type === 'image') {
         const img = document.createElement('img');
         img.src = story.src;
@@ -447,18 +455,37 @@ function showStory(index) {
         img.style.transform = `rotate(${story.rotation}deg) scale(${story.resizeFactor})`;
 
         storyContainer.appendChild(img);
-        updateProgressBar(5000, () => showStory(index + 1));
-    } else if (story.type === 'video') {
+
+        // Play audio when the image is viewed (if available)
+        if (story.audioElement) {
+            story.audioElement.play().catch(error => {
+                console.error('Audio playback failed:', error);
+            });
+
+            // Stop the audio after 5 seconds (for image story)
+            setTimeout(() => {
+                story.audioElement.pause();
+                story.audioElement.currentTime = 0;
+            }, 5000); // Stop audio after 5 seconds
+        }
+
+        // Set the progress bar duration to 5 seconds for image stories
+        updateProgressBar(5000, () => showStory(index + 1)); 
+    } 
+    // Handle video story
+    else if (story.type === 'video') {
         const video = document.createElement('video');
         video.src = story.src;
         video.autoplay = true;
-        video.muted = false;
+        video.muted = isMuted; // Respect the global mute state
         video.playsInline = true;
         video.style.width = '100%';  // Set the width to be responsive
         video.style.height = 'auto';
         storyContainer.appendChild(video);
 
+        // Ensure video metadata is loaded before starting the progress bar
         video.onloadedmetadata = () => {
+            // Set the progress bar duration to 15 seconds for video stories
             updateProgressBar(15000, () => {
                 video.pause();
                 video.currentTime = 0;
@@ -473,11 +500,25 @@ function showStory(index) {
                 video.currentTime = 0;
                 showStory(index + 1);
             }
-        }, 15000); // 15 seconds limit for the video
+        }, 15000); // 15 seconds for video stories
+
+        // Play audio when the video is viewed (if available)
+        if (story.audioElement) {
+            story.audioElement.play().catch(error => {
+                console.error('Audio playback failed:', error);
+            });
+
+            // Stop the audio after 15 seconds (same as the video)
+            setTimeout(() => {
+                story.audioElement.pause();
+                story.audioElement.currentTime = 0;
+            }, 15000); // Stop audio after 15 seconds
+        }
     }
 
     // Append the story container to the viewer
     storyViewerContent.appendChild(storyContainer);
+
     // Initialize the reaction counts for this story if not already set
     if (!reactionCounts[index]) {
         reactionCounts[index] = { like: 0, love: 0, haha: 0, sad: 0, angry: 0 };
@@ -514,6 +555,8 @@ function showStory(index) {
     }
 
 }
+
+
 
 
 
@@ -633,4 +676,88 @@ function updateReactionCounts(storyIndex) {
     document.getElementById('hahaCount').textContent = counts.haha;
     document.getElementById('sadCount').textContent = counts.sad;
     document.getElementById('angryCount').textContent = counts.angry;
+}
+
+
+document.getElementById('audioInput').addEventListener('change', handleAudioUpload);
+
+function handleAudioUpload(event) {
+    const audioInput = event.target;
+    const audioPreview = document.getElementById('audioPreview');
+
+    // Check if a file is selected
+    if (audioInput.files && audioInput.files[0]) {
+        const file = audioInput.files[0];
+
+        // Check if the file is an audio file (optional additional validation)
+        if (file.type.startsWith('audio/')) {
+            // Create a URL for the selected file
+            const audioUrl = URL.createObjectURL(file);
+
+            // Set the audio source to the file URL
+            audioPreview.src = audioUrl;
+            
+            // Show the audio player
+            audioPreview.style.display = 'block';
+        } else {
+            alert('Please upload a valid audio file (mp3, wav, etc.).');
+        }
+    } else {
+        // Hide the audio player if no file is selected
+        audioPreview.style.display = 'none';
+    }
+}
+
+document.getElementById('audioInput').addEventListener('change', handleAudioUpload);
+
+let audioUrl = null;
+
+function handleAudioUpload(event) {
+    const audioInput = event.target;
+    const audioPreview = document.getElementById('audioPreview');
+
+    // Check if a file is selected
+    if (audioInput.files && audioInput.files[0]) {
+        const file = audioInput.files[0];
+
+        // Check if the file is an audio file
+        if (file.type.startsWith('audio/')) {
+            // Create a URL for the selected file
+            audioUrl = URL.createObjectURL(file);
+
+            // Set the audio source to the file URL
+            audioPreview.src = audioUrl;
+
+            // Show the audio player
+            audioPreview.style.display = 'block';
+        } else {
+            alert('Please upload a valid audio file (mp3, wav, etc.).');
+        }
+    } else {
+        // Hide the audio player if no file is selected
+        audioPreview.style.display = 'none';
+    }
+}
+
+// Global variable to track mute state
+let isMuted = false;
+
+// Function to toggle mute on the video
+function toggleMute() {
+    const video = document.getElementById('videoPreview');
+    const muteButton = document.getElementById('muteButton');
+    
+    // Toggle the mute state globally
+    isMuted = !isMuted;
+    
+    // Mute or unmute the preview video
+    if (video) {
+        video.muted = isMuted;
+    }
+    
+    // Update button text based on mute state
+    muteButton.textContent = isMuted ? 'Unmute' : 'Mute';
+    
+    // Also update all posted stories based on the global mute state
+    updateStoryMuteState();
 }
