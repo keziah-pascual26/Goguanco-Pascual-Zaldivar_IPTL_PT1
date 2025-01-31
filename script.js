@@ -225,6 +225,18 @@ function addStories() {
         return;
     }
 
+     // Ensure cropper is initialized before use
+    if (!cropper) {
+        console.log("Re-initializing cropper");
+        enableCropping();  // Call to reinitialize cropper
+    }
+
+    // Wait until cropper is ready
+    if (!cropper || !cropper.ready) {
+        console.log("Cropper not ready.");
+        return;  // Exit if cropper is not ready
+    }
+
     files.forEach((file, index) => {
         const storyElement = document.createElement('div');
         storyElement.classList.add('story');
@@ -241,17 +253,19 @@ function addStories() {
             audio: audioUrl  // Store the audio URL with the story data
         };
 
-        // If an image is being cropped, apply the crop before posting
-        if (cropper && file.type.startsWith('image/')) {
 
-            console.log("nakapasok")
+
+
+       // If an image is being cropped, apply the crop before posting
+        if (cropper && file.type.startsWith('image/')) {
+            console.log("nakapasok");
             const canvas = cropper.getCroppedCanvas();
             if (canvas) {
                 // Update the preview image with cropped image
                 storyData.src = canvas.toDataURL(); // Ensure the cropped image is added to the story data
                 cropper.destroy();
                 cropper = null;
-                console.log("heh")
+                console.log("heh");
             }
         }
 
@@ -905,23 +919,21 @@ function handleMediaUpload(event) {
 function enableCropping() {
     const imagePreview = document.getElementById('imagePreview');
     const cropButton = document.getElementById('cropImage');
-
+    
     if (imagePreview && !cropper) {
-        // Initialize Cropper.js only when the "Edit" button is clicked
         cropper = new Cropper(imagePreview, {
-            aspectRatio: 1, // You can modify the aspect ratio
-            viewMode: 2,    // Restrict cropping area within the image
+            aspectRatio: 1,
+            viewMode: 2,
             autoCropArea: 0.8,
             movable: true,
             zoomable: true,
             rotatable: true,
             scalable: true
         });
-
-        // Enable the crop button once cropping is ready
         cropButton.style.display = 'block';
     }
 }
+
 
 // Function to crop the image when "Crop Image" button is clicked
 function cropImage() {
