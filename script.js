@@ -852,27 +852,32 @@ function updateCharCount() {
 
 // Function to save the story with the description
 function saveStory() {
-    const title = document.getElementById('storyTitle').value.trim(); // Trim any whitespace
-    const description = document.getElementById('storyDescription').value.trim(); // Trim any whitespace
-    
-    console.log('Title:', title);
-console.log('Description:', description);
+    const title = document.getElementById('storyTitle').value.trim();
+    const description = document.getElementById('storyDescription').value.trim();
 
-    if (title && description) {
-        const story = {
-            title: title,
-            description: description,
-            media: [], // Add media files if needed
-        };
-        
-        // Push the new story into the storyQueue
-        storyQueue.push(story);
-        alert('Story saved successfully!');
-        closeCreateStoryModal(); // Close modal after saving
-    } else {
+    if (!title || !description) {
         alert('Please fill in both title and description!');
+        return;
     }
+
+    console.log('Title:', title);
+    console.log('Description:', description);
+
+    const story = {
+        title: title,
+        description: description,
+        media: []
+    };
+
+    // Show description
+    const descriptionDisplay = document.getElementById('storyDescriptionDisplay');
+    descriptionDisplay.innerHTML = `<p><strong>Description:</strong> ${description}</p>`;
+    descriptionDisplay.style.display = 'block';
+
+    alert('Story saved successfully!');
+    closeCreateStoryModal();
 }
+
 
 document.addEventListener('DOMContentLoaded', function() {
     const title = document.getElementById('storyTitle').value.trim();
