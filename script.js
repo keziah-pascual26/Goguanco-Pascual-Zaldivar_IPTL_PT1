@@ -871,7 +871,7 @@ function saveStory() {
 
     // Show description
     const descriptionDisplay = document.getElementById('storyDescriptionDisplay');
-    descriptionDisplay.innerHTML = `<p><strong>Description:</strong> ${description}</p>`;
+    descriptionDisplay.innerHTML = `<p><strong>Caption:</strong> ${description}</p>`;
     descriptionDisplay.style.display = 'block';
 
     alert('Story saved successfully!');

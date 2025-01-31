@@ -683,3 +683,9 @@ button:hover {
     margin-bottom: 50px; /* Increased space between counts and buttons */
     flex-wrap: nowrap; /* Prevents wrapping to the next line */
 }
+
+#storyDescriptionDisplay {
+    color: white; /* Set text color to white */
+    position: relative; /* Ensure you can adjust its position */
+    top: -25px; /* Adjust this value to make it go higher or lower */
+}
