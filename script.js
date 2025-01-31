@@ -261,7 +261,7 @@ document.querySelectorAll('.reaction').forEach(button => {
 });
 
 
-// Modified addStories function to include audio with image/video stories
+// Modified addStories function to consider toggleMute when uploading a story
 function addStories() {
     console.log('Post story');
     
@@ -288,7 +288,8 @@ function addStories() {
             title: storyTitle,
             rotation: rotationAngle,
             resizeFactor: resizeFactor,
-            audio: audioUrl  // Store the audio URL with the story data
+            audio: audioUrl,  // Store the audio URL with the story data
+            isMuted: isMuted   // Store the mute state at the time of upload
         };
 
         if (file.type.startsWith('image/')) {
@@ -300,8 +301,7 @@ function addStories() {
             const video = document.createElement('video');
             video.src = url;
             video.controls = false;
-            // Set the video to the current mute state
-            video.muted = isMuted;
+            video.muted = isMuted;  // Apply the current mute state
             storyElement.appendChild(video);
         } else {
             alert('Unsupported file type.');
@@ -312,8 +312,8 @@ function addStories() {
         if (audioUrl) {
             const audio = document.createElement('audio');
             audio.src = audioUrl;
-            audio.controls = false;  // You can set controls as needed
-            audio.loop = true; // Optional: make it loop (or false to play once)
+            audio.controls = false;
+            audio.loop = true;
             audio.pause(); // Ensure the audio is not playing automatically
             storyElement.appendChild(audio);
 
@@ -357,20 +357,13 @@ function addStories() {
     audioUrl = null;  // Clear the audio URL
     const audioPreview = document.querySelector('audio');
     if (audioPreview) {
-        // Remove the audio element from the DOM
         audioPreview.pause();  // Pause the audio
         audioPreview.currentTime = 0;  // Reset the playback position
         audioPreview.remove();  // Remove the audio element from the DOM
     }
 
-    // Reset the mute state to unmuted for the next story
-    isMuted = false;
-
-    // Reset the mute button text for the next story
-    const muteButton = document.getElementById('muteButton');
-    if (muteButton) {
-        muteButton.textContent = 'Mute';  // Reset mute button text
-    }
+    // Reset the mute state based on the current toggle state
+    updateStoryMuteState(); 
 
     // Clear the audio input field (if any)
     const audioInput = document.getElementById('audioInput');
@@ -378,6 +371,21 @@ function addStories() {
         audioInput.value = ''; // Clear audio input
     }
 }
+
+// **Helper function to update mute state of all videos**
+function updateStoryMuteState() {
+    document.querySelectorAll('video').forEach(video => {
+        video.muted = isMuted;
+    });
+
+    // Update the mute button text
+    const muteButton = document.getElementById('muteButton');
+    if (muteButton) {
+        muteButton.textContent = isMuted ? 'Unmute' : 'Mute';
+    }
+}
+
+
 
 
 
@@ -440,37 +448,36 @@ function showStory(index) {
     const closeButton = document.createElement('button');
     closeButton.textContent = 'Close';
     closeButton.classList.add('close-button');
-    closeButton.addEventListener('click', closeStoryViewer);
+    closeButton.addEventListener('click', () => {
+        stopAudioPlayback(); // Stop any playing audio when closing the story
+        closeStoryViewer();
+    });
     storyViewerContent.appendChild(closeButton);
 
-    // Create a wrapper to enforce the 9:16 aspect ratio
     const storyContainer = document.createElement('div');
     storyContainer.classList.add('story-container');
+
+    let audioPlaying = null; // To store the currently playing audio element
 
     // Handle image story
     if (story.type === 'image') {
         const img = document.createElement('img');
         img.src = story.src;
-
-        // Apply rotation and resize factor stored in story data
         img.style.transform = `rotate(${story.rotation}deg) scale(${story.resizeFactor})`;
-
         storyContainer.appendChild(img);
 
-        // Play audio when the image is viewed (if available)
         if (story.audioElement) {
-            story.audioElement.play().catch(error => {
-                console.error('Audio playback failed:', error);
-            });
+            story.audioElement.play().catch(error => console.error('Audio playback failed:', error));
+            audioPlaying = story.audioElement;
 
-            // Stop the audio after 5 seconds (for image story)
             setTimeout(() => {
-                story.audioElement.pause();
-                story.audioElement.currentTime = 0;
-            }, 5000); // Stop audio after 5 seconds
+                if (audioPlaying) {
+                    audioPlaying.pause();
+                    audioPlaying.currentTime = 0;
+                }
+            }, 5000);
         }
 
-        // Set the progress bar duration to 5 seconds for image stories
         updateProgressBar(5000, () => showStory(index + 1)); 
     } 
     // Handle video story
@@ -478,15 +485,13 @@ function showStory(index) {
         const video = document.createElement('video');
         video.src = story.src;
         video.autoplay = true;
-        video.muted = isMuted; // Respect the global mute state
+        video.muted = isMuted; 
         video.playsInline = true;
-        video.style.width = '100%';  // Set the width to be responsive
+        video.style.width = '100%';
         video.style.height = 'auto';
         storyContainer.appendChild(video);
 
-        // Ensure video metadata is loaded before starting the progress bar
         video.onloadedmetadata = () => {
-            // Set the progress bar duration to 15 seconds for video stories
             updateProgressBar(15000, () => {
                 video.pause();
                 video.currentTime = 0;
@@ -494,53 +499,41 @@ function showStory(index) {
             });
         };
 
-        // Ensure the video will be stopped after 15 seconds
         setTimeout(() => {
             if (!video.paused) {
                 video.pause();
                 video.currentTime = 0;
                 showStory(index + 1);
             }
-        }, 15000); // 15 seconds for video stories
+        }, 15000);
 
-        // Play audio when the video is viewed (if available)
         if (story.audioElement) {
-            story.audioElement.play().catch(error => {
-                console.error('Audio playback failed:', error);
-            });
+            story.audioElement.play().catch(error => console.error('Audio playback failed:', error));
+            audioPlaying = story.audioElement;
 
-            // Stop the audio after 15 seconds (same as the video)
             setTimeout(() => {
-                story.audioElement.pause();
-                story.audioElement.currentTime = 0;
-            }, 15000); // Stop audio after 15 seconds
+                if (audioPlaying) {
+                    audioPlaying.pause();
+                    audioPlaying.currentTime = 0;
+                }
+            }, 15000);
         }
     }
 
-    // Append the story container to the viewer
     storyViewerContent.appendChild(storyContainer);
 
-    // Initialize the reaction counts for this story if not already set
     if (!reactionCounts[index]) {
         reactionCounts[index] = { like: 0, love: 0, haha: 0, sad: 0, angry: 0 };
     }
 
-    // Enable reactions only when a story is being viewed
     toggleReactions(true);
-
-    // Update the displayed reaction counts for the current story
     updateReactionCounts(index);
-
-    // Set the flag to true as a story is being viewed
     isStoryViewed = true;
-
-    // Create story indicators, if needed
     createStoryIndicators();
     currentStoryIndex = index;
     updateActiveIndicator();
     storyViewer.classList.add('active');
 
-    // Create the progress bar if it doesn't exist
     if (!document.querySelector('.progress-bar')) {
         const progressBarContainer = document.createElement('div');
         progressBarContainer.classList.add('progress-bar-container');
@@ -549,7 +542,17 @@ function showStory(index) {
         progressBarContainer.appendChild(progressBar);
         storyViewerContent.appendChild(progressBarContainer);
     }
+
+    // Function to stop any playing audio when the story viewer is closed
+    function stopAudioPlayback() {
+        if (audioPlaying) {
+            audioPlaying.pause();
+            audioPlaying.currentTime = 0;
+        }
+    }
 }
+
+
 
 
 
@@ -729,22 +732,23 @@ function handleAudioUpload(event) {
 // Global variable to track mute state
 let isMuted = false;
 
-// Function to toggle mute on the video
 function toggleMute() {
-    const video = document.getElementById('videoPreview');
     const muteButton = document.getElementById('muteButton');
-    
+
     // Toggle the mute state globally
     isMuted = !isMuted;
-    
-    // Mute or unmute the preview video
-    if (video) {
-        video.muted = isMuted;
+
+    // Update the preview video (if exists)
+    const previewVideo = document.getElementById('videoPreview');
+    if (previewVideo) {
+        previewVideo.muted = isMuted;
     }
-    
+
+    // Update all videos inside stories
+    document.querySelectorAll('video').forEach(video => {
+        video.muted = isMuted;
+    });
+
     // Update button text based on mute state
     muteButton.textContent = isMuted ? 'Unmute' : 'Mute';
-    
-    // Also update all posted stories based on the global mute state
-    updateStoryMuteState();
 }
