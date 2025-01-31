@@ -99,6 +99,11 @@ header, footer {
   background: #feeb29;
 }
 
+button img {
+    pointer-events: none; /* Ensure the image doesn't block clicks */
+}
+
+
 .image {
   width: 150px;
   height: auto;
@@ -552,6 +557,9 @@ button:hover {
     display: none; /* Reactions are hidden by default */
     align-items: center;
     cursor: pointer;
+    display: flex;
+    justify-content: center;
+    gap: 10px; /* Space between buttons */
 }
 
 .reaction-btn {
@@ -563,11 +571,12 @@ button:hover {
 }
 
 .reaction-panel {
-    display: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     position: absolute;
     bottom: 40px;
     left: 0;
-    background: rgba(255, 255, 255, 0.9);
     padding: 5px;
     border-radius: 20px;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
@@ -643,27 +652,36 @@ button:hover {
     object-fit: contain; /* Keeps the aspect ratio intact */
 }
 
+.reaction img {
+    width: 24px; /* Adjust the width of the icons */
+    height: 24px; /* Adjust the height of the icons */
+    vertical-align: middle; /* Align images properly */
+}
+
+.reaction {
+    background: none; /* Remove default background */
+    border: none; /* Remove borders */
+    padding: 5px; /* Adjust padding for spacing */
+}
+
+/* Style for the character counter */
+.char-counter {
+    font-size: 0.8rem; /* Makes text smaller */
+    color: #555; /* Slightly dim color */
+    margin-top: 1px; /* Adds space between textarea and counter */
+    display: block; /* Ensures it appears on a new line */
+}
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/* Ensure reaction counts appear in a single line and add more space */
+#reactionCounts {
+    display: flex;
+    justify-content: center;
+    gap: 15px; /* Space between reaction counts */
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 50px; /* Increased space between counts and buttons */
+    flex-wrap: nowrap; /* Prevents wrapping to the next line */
+}

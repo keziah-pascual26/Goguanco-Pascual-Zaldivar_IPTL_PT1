@@ -269,6 +269,7 @@ function closeCreateStoryModal() {
     resizeFactor = 1;  // Reset to the default size factor
     createStoryModal.style.display = 'none';
     overlay.style.display = 'none'; // Hide the overlay
+    
 }
 
 
@@ -469,7 +470,6 @@ function showStory(index) {
         closeStoryViewer();
         return;
     }
-
     const story = storyQueue[index];
     storyViewerContent.innerHTML = ''; // Clear previous story content
     storyViewerTitle.textContent = story.title;
@@ -577,6 +577,11 @@ function showStory(index) {
     updateActiveIndicator();
     storyViewer.classList.add('active');
 
+    // Show navigation buttons
+    document.getElementById('previousButton').style.display = index > 0 ? 'block' : 'none';  // Show Previous button if not on first story
+    document.getElementById('nextButton').style.display = index < storyQueue.length - 1 ? 'block' : 'none';  // Show Next button if not on last story
+
+
     // Create the progress bar if it doesn't exist
     if (!document.querySelector('.progress-bar')) {
         const progressBarContainer = document.createElement('div');
@@ -586,11 +591,16 @@ function showStory(index) {
         progressBarContainer.appendChild(progressBar);
         storyViewerContent.appendChild(progressBarContainer);
     }
+
+    // Check if the story has a description (caption) and display it
+    if (story.description) {
+        const descriptionContainer = document.createElement('div');
+        descriptionContainer.classList.add('story-description-container');
+        descriptionContainer.innerHTML = `<p><strong>Description:</strong> ${story.description}</p>`;
+        storyViewerContent.appendChild(descriptionContainer);
+    }
+
 }
-
-
-
-
 
 
 
@@ -649,6 +659,14 @@ function updateActiveIndicator() {
         }
     });
 }
+
+document.getElementById('previousButton').addEventListener('click', () => {
+    showStory(currentStoryIndex - 1);
+});
+
+document.getElementById('nextButton').addEventListener('click', () => {
+    showStory(currentStoryIndex + 1);
+});
 
 // Toggle visibility of the reaction buttons
 function toggleReactions(visible) {
@@ -789,3 +807,115 @@ function toggleMute() {
 
 //CROPPING
 
+document.addEventListener('keydown', function(event) {
+    if (!isStoryViewed) return;  // Prevent actions if story is not viewed
+
+    switch(event.key) {
+        // Handle Right Arrow key - Show next story
+        case 'ArrowRight':
+            if (currentStoryIndex < storyQueue.length - 1) showStory(currentStoryIndex + 1);
+            break;
+        
+        // Handle Left Arrow key - Show previous story
+        case 'ArrowLeft':
+            if (currentStoryIndex > 0) showStory(currentStoryIndex - 1);
+            break;
+        
+        // Handle Spacebar - Play/Pause video
+        case ' ':
+            case 'Spacebar':
+                event.preventDefault(); // Prevent default spacebar behavior (scrolling)
+                const video = document.querySelector('#storyViewerContent video');
+                if (video) {
+                    // Toggle play/pause
+                    if (video.paused) {
+                        video.play();
+                    } else {
+                        video.pause();
+                    }
+                }
+                break;
+        
+        // Handle Enter key - View the current story
+        case 'Enter':
+            showStory(currentStoryIndex);
+            break;
+
+        // Handle Home key - Jump to the first story
+        case 'Home':
+            showStory(0);
+            break;
+
+        // Handle End key - Jump to the last story
+        case 'End':
+            showStory(storyQueue.length - 1);
+            break;
+
+        // Handle PageDown key - Show the next 5 stories
+        case 'PageDown':
+            showStory(currentStoryIndex + 5);
+            break;
+
+        // Handle PageUp key - Show the previous 5 stories
+        case 'PageUp':
+            showStory(currentStoryIndex - 5);
+            break;
+
+        // Handle F1 key - Show help message
+        case 'F1':
+            alert('Help: Use arrow keys to navigate, Enter to view a story.');
+            break;
+
+        // Handle M key - Mute/Unmute video
+        case 'm':
+            case 'M':
+                const videoMute = document.querySelector('#storyViewerContent video');
+                if (videoMute) {
+                    // Toggle mute
+                    videoMute.muted = !videoMute.muted;
+                }
+                break;
+
+        // Handle Escape key (ESC) - Close story viewer
+        case 'Escape':
+            closeStoryViewer();
+            break;
+    }
+});
+
+function updateCharCount() {
+        let textArea = document.getElementById("storyDescription");
+        let charCount = document.getElementById("charCount");
+        let remaining = 100 - textArea.value.length;
+        charCount.textContent = remaining + " characters remaining";
+    }
+
+
+// Function to save the story with the description
+function saveStory() {
+    const title = document.getElementById('storyTitle').value.trim(); // Trim any whitespace
+    const description = document.getElementById('storyDescription').value.trim(); // Trim any whitespace
+    
+    console.log('Title:', title);
+console.log('Description:', description);
+
+    if (title && description) {
+        const story = {
+            title: title,
+            description: description,
+            media: [], // Add media files if needed
+        };
+        
+        // Push the new story into the storyQueue
+        storyQueue.push(story);
+        alert('Story saved successfully!');
+        closeCreateStoryModal(); // Close modal after saving
+    } else {
+        alert('Please fill in both title and description!');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const title = document.getElementById('storyTitle').value.trim();
+    console.log('Title:', title);  // Check the value when the DOM is ready
+});
