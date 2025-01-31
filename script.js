@@ -16,57 +16,6 @@ let rotationAngle = 0;
 let currentStoryData = null;
 let resizeFactor = 1;  // A factor to control resizing
 
-// Function to handle media upload
-function handleMediaUpload(event) {
-    const file = event.target.files[0];
-    const imageEditor = document.getElementById('imageEditor');
-    const videoEditor = document.getElementById('videoEditor');
-    const imagePreview = document.getElementById('imagePreview');
-    const videoPreview = document.getElementById('videoPreview');
-    const videoSource = document.getElementById('videoSource');
-    const previewContainer = document.getElementById('previewContainer');
-    
-    // Hide both editors initially
-    imageEditor.style.display = 'none';
-    videoEditor.style.display = 'none';
-
-    // Hide preview initially
-    imagePreview.style.display = 'none';
-    videoPreview.style.display = 'none';
-
-    // Hide editor section initially
-    document.getElementById('editorSection').style.display = 'none';
-
-    if (file) {
-        const fileType = file.type;
-        
-        // Show the appropriate editor and preview based on file type
-        if (fileType.startsWith('image/')) {
-            imageEditor.style.display = 'block'; 
-            const reader = new FileReader();
-            reader.onload = function() {
-                // Set the image preview source and display it
-                imagePreview.src = reader.result;
-                imagePreview.style.display = 'block';  // Show image preview
-            }
-            reader.readAsDataURL(file);
-        } else if (fileType.startsWith('video/')) {
-            videoEditor.style.display = 'block'; 
-            const reader = new FileReader();
-            reader.onload = function() {
-                // Set the video preview source and display it
-                videoSource.src = reader.result;
-                videoPreview.style.display = 'block';  // Show video preview
-                videoPreview.load();  // Ensure the video is ready to play
-            }
-            reader.readAsDataURL(file);
-        }
-    }
-
-    // Show the preview container once the media is selected
-    previewContainer.style.display = 'block';
-}
-
 // Function to show the editor section when "Edit" button is clicked
 function editStory() {
     // Display the editor section
@@ -292,16 +241,30 @@ function addStories() {
             audio: audioUrl  // Store the audio URL with the story data
         };
 
+        // If an image is being cropped, apply the crop before posting
+        if (cropper && file.type.startsWith('image/')) {
+
+            console.log("nakapasok")
+            const canvas = cropper.getCroppedCanvas();
+            if (canvas) {
+                // Update the preview image with cropped image
+                storyData.src = canvas.toDataURL(); // Ensure the cropped image is added to the story data
+                cropper.destroy();
+                cropper = null;
+                console.log("heh")
+            }
+        }
+
+        // Create and append the appropriate media element (image or video)
         if (file.type.startsWith('image/')) {
             const img = document.createElement('img');
-            img.src = url;
+            img.src = storyData.src; // Use the cropped or original image
             img.style.transform = `rotate(${rotationAngle}deg) scale(${resizeFactor})`; 
             storyElement.appendChild(img);
         } else if (file.type.startsWith('video/')) {
             const video = document.createElement('video');
-            video.src = url;
+            video.src = storyData.src;
             video.controls = false;
-            // Set the video to the current mute state
             video.muted = isMuted;
             storyElement.appendChild(video);
         } else {
@@ -309,16 +272,14 @@ function addStories() {
             return;
         }
 
-        // Attach audio if available (audioUrl is set)
+        // Attach audio if available
         if (audioUrl) {
             const audio = document.createElement('audio');
             audio.src = audioUrl;
-            audio.controls = false;  // You can set controls as needed
-            audio.loop = true; // Optional: make it loop (or false to play once)
-            audio.pause(); // Ensure the audio is not playing automatically
+            audio.controls = false;
+            audio.loop = true;
+            audio.pause();
             storyElement.appendChild(audio);
-
-            // Store the audio element in the storyData for later use
             storyData.audioElement = audio;
         }
 
@@ -328,7 +289,7 @@ function addStories() {
 
         // Attach click event to view the story
         storyElement.addEventListener('click', () => {
-            currentStoryIndex = storyQueue.findIndex(item => item.src === url);
+            currentStoryIndex = storyQueue.findIndex(item => item.src === storyData.src);
             showStory(currentStoryIndex);
         });
 
@@ -350,36 +311,29 @@ function addStories() {
     mediaInput.value = '';
 
     createStoryIndicators();
-
-    // Close modal after adding story
     closeCreateStoryModal();
 
-    // **Reset the audio attached and reset the audio URL**
-    audioUrl = null;  // Clear the audio URL
+    // **Reset audio attached and reset the audio URL**
+    audioUrl = null; 
     const audioPreview = document.querySelector('audio');
     if (audioPreview) {
-        // Remove the audio element from the DOM
-        audioPreview.pause();  // Pause the audio
-        audioPreview.currentTime = 0;  // Reset the playback position
-        audioPreview.remove();  // Remove the audio element from the DOM
+        audioPreview.pause();
+        audioPreview.currentTime = 0;
+        audioPreview.remove();
     }
 
-    // Reset the mute state to unmuted for the next story
     isMuted = false;
-
-    // Reset the mute button text for the next story
     const muteButton = document.getElementById('muteButton');
     if (muteButton) {
-        muteButton.textContent = 'Mute';  // Reset mute button text
+        muteButton.textContent = 'Mute';
     }
 
-    // Clear the audio input field (if any)
+    // Clear the audio input field
     const audioInput = document.getElementById('audioInput');
     if (audioInput) {
-        audioInput.value = ''; // Clear audio input
+        audioInput.value = '';
     }
 }
-
 
 
 
@@ -883,3 +837,123 @@ document.addEventListener('DOMContentLoaded', function() {
     const title = document.getElementById('storyTitle').value.trim();
     console.log('Title:', title);  // Check the value when the DOM is ready
 });
+
+
+let cropper; // Global variable to store Cropper instance
+
+// Function to handle media upload
+function handleMediaUpload(event) {
+    const file = event.target.files[0];
+    const imageEditor = document.getElementById('imageEditor');
+    const videoEditor = document.getElementById('videoEditor');
+    const imagePreview = document.getElementById('imagePreview');
+    const videoPreview = document.getElementById('videoPreview');
+    const videoSource = document.getElementById('videoSource');
+    const previewContainer = document.getElementById('previewContainer');
+    const cropButton = document.getElementById('cropImage');
+
+    // Hide both editors initially
+    imageEditor.style.display = 'none';
+    videoEditor.style.display = 'none';
+
+    // Hide preview initially
+    imagePreview.style.display = 'none';
+    videoPreview.style.display = 'none';
+
+    // Hide editor section initially
+    document.getElementById('editorSection').style.display = 'none';
+    cropButton.style.display = 'none'; // Hide crop button initially
+
+    if (file) {
+        const fileType = file.type;
+
+        // Show the appropriate editor and preview based on file type
+        if (fileType.startsWith('image/')) {
+            imageEditor.style.display = 'block';
+            const reader = new FileReader();
+            reader.onload = function () {
+                // Set the image preview source
+                imagePreview.src = reader.result;
+                imagePreview.style.display = 'block';
+
+                // Destroy previous Cropper instance (if exists)
+                if (cropper) {
+                    cropper.destroy();
+                }
+                // Disable cropping initially (cropper is not initialized yet)
+                cropButton.style.display = 'none'; 
+
+            };
+            reader.readAsDataURL(file);
+        } else if (fileType.startsWith('video/')) {
+            videoEditor.style.display = 'block';
+            const reader = new FileReader();
+            reader.onload = function () {
+                videoSource.src = reader.result;
+                videoPreview.style.display = 'block';
+                videoPreview.load();
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // Show the preview container once the media is selected
+    previewContainer.style.display = 'block';
+}
+
+// Function to enable cropping and initialize the Cropper.js instance
+function enableCropping() {
+    const imagePreview = document.getElementById('imagePreview');
+    const cropButton = document.getElementById('cropImage');
+
+    if (imagePreview && !cropper) {
+        // Initialize Cropper.js only when the "Edit" button is clicked
+        cropper = new Cropper(imagePreview, {
+            aspectRatio: 1, // You can modify the aspect ratio
+            viewMode: 2,    // Restrict cropping area within the image
+            autoCropArea: 0.8,
+            movable: true,
+            zoomable: true,
+            rotatable: true,
+            scalable: true
+        });
+
+        // Enable the crop button once cropping is ready
+        cropButton.style.display = 'block';
+    }
+}
+
+// Function to crop the image when "Crop Image" button is clicked
+function cropImage() {
+    if (cropper) {
+        // Get the cropped image data
+        const croppedCanvas = cropper.getCroppedCanvas();
+        if (croppedCanvas) {
+            const croppedImageURL = croppedCanvas.toDataURL('image/png'); // Convert to base64 PNG
+
+            // Replace the preview image with the cropped version
+            document.getElementById('imagePreview').src = croppedImageURL;
+
+            // Optional: Destroy cropper instance after cropping
+            cropper.destroy();
+            cropper = null;
+        }
+    }
+}
+
+
+
+
+
+
+// Attach event listener to the "Crop Image" button
+document.getElementById('cropImage').addEventListener('click', cropImage);
+
+// Attach event listener to the "Edit" button
+function editStory() {
+    // Enable cropping once the edit button is clicked
+    enableCropping();
+
+    // Show the image editor section
+    document.getElementById('editorSection').style.display = 'block';
+}

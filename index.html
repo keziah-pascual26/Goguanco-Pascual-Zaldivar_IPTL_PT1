@@ -6,6 +6,10 @@
     <title>The Smiski Shelf</title>
     <link rel="stylesheet" href="styles.css">
     <script src="script.js" defer></script>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+
 </head>
 <body>
 
@@ -103,7 +107,6 @@
                     <textarea id="storyDescription" placeholder="Enter story description (Max: 100 characters)" 
                         maxlength="100" oninput="updateCharCount()"></textarea>
                     <p id="charCount" class="char-counter">100 characters remaining</p>
-                    <button onclick="saveStory()">Save</button>
                 </div>
 
                 <div class="file-upload">
@@ -141,7 +144,7 @@
                     <h3>Edit Image</h3>
                     <div>
                         <button onclick="rotateImage()">Rotate</button>
-                        <button onclick="cropImage()">Crop</button>
+                        <button id="cropImage" onclick="cropImage()">Crop</button>
                         <!-- Image Resizing Section -->
                         <div class="image-resize-controls">
                             <span>Resize:</span>
@@ -167,7 +170,7 @@
                 </div>
             </div>
 
-            <button onclick="saveStory(); addStories();">Post Story</button>
+            <button onclick="addStories()">Post Story</button>
             <button onclick="closeCreateStoryModal()">Cancel</button>
         </div>
     </div>
