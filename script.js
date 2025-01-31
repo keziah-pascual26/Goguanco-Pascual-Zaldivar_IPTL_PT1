@@ -262,7 +262,7 @@ document.querySelectorAll('.reaction').forEach(button => {
 });
 
 
-// Modified addStories function to consider toggleMute when uploading a story
+// Modified addStories function to handle specific audio with videos
 function addStories() {
     console.log('Post story');
     
@@ -373,18 +373,6 @@ function addStories() {
     }
 }
 
-// **Helper function to update mute state of all videos**
-function updateStoryMuteState() {
-    document.querySelectorAll('video').forEach(video => {
-        video.muted = isMuted;
-    });
-
-    // Update the mute button text
-    const muteButton = document.getElementById('muteButton');
-    if (muteButton) {
-        muteButton.textContent = isMuted ? 'Unmute' : 'Mute';
-    }
-}
 
 
 
@@ -435,12 +423,15 @@ let isStoryViewed = false; // Flag to check if a story is being viewed
 // Initialize reaction counts
 let reactionCounts = {}; // Global object to store reaction counts for each story
 
-// Modified showStory function to start audio playback when the story is viewed
+let currentAudio = null;  // Global variable to track the currently playing audio
+let currentVideo = null;  // Global variable to track the currently playing video
+
 function showStory(index) {
     if (index < 0 || index >= storyQueue.length) {
         closeStoryViewer();
         return;
     }
+
     const story = storyQueue[index];
     storyViewerContent.innerHTML = ''; // Clear previous story content
     storyViewerTitle.textContent = story.title;
@@ -457,7 +448,8 @@ function showStory(index) {
     const storyContainer = document.createElement('div');
     storyContainer.classList.add('story-container');
 
-    let audioPlaying = null; // To store the currently playing audio element
+    // Stop any previously playing audio or video
+    stopAudioPlayback(); 
 
     // Handle image story
     if (story.type === 'image') {
@@ -467,18 +459,19 @@ function showStory(index) {
         storyContainer.appendChild(img);
 
         if (story.audioElement) {
-            story.audioElement.play().catch(error => console.error('Audio playback failed:', error));
-            audioPlaying = story.audioElement;
+            currentAudio = story.audioElement;  // Store the new audio element
+            currentAudio.play().catch(error => console.error('Audio playback failed:', error));
 
             setTimeout(() => {
-                if (audioPlaying) {
-                    audioPlaying.pause();
-                    audioPlaying.currentTime = 0;
+                if (currentAudio) {
+                    currentAudio.pause();
+                    currentAudio.currentTime = 0;
                 }
-            }, 5000);
+            }, 5000); // Stop the audio after 5 seconds
         }
 
         updateProgressBar(5000, () => showStory(index + 1)); 
+
     } 
     // Handle video story
     else if (story.type === 'video') {
@@ -493,6 +486,7 @@ function showStory(index) {
 
         video.onloadedmetadata = () => {
             updateProgressBar(15000, () => {
+                stopAudioPlayback(); // Stop audio when moving to next story
                 video.pause();
                 video.currentTime = 0;
                 showStory(index + 1);
@@ -501,22 +495,25 @@ function showStory(index) {
 
         setTimeout(() => {
             if (!video.paused) {
+                stopAudioPlayback(); // Stop audio when moving to next story
                 video.pause();
                 video.currentTime = 0;
                 showStory(index + 1);
             }
         }, 15000);
 
+        currentVideo = video;  // Store the video element
+
         if (story.audioElement) {
-            story.audioElement.play().catch(error => console.error('Audio playback failed:', error));
-            audioPlaying = story.audioElement;
+            currentAudio = story.audioElement;  // Store the new audio element for video
+            currentAudio.play().catch(error => console.error('Audio playback failed:', error));
 
             setTimeout(() => {
-                if (audioPlaying) {
-                    audioPlaying.pause();
-                    audioPlaying.currentTime = 0;
+                if (currentAudio) {
+                    currentAudio.pause();
+                    currentAudio.currentTime = 0;
                 }
-            }, 15000);
+            }, 15000); // Stop the audio after 15 seconds
         }
     }
 
@@ -538,7 +535,6 @@ function showStory(index) {
     document.getElementById('previousButton').style.display = index > 0 ? 'block' : 'none';  // Show Previous button if not on first story
     document.getElementById('nextButton').style.display = index < storyQueue.length - 1 ? 'block' : 'none';  // Show Next button if not on last story
 
-
     // Create the progress bar if it doesn't exist
     if (!document.querySelector('.progress-bar')) {
         const progressBarContainer = document.createElement('div');
@@ -549,13 +545,18 @@ function showStory(index) {
         storyViewerContent.appendChild(progressBarContainer);
     }
 
-    // Function to stop any playing audio when the story viewer is closed
+    // Function to stop any playing audio or video when the story viewer is closed or changed
     function stopAudioPlayback() {
-        if (audioPlaying) {
-            audioPlaying.pause();
-            audioPlaying.currentTime = 0;
+        if (currentAudio) {
+            currentAudio.pause();
+            currentAudio.currentTime = 0;
+        }
+        if (currentVideo) {
+            currentVideo.pause();
+            currentVideo.currentTime = 0;
         }
     }
+
     // Check if the story has a description (caption) and display it
     if (story.description) {
         const descriptionContainer = document.createElement('div');
@@ -563,8 +564,8 @@ function showStory(index) {
         descriptionContainer.innerHTML = `<p><strong>Description:</strong> ${story.description}</p>`;
         storyViewerContent.appendChild(descriptionContainer);
     }
-
 }
+
 
 
 
@@ -774,6 +775,7 @@ function toggleMute() {
     // Update button text based on mute state
     muteButton.textContent = isMuted ? 'Unmute' : 'Mute';
 }
+
 document.addEventListener('keydown', function(event) {
     if (!isStoryViewed) return;  // Prevent actions if story is not viewed
 
