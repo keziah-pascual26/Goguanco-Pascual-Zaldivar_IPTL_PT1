@@ -187,31 +187,57 @@ function maximizeImage() {
 }
 
 // Function to handle trimming the video
-function trimVideo() {
-    console.log('Trim video');
-    
-    const videoElement = document.getElementById('videoPreview');
-    const videoSource = document.getElementById('videoSource');
-    
-    // Get start and end time from the user or a preset range (for simplicity, using 10-20 seconds)
-    const startTime = 10;  // Start time for trimming (in seconds)
-    const endTime = 20;    // End time for trimming (in seconds)
-    
-    // Set the video element's current time to the start time
-    videoElement.currentTime = startTime;
-    
-    // Create a new blob for the trimmed section (requires advanced techniques)
-    // For now, we will simply display the segment by seeking to start time and playing until end time
-    videoElement.play();
-    
-    // Stop the video once it reaches the end time
-    videoElement.ontimeupdate = function () {
-        if (videoElement.currentTime >= endTime) {
-            videoElement.pause();
-            videoElement.currentTime = startTime;  // Reset to start time for potential replay
+function trimAndRecordVideo() {
+    return new Promise((resolve, reject) => {
+        // Ensure everything is set up correctly and the video is trimmed
+        const videoElement = document.getElementById('videoPreview');
+        const startTimeInput = document.getElementById('startTimeInput');
+        const endTimeInput = document.getElementById('endTimeInput');
+        const startTime = parseInt(startTimeInput.value);
+        const endTime = parseInt(endTimeInput.value);
+
+        // Validate the start and end times
+        if (isNaN(startTime) || isNaN(endTime) || startTime >= endTime) {
+            reject('Invalid start or end time.');
+            return;
         }
-    };
+
+        const stream = videoElement.captureStream();
+        if (stream.getTracks().length === 0) {
+            reject('No valid audio or video tracks found.');
+            return;
+        }
+
+        const mediaRecorder = new MediaRecorder(stream);
+        let recordedChunks = [];
+        
+        mediaRecorder.ondataavailable = function(event) {
+            recordedChunks.push(event.data);
+        };
+
+        mediaRecorder.start();
+
+        videoElement.currentTime = startTime;
+        videoElement.play();
+
+        videoElement.ontimeupdate = function () {
+            if (videoElement.currentTime >= endTime - 0.1) { // Slight buffer
+                videoElement.pause();
+                mediaRecorder.stop();
+            }
+        };
+
+        mediaRecorder.onstop = function () {
+            const blob = new Blob(recordedChunks, { type: 'video/webm' });
+            const videoUrl = URL.createObjectURL(blob);
+            resolve(videoUrl);  // Resolve the Promise with the video URL
+        };
+    });
 }
+
+
+
+
 
 
 // Open Create Story Modal
@@ -305,10 +331,8 @@ function addStories() {
         storyElement.classList.add('story');
         storyElement.setAttribute('data-index', storyQueue.length);  
 
-        const url = URL.createObjectURL(file);
-
         let storyData = {
-            src: url,
+            src: URL.createObjectURL(file),
             type: file.type.startsWith('image/') ? 'image' : 'video',
             title: storyTitle,
             rotation: rotationAngle,
@@ -317,49 +341,52 @@ function addStories() {
             isMuted: isMuted   // Store the mute state at the time of upload
         };
 
-        if (file.type.startsWith('image/')) {
+          // For video files, trim the video before adding it to the story queue
+        if (file.type.startsWith('video/')) {
+            // Call the trimVideo function and wait for it to finish
+            trimAndRecordVideo().then((trimmedUrl) => {
+                storyData.src = trimmedUrl; // Use the trimmed video URL
+                const video = document.createElement('video');
+                video.src = trimmedUrl;
+                video.controls = true;  // Enable video controls for interaction
+                video.muted = isMuted;  // Mute the video initially so the audio doesn't play immediately
+                storyElement.appendChild(video);
+
+                // Add to story queue after trimming
+                storyQueue.push(storyData);
+                reactionCounts[storyQueue.length - 1] = { like: 0, love: 0, haha: 0, sad: 0, angry: 0 };
+
+                // Add the story element to the container
+                storiesContainer.appendChild(storyElement);
+
+                // Optional: Show a loading indicator until the upload is complete
+                showLoadingIndicator(true);
+                // Simulate upload delay (e.g., 3 seconds)
+                setTimeout(() => {
+                    // Hide loading indicator after upload
+                    showLoadingIndicator(false);
+                }, 3000); // Adjust as needed
+            }).catch((error) => {
+                console.error('Error trimming video:', error);
+                alert('There was an error trimming the video.');
+            });
+        }  else {
+            // Handle image files (no trimming needed)
             const img = document.createElement('img');
-            img.src = url;
+            img.src = storyData.src;
             img.style.transform = `rotate(${rotationAngle}deg) scale(${resizeFactor})`; 
             storyElement.appendChild(img);
-        } else if (file.type.startsWith('video/')) {
-            const video = document.createElement('video');
-            video.src = url;
-            video.controls = false;
-            video.muted = isMuted;  // Apply the current mute state
-            storyElement.appendChild(video);
-        } else {
-            alert('Unsupported file type.');
-            return;
+            
+            // Add to story queue
+            storyQueue.push(storyData);
+            reactionCounts[storyQueue.length - 1] = { like: 0, love: 0, haha: 0, sad: 0, angry: 0 };
+
+            // Add the story element to the container
+            storiesContainer.appendChild(storyElement);
         }
-
-        // Attach audio if available (audioUrl is set)
-        if (audioUrl) {
-            const audio = document.createElement('audio');
-            audio.src = audioUrl;
-            audio.controls = false;
-            audio.loop = true;
-            audio.pause(); // Ensure the audio is not playing automatically
-            storyElement.appendChild(audio);
-
-            // Store the audio element in the storyData for later use
-            storyData.audioElement = audio;
-        }
-
-        // Add story details to queue
-        storyQueue.push(storyData);
-        reactionCounts[storyQueue.length - 1] = { like: 0, love: 0, haha: 0, sad: 0, angry: 0 };
-
-        // Attach click event to view the story
-        storyElement.addEventListener('click', () => {
-            currentStoryIndex = storyQueue.findIndex(item => item.src === url);
-            showStory(currentStoryIndex);
-        });
-
-        storiesContainer.appendChild(storyElement);
     });
 
-    // **RESET rotation and resize after posting**
+    // Reset rotation and resize after posting
     rotationAngle = 0;
     resizeFactor = 1;
 
@@ -378,7 +405,7 @@ function addStories() {
     // Close modal after adding story
     closeCreateStoryModal();
 
-    // **Reset the audio attached and reset the audio URL**
+    // Reset the audio attached and reset the audio URL
     audioUrl = null;  // Clear the audio URL
     const audioPreview = document.querySelector('audio');
     if (audioPreview) {
@@ -394,6 +421,14 @@ function addStories() {
     const audioInput = document.getElementById('audioInput');
     if (audioInput) {
         audioInput.value = ''; // Clear audio input
+    }
+}
+
+// Function to show or hide loading indicator
+function showLoadingIndicator(isVisible) {
+    const loadingIndicator = document.getElementById('loadingIndicator'); // Assuming you have an element with this ID
+    if (loadingIndicator) {
+        loadingIndicator.style.display = isVisible ? 'block' : 'none';
     }
 }
 
