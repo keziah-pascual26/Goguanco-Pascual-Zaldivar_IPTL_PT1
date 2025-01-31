@@ -56,6 +56,14 @@
 
         <!-- Story Reactions Panel (Initially Hidden) -->
         <div class="reaction-panel" id="reactionPanel">
+            <div id="reactionCounts" style="display: none;">
+                <span>👍 <span id="likeCount">0</span></span>
+                <span>❤️ <span id="loveCount">0</span></span>
+                <span>😂 <span id="hahaCount">0</span></span>
+                <span>😢 <span id="sadCount">0</span></span>
+                <span>😡 <span id="angryCount">0</span></span>
+            </div>          
+
             <div class="reactions">
                 <button class="reaction" data-reaction="like">
                     <img src="reactionIcons/like.png" alt="Like" /> <!-- Like Image -->
@@ -73,14 +81,7 @@
                     <img src="reactionIcons/angry.png" alt="Angry" /> <!-- Angry Image -->
                 </button>
                 <button id="moreReactionsButton">More</button>
-                <div id="reactionCounts" style="display: none;">
-                    <p>Like: <span id="likeCount">0</span></p>
-                    <p>Love: <span id="loveCount">0</span></p>
-                    <p>Haha: <span id="hahaCount">0</span></p>
-                    <p>Sad: <span id="sadCount">0</span></p>
-                    <p>Angry: <span id="angryCount">0</span></p>
-                </div>
-            </div>
+            </div>           
         </div>
     </div>
 
