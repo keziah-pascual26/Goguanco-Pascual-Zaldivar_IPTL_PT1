@@ -186,9 +186,46 @@ function maximizeImage() {
     }
 }
 
-function trimVideo() {
-    console.log('Trim video');
+function trimVideo(startTime, endTime) {
+    // Ensure the start and end times are valid numbers
+    if (isNaN(startTime) || isNaN(endTime)) {
+        console.error('Invalid time values provided');
+        return;
+    }
+
+    const video = document.querySelector('video');  // Select the first video element
+
+    if (video) {
+        // Ensure video is loaded and ready to play
+        video.onloadedmetadata = function() {
+            // Check if the start and end times are within the video duration
+            if (startTime < 0 || endTime > video.duration || startTime >= endTime) {
+                console.error('Invalid time range');
+                return;
+            }
+
+            // Set the current time to the start time to begin playback from there
+            video.currentTime = startTime;
+
+            // Play the video from the start time
+            video.play();
+
+            // Pause the video once the end time is reached
+            video.ontimeupdate = function() {
+                if (video.currentTime >= endTime) {
+                    video.pause();
+                    video.currentTime = startTime; // Optional: Reset to start time after trimming
+                }
+            };
+
+            console.log(`Video is trimmed from ${startTime}s to ${endTime}s`);
+        };
+    } else {
+        console.error('No video element found');
+    }
 }
+
+
 
 // Open Create Story Modal
 function openCreateStoryModal() {
@@ -748,3 +785,7 @@ function toggleMute() {
     // Also update all posted stories based on the global mute state
     updateStoryMuteState();
 }
+
+
+//CROPPING
+

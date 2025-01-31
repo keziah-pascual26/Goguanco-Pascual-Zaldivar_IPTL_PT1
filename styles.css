@@ -434,6 +434,7 @@ header, footer {
     max-width: 900px;
     margin: 20px auto;
     display: none;
+    height: auto;
 }
 
 #imageEditor, #videoEditor {
@@ -641,6 +642,10 @@ button:hover {
     height: 100%;
     object-fit: contain; /* Keeps the aspect ratio intact */
 }
+
+
+
+
 
 
 
