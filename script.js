@@ -921,16 +921,23 @@ function enableCropping() {
     const cropButton = document.getElementById('cropImage');
     
     if (imagePreview && !cropper) {
-        cropper = new Cropper(imagePreview, {
-            aspectRatio: 1,
-            viewMode: 2,
-            autoCropArea: 0.8,
-            movable: true,
-            zoomable: true,
-            rotatable: true,
-            scalable: true
-        });
-        cropButton.style.display = 'block';
+        const img = new Image();
+        img.src = imagePreview.src;  // Set the image source from the preview
+
+        img.onload = function() {
+            // Initialize the cropper once the image has loaded
+            cropper = new Cropper(img, {
+                aspectRatio: 1,
+                viewMode: 2,
+                autoCropArea: 0.8,
+                movable: true,
+                zoomable: true,
+                rotatable: true,
+                scalable: true
+            });
+            console.log("Cropper initialized after image load.");
+            cropButton.style.display = 'block';
+        };
     }
 }
 
