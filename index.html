@@ -156,10 +156,19 @@
                         <button id="muteButton" onclick="toggleMute()">Mute</button>
                         <button onclick="trimVideo()">Trim Video</button>
                     </div>
-                    <video id="videoPreview" controls>
+                    
+                    <!-- Input fields for start and end time -->
+                    <label for="startTimeInput">Start Time (seconds):</label>
+                    <input type="number" id="startTimeInput" min="0" placeholder="Start time in seconds">
+                
+                    <label for="endTimeInput">End Time (seconds):</label>
+                    <input type="number" id="endTimeInput" min="0" placeholder="End time in seconds">
+                    
+                    <!-- <video id="videoPreview" controls>
                         <source id="videoSource" src="" type="video/mp4">
-                    </video>
+                    </video> -->
                 </div>
+                
             </div>
 
             <button onclick="addStories(), saveStory()">Post Story</button>

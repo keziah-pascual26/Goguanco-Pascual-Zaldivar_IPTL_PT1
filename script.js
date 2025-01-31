@@ -186,9 +186,33 @@ function maximizeImage() {
     }
 }
 
+// Function to handle trimming the video
 function trimVideo() {
     console.log('Trim video');
+    
+    const videoElement = document.getElementById('videoPreview');
+    const videoSource = document.getElementById('videoSource');
+    
+    // Get start and end time from the user or a preset range (for simplicity, using 10-20 seconds)
+    const startTime = 10;  // Start time for trimming (in seconds)
+    const endTime = 20;    // End time for trimming (in seconds)
+    
+    // Set the video element's current time to the start time
+    videoElement.currentTime = startTime;
+    
+    // Create a new blob for the trimmed section (requires advanced techniques)
+    // For now, we will simply display the segment by seeking to start time and playing until end time
+    videoElement.play();
+    
+    // Stop the video once it reaches the end time
+    videoElement.ontimeupdate = function () {
+        if (videoElement.currentTime >= endTime) {
+            videoElement.pause();
+            videoElement.currentTime = startTime;  // Reset to start time for potential replay
+        }
+    };
 }
+
 
 // Open Create Story Modal
 function openCreateStoryModal() {
