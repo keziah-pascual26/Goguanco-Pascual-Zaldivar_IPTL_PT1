@@ -187,30 +187,52 @@ function maximizeImage() {
 }
 
 // Function to handle trimming the video
-function trimVideo() {
-    console.log('Trim video');
-    
-    const videoElement = document.getElementById('videoPreview');
-    const videoSource = document.getElementById('videoSource');
-    
-    // Get start and end time from the user or a preset range (for simplicity, using 10-20 seconds)
-    const startTime = 10;  // Start time for trimming (in seconds)
-    const endTime = 20;    // End time for trimming (in seconds)
-    
-    // Set the video element's current time to the start time
-    videoElement.currentTime = startTime;
-    
-    // Create a new blob for the trimmed section (requires advanced techniques)
-    // For now, we will simply display the segment by seeking to start time and playing until end time
-    videoElement.play();
-    
-    // Stop the video once it reaches the end time
-    videoElement.ontimeupdate = function () {
-        if (videoElement.currentTime >= endTime) {
-            videoElement.pause();
-            videoElement.currentTime = startTime;  // Reset to start time for potential replay
+function trimAndRecordVideo() {
+    return new Promise((resolve, reject) => {
+        // Ensure everything is set up correctly and the video is trimmed
+        const videoElement = document.getElementById('videoPreview');
+        const startTimeInput = document.getElementById('startTimeInput');
+        const endTimeInput = document.getElementById('endTimeInput');
+        const startTime = parseInt(startTimeInput.value);
+        const endTime = parseInt(endTimeInput.value);
+
+        // Validate the start and end times
+        if (isNaN(startTime) || isNaN(endTime) || startTime >= endTime) {
+            reject('Invalid start or end time.');
+            return;
         }
-    };
+
+        const stream = videoElement.captureStream();
+        if (stream.getTracks().length === 0) {
+            reject('No valid audio or video tracks found.');
+            return;
+        }
+
+        const mediaRecorder = new MediaRecorder(stream);
+        let recordedChunks = [];
+        
+        mediaRecorder.ondataavailable = function(event) {
+            recordedChunks.push(event.data);
+        };
+
+        mediaRecorder.start();
+
+        videoElement.currentTime = startTime;
+        videoElement.play();
+
+        videoElement.ontimeupdate = function () {
+            if (videoElement.currentTime >= endTime - 0.1) { // Slight buffer
+                videoElement.pause();
+                mediaRecorder.stop();
+            }
+        };
+
+        mediaRecorder.onstop = function () {
+            const blob = new Blob(recordedChunks, { type: 'video/webm' });
+            const videoUrl = URL.createObjectURL(blob);
+            resolve(videoUrl);  // Resolve the Promise with the video URL
+        };
+    });
 }
 
 
@@ -286,10 +308,9 @@ document.querySelectorAll('.reaction').forEach(button => {
 });
 
 
-// Modified addStories function to handle specific audio with videos
 function addStories() {
     console.log('Post story');
-    
+
     const mediaInput = document.getElementById('mediaInput');
     const storyTitleInput = document.getElementById('storyTitle');
     const files = Array.from(mediaInput.files);
@@ -300,16 +321,34 @@ function addStories() {
         return;
     }
 
-    files.forEach((file, index) => {
+    // Process files
+    files.forEach(async (file, index) => {
         const storyElement = document.createElement('div');
         storyElement.classList.add('story');
         storyElement.setAttribute('data-index', storyQueue.length);  
 
-        const url = URL.createObjectURL(file);
+        let url = URL.createObjectURL(file);
+        let fileType = file.type.startsWith('image/') ? 'image' : 'video';
+
+        if (fileType === 'video') {
+            try {
+                // Check if trimming is necessary (example: checkbox or flag to enable trimming)
+                const shouldTrimVideo = document.getElementById('trimVideoCheckbox').checked; // Your method to check if trimming is selected
+
+                if (shouldTrimVideo) {
+                    // Only trim if the user wants it
+                    url = await trimAndRecordVideo(); // Wait for trimmed video
+                }
+                // If no trimming is required, just use the raw video URL
+            } catch (error) {
+                alert('Error trimming video: ' + error);
+                return;
+            }
+        }
 
         let storyData = {
             src: url,
-            type: file.type.startsWith('image/') ? 'image' : 'video',
+            type: fileType,
             title: storyTitle,
             rotation: rotationAngle,
             resizeFactor: resizeFactor,
@@ -317,12 +356,12 @@ function addStories() {
             isMuted: isMuted   // Store the mute state at the time of upload
         };
 
-        if (file.type.startsWith('image/')) {
+        if (fileType === 'image') {
             const img = document.createElement('img');
             img.src = url;
             img.style.transform = `rotate(${rotationAngle}deg) scale(${resizeFactor})`; 
             storyElement.appendChild(img);
-        } else if (file.type.startsWith('video/')) {
+        } else if (fileType === 'video') {
             const video = document.createElement('video');
             video.src = url;
             video.controls = false;
@@ -333,7 +372,7 @@ function addStories() {
             return;
         }
 
-        // Attach audio if available (audioUrl is set)
+        // Attach audio if available
         if (audioUrl) {
             const audio = document.createElement('audio');
             audio.src = audioUrl;
@@ -342,7 +381,6 @@ function addStories() {
             audio.pause(); // Ensure the audio is not playing automatically
             storyElement.appendChild(audio);
 
-            // Store the audio element in the storyData for later use
             storyData.audioElement = audio;
         }
 
@@ -379,23 +417,22 @@ function addStories() {
     closeCreateStoryModal();
 
     // **Reset the audio attached and reset the audio URL**
-    audioUrl = null;  // Clear the audio URL
+    audioUrl = null;  
     const audioPreview = document.querySelector('audio');
     if (audioPreview) {
-        audioPreview.pause();  // Pause the audio
-        audioPreview.currentTime = 0;  // Reset the playback position
-        audioPreview.remove();  // Remove the audio element from the DOM
-    }
-
-    // Reset the mute state based on the current toggle state
-    updateStoryMuteState(); 
+        audioPreview.pause();
+        audioPreview.currentTime = 0;
+        audioPreview.remove();
+    } 
 
     // Clear the audio input field (if any)
     const audioInput = document.getElementById('audioInput');
     if (audioInput) {
-        audioInput.value = ''; // Clear audio input
+        audioInput.value = ''; 
     }
 }
+
+
 
 
 
