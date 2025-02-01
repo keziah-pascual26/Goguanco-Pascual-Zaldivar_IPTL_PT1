@@ -268,13 +268,25 @@ function addStories() {
     
     const mediaInput = document.getElementById('mediaInput');
     const storyTitleInput = document.getElementById('storyTitle');
+    const storyDescriptionInput = document.getElementById('storyDescription');
     const files = Array.from(mediaInput.files);
     const storyTitle = storyTitleInput.value.trim() || "Untitled Story";
+    const storyDescription = storyDescriptionInput.value.trim();
+
+    // Use the values from the saveStory function for title and description
+    if (!storyTitle || !storyDescription) {
+        alert('Please fill in both title and description!');
+        return;
+    }
 
     if (files.length === 0) {
         alert('Please select at least one image or video.');
         return;
     }
+
+    // Log the title and description for debugging purposes
+    console.log('Title:', storyTitle);
+    console.log('Description:', storyDescription);
 
     files.forEach((file, index) => {
         const storyElement = document.createElement('div');
@@ -287,10 +299,14 @@ function addStories() {
             src: url,
             type: file.type.startsWith('image/') ? 'image' : 'video',
             title: storyTitle,
+            description: storyDescription, // Assign the description
             rotation: rotationAngle,
             resizeFactor: resizeFactor,
             audio: audioUrl  // Store the audio URL with the story data
         };
+
+        const descriptionDisplay = document.createElement('p');
+        storyElement.appendChild(descriptionDisplay);  // Display description for each story
 
         if (file.type.startsWith('image/')) {
             const img = document.createElement('img');
@@ -347,6 +363,7 @@ function addStories() {
 
     // Reset form inputs
     storyTitleInput.value = '';
+    storyDescriptionInput.value = '';  // Clear the description textarea
     mediaInput.value = '';
 
     createStoryIndicators();
@@ -451,42 +468,30 @@ function showStory(index) {
     if (story.type === 'image') {
         const img = document.createElement('img');
         img.src = story.src;
-
-        // Apply rotation and resize factor stored in story data
         img.style.transform = `rotate(${story.rotation}deg) scale(${story.resizeFactor})`;
-
         storyContainer.appendChild(img);
 
-        // Play audio when the image is viewed (if available)
         if (story.audioElement) {
             story.audioElement.play().catch(error => {
                 console.error('Audio playback failed:', error);
             });
-
-            // Stop the audio after 5 seconds (for image story)
             setTimeout(() => {
                 story.audioElement.pause();
                 story.audioElement.currentTime = 0;
-            }, 5000); // Stop audio after 5 seconds
+            }, 5000);
         }
-
-        // Set the progress bar duration to 5 seconds for image stories
         updateProgressBar(5000, () => showStory(index + 1)); 
-    } 
-    // Handle video story
-    else if (story.type === 'video') {
+    } else if (story.type === 'video') {
         const video = document.createElement('video');
         video.src = story.src;
         video.autoplay = true;
-        video.muted = isMuted; // Respect the global mute state
+        video.muted = isMuted;
         video.playsInline = true;
-        video.style.width = '100%';  // Set the width to be responsive
+        video.style.width = '100%';
         video.style.height = 'auto';
         storyContainer.appendChild(video);
 
-        // Ensure video metadata is loaded before starting the progress bar
         video.onloadedmetadata = () => {
-            // Set the progress bar duration to 15 seconds for video stories
             updateProgressBar(15000, () => {
                 video.pause();
                 video.currentTime = 0;
@@ -494,58 +499,42 @@ function showStory(index) {
             });
         };
 
-        // Ensure the video will be stopped after 15 seconds
         setTimeout(() => {
             if (!video.paused) {
                 video.pause();
                 video.currentTime = 0;
                 showStory(index + 1);
             }
-        }, 15000); // 15 seconds for video stories
+        }, 15000);
 
-        // Play audio when the video is viewed (if available)
         if (story.audioElement) {
             story.audioElement.play().catch(error => {
                 console.error('Audio playback failed:', error);
             });
-
-            // Stop the audio after 15 seconds (same as the video)
             setTimeout(() => {
                 story.audioElement.pause();
                 story.audioElement.currentTime = 0;
-            }, 15000); // Stop audio after 15 seconds
+            }, 15000);
         }
     }
 
-    // Append the story container to the viewer
     storyViewerContent.appendChild(storyContainer);
 
-    // Initialize the reaction counts for this story if not already set
     if (!reactionCounts[index]) {
         reactionCounts[index] = { like: 0, love: 0, haha: 0, sad: 0, angry: 0 };
     }
 
-    // Enable reactions only when a story is being viewed
     toggleReactions(true);
-
-    // Update the displayed reaction counts for the current story
     updateReactionCounts(index);
-
-    // Set the flag to true as a story is being viewed
     isStoryViewed = true;
-
-    // Create story indicators, if needed
     createStoryIndicators();
     currentStoryIndex = index;
     updateActiveIndicator();
     storyViewer.classList.add('active');
 
-    // Show navigation buttons
-    document.getElementById('previousButton').style.display = index > 0 ? 'block' : 'none';  // Show Previous button if not on first story
-    document.getElementById('nextButton').style.display = index < storyQueue.length - 1 ? 'block' : 'none';  // Show Next button if not on last story
+    document.getElementById('previousButton').style.display = index > 0 ? 'block' : 'none';
+    document.getElementById('nextButton').style.display = index < storyQueue.length - 1 ? 'block' : 'none';
 
-
-    // Create the progress bar if it doesn't exist
     if (!document.querySelector('.progress-bar')) {
         const progressBarContainer = document.createElement('div');
         progressBarContainer.classList.add('progress-bar-container');
@@ -555,15 +544,15 @@ function showStory(index) {
         storyViewerContent.appendChild(progressBarContainer);
     }
 
-    // Check if the story has a description (caption) and display it
+    // Update the description in the reaction panel
+    const descriptionDisplay = document.getElementById('storyDescriptionDisplay');
     if (story.description) {
-        const descriptionContainer = document.createElement('div');
-        descriptionContainer.classList.add('story-description-container');
-        descriptionContainer.innerHTML = `<p><strong>Description:</strong> ${story.description}</p>`;
-        storyViewerContent.appendChild(descriptionContainer);
+        descriptionDisplay.innerHTML = `<p><strong>Caption:</strong> ${story.description}</p>`;
+        descriptionDisplay.style.display = 'block';
+    } else {
+        descriptionDisplay.style.display = 'none';
     }
-
-}
+} 
 
 
 
@@ -853,30 +842,23 @@ function updateCharCount() {
 // Function to save the story with the description
 function saveStory() {
     const title = document.getElementById('storyTitle').value.trim();
-    const description = document.getElementById('storyDescription').value.trim();
 
-    if (!title || !description) {
-        alert('Please fill in both title and description!');
+    if (!title) {
+        alert('Please fill in the title!');
         return;
     }
 
     console.log('Title:', title);
-    console.log('Description:', description);
 
     const story = {
         title: title,
-        description: description,
         media: []
     };
-
-    // Show description
-    const descriptionDisplay = document.getElementById('storyDescriptionDisplay');
-    descriptionDisplay.innerHTML = `<p><strong>Caption:</strong> ${description}</p>`;
-    descriptionDisplay.style.display = 'block';
 
     alert('Story saved successfully!');
     closeCreateStoryModal();
 }
+
 
 
 document.addEventListener('DOMContentLoaded', function() {
