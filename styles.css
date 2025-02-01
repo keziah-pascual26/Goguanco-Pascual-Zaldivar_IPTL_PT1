@@ -689,3 +689,132 @@ button:hover {
     position: relative; /* Ensure you can adjust its position */
     top: -25px; /* Adjust this value to make it go higher or lower */
 }
+
+
+/* Center the user posts section */
+.user-posts-container {
+    width: 60%;
+    margin: 0 auto;
+    text-align: center;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Style the post form */
+.post-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 15px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.post-form textarea {
+    width: 90%;
+    height: 80px;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    resize: none;
+}
+
+.post-form input[type="file"] {
+    border: none;
+}
+
+.post-form button {
+    padding: 10px 20px;
+    background-color: #ffcc00;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.post-form button:hover {
+    background-color: #ffbb00;
+}
+
+/* Style the posts */
+#userPosts {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.user-post {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 15px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    text-align: left;
+}
+
+.user-post p {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #333;
+}
+
+/* Ensure uniform media sizes */
+.post-media {
+    width: 100%;
+    max-height: 300px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+video.post-media {
+    object-fit: contain; /* Ensures video doesn't crop unexpectedly */
+}
+
+/* Reaction buttons */
+.post-reactions {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 10px;
+}
+
+.post-reactions button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+/* Comment section */
+.post-comments {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #ddd;
+}
+
+.comment-input {
+    width: calc(100% - 80px);
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+.post-comments button {
+    padding: 5px 10px;
+    margin-left: 5px;
+    background-color: #ffcc00;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.comment-list {
+    margin-top: 10px;
+    text-align: left;
+}

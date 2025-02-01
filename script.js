@@ -883,3 +883,102 @@ document.addEventListener('DOMContentLoaded', function() {
     const title = document.getElementById('storyTitle').value.trim();
     console.log('Title:', title);  // Check the value when the DOM is ready
 });
+
+// Post Template (Dynamically Added)
+function submitPost() {
+    const caption = document.getElementById('postCaption').value;
+    const mediaInput = document.getElementById('postImage');
+    const mediaFile = mediaInput.files[0];
+
+    if (!caption && !mediaFile) {
+        alert("Please add a caption or a media file!");
+        return;
+    }
+
+    const postContainer = document.createElement('div');
+    postContainer.classList.add('user-post');
+
+    if (mediaFile) {
+        const mediaType = mediaFile.type.split('/')[0]; // "image" or "video"
+        if (mediaType === 'image') {
+            const image = document.createElement('img');
+            image.src = URL.createObjectURL(mediaFile);
+            image.classList.add('post-media');
+            postContainer.appendChild(image);
+        } else if (mediaType === 'video') {
+            const video = document.createElement('video');
+            video.src = URL.createObjectURL(mediaFile);
+            video.classList.add('post-media');
+            video.controls = true;
+            postContainer.appendChild(video);
+        } else {
+            alert("Unsupported file format. Please upload an image or video.");
+            return;
+        }
+    }
+
+    if (caption) {
+        const captionElement = document.createElement('p');
+        captionElement.textContent = caption;
+        postContainer.appendChild(captionElement);
+    }
+
+    // Reactions - Fixed Event Listeners!
+    const reactions = document.createElement('div');
+    reactions.classList.add('post-reactions');
+    reactions.innerHTML = `
+        <button class="reaction-btn" data-type="like">👍</button>
+        <button class="reaction-btn" data-type="love">❤️</button>
+        <button class="reaction-btn" data-type="haha">😂</button>
+        <button class="reaction-btn" data-type="sad">😢</button>
+        <button class="reaction-btn" data-type="angry">😡</button>
+        <button class="share-btn">📤 Share</button>
+    `;
+    postContainer.appendChild(reactions);
+
+    // Comments Section
+    const commentSection = document.createElement('div');
+    commentSection.classList.add('post-comments');
+    commentSection.innerHTML = `
+        <input type="text" placeholder="Write a comment..." class="comment-input">
+        <button class="comment-btn">Comment</button>
+        <div class="comment-list"></div>
+    `;
+    postContainer.appendChild(commentSection);
+
+    document.getElementById('userPosts').prepend(postContainer);
+    document.getElementById('postCaption').value = '';
+    mediaInput.value = '';
+
+    // Add event listeners to the new post
+    postContainer.querySelectorAll('.reaction-btn').forEach(button => {
+        button.addEventListener('click', () => react(button));
+    });
+
+    postContainer.querySelector('.share-btn').addEventListener('click', () => sharePost());
+    postContainer.querySelector('.comment-btn').addEventListener('click', function () {
+        addComment(this);
+    });
+}
+
+// Reactions function (now works!)
+function react(button) {
+    const reactionType = button.getAttribute('data-type');
+    alert(`You reacted with ${reactionType}!`);
+}
+
+// Add a comment
+function addComment(button) {
+    const input = button.previousElementSibling;
+    if (!input.value) return;
+
+    const comment = document.createElement('p');
+    comment.textContent = input.value;
+    button.nextElementSibling.appendChild(comment);
+    input.value = '';
+}
+
+// Share function
+function sharePost() {
+    alert("Post shared!");
+}

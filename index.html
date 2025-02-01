@@ -43,6 +43,20 @@
         </div>
     </div>
 
+    <div class="user-posts-container">
+        <h2>Share Your Smiski Moments</h2>
+        
+        <!-- Post Form -->
+        <div class="post-form">
+            <textarea id="postCaption" placeholder="Write a caption..."></textarea>
+            <input type="file" id="postImage" accept="image/*,video/*">
+            <button onclick="submitPost()">Post</button>
+        </div>
+        
+        <!-- Display Posts -->
+        <div id="userPosts"></div>
+    </div>
+
     <!-- Story Viewer -->
     <div class="story-viewer" id="storyViewer">
         <div class="story-viewer-title" id="storyViewerTitle"></div>
