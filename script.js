@@ -353,7 +353,7 @@ function addStories() {
             rotation: rotationAngle,
             resizeFactor: resizeFactor,
             audio: audioUrl,  // Store the audio URL with the story data
-            isMuted: isMuted   // Store the mute state at the time of upload
+            isMuted: isMuted // Store the mute state at the time of upload
         };
 
         if (fileType === 'image') {
@@ -539,7 +539,7 @@ function showStory(index) {
         const video = document.createElement('video');
         video.src = story.src;
         video.autoplay = true;
-        video.muted = isMuted; 
+        video.muted = story.isMuted; // Use the localized mute state 
         video.playsInline = true;
         video.style.width = '100%';
         video.style.height = 'auto';
@@ -813,29 +813,40 @@ function handleAudioUpload(event) {
     }
 }
 
-// Global variable to track mute state
-let isMuted = false;
-
 function toggleMute() {
     const muteButton = document.getElementById('muteButton');
 
-    // Toggle the mute state globally
-    isMuted = !isMuted;
-
-    // Update the preview video (if exists)
-    const previewVideo = document.getElementById('videoPreview');
-    if (previewVideo) {
-        previewVideo.muted = isMuted;
+    // Ensure muteButton exists
+    if (!muteButton) {
+        console.error('Mute button not found');
+        return;
     }
 
-    // Update all videos inside stories
-    document.querySelectorAll('video').forEach(video => {
-        video.muted = isMuted;
-    });
+    // Ensure currentStoryIndex is valid
+    if (currentStoryIndex < 0 || currentStoryIndex >= storyQueue.length) {
+        console.error('Invalid story index: ' + currentStoryIndex);
+        return;
+    }
 
-    // Update button text based on mute state
-    muteButton.textContent = isMuted ? 'Unmute' : 'Mute';
+    const currentStory = storyQueue[currentStoryIndex];
+
+    // Ensure isMuted exists for the current story
+    if (currentStory.hasOwnProperty('isMuted')) {
+        currentStory.isMuted = !currentStory.isMuted;  // Toggle the mute state for the current story
+
+        // Update the current video element
+        if (currentVideo) {
+            currentVideo.muted = currentStory.isMuted;  // Apply the mute state to the current video
+        }
+
+        // Update button text based on mute state
+        muteButton.textContent = currentStory.isMuted ? 'Unmute' : 'Mute';
+    } else {
+        console.error('isMuted is not set for the story at index: ' + currentStoryIndex);
+    }
 }
+
+
 
 document.addEventListener('keydown', function(event) {
     if (!isStoryViewed) return;  // Prevent actions if story is not viewed
