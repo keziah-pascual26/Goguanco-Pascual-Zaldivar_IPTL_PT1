@@ -186,7 +186,7 @@ function maximizeImage() {
     }
 }
 
-// Function to handle trimming the video
+// Function to handle trimmed video
 function trimAndRecordVideo() {
     return new Promise((resolve, reject) => {
         // Ensure everything is set up correctly and the video is trimmed
@@ -195,6 +195,8 @@ function trimAndRecordVideo() {
         const endTimeInput = document.getElementById('endTimeInput');
         const startTime = parseInt(startTimeInput.value);
         const endTime = parseInt(endTimeInput.value);
+
+        const newDuration = endTime - startTime;
 
         // Validate the start and end times
         if (isNaN(startTime) || isNaN(endTime) || startTime >= endTime) {
@@ -210,7 +212,7 @@ function trimAndRecordVideo() {
 
         const mediaRecorder = new MediaRecorder(stream);
         let recordedChunks = [];
-        
+
         mediaRecorder.ondataavailable = function(event) {
             recordedChunks.push(event.data);
         };
@@ -230,10 +232,15 @@ function trimAndRecordVideo() {
         mediaRecorder.onstop = function () {
             const blob = new Blob(recordedChunks, { type: 'video/webm' });
             const videoUrl = URL.createObjectURL(blob);
-            resolve(videoUrl);  // Resolve the Promise with the video URL
+            
+            // Log the new duration
+            console.log('New duration of the trimmed video:', newDuration, 'seconds');
+
+            resolve(videoUrl, newDuration);
         };
     });
 }
+
 
 
 // Open Create Story Modal
@@ -353,7 +360,7 @@ function addStories() {
             rotation: rotationAngle,
             resizeFactor: resizeFactor,
             audio: audioUrl,  // Store the audio URL with the story data
-            isMuted: isMuted   // Store the mute state at the time of upload
+            isMuted: false   // Store the mute state at the time of upload
         };
 
         if (fileType === 'image') {
@@ -365,7 +372,7 @@ function addStories() {
             const video = document.createElement('video');
             video.src = url;
             video.controls = false;
-            video.muted = isMuted;  // Apply the current mute state
+            video.muted = storyData.isMuted;  // Apply the current mute state
             storyElement.appendChild(video);
         } else {
             alert('Unsupported file type.');
@@ -539,44 +546,51 @@ function showStory(index) {
         const video = document.createElement('video');
         video.src = story.src;
         video.autoplay = true;
-        video.muted = isMuted; 
+        video.muted = isMuted;
         video.playsInline = true;
         video.style.width = '100%';
         video.style.height = 'auto';
         storyContainer.appendChild(video);
 
+        // Once the video metadata is loaded, adjust the duration for the progress bar and timeout
         video.onloadedmetadata = () => {
-            updateProgressBar(15000, () => {
+            const videoDuration = video.duration * 1000;  // Convert video duration to milliseconds
+            const displayDuration = videoDuration < 15000 ? videoDuration : 15000;  // Use video duration if it's less than 15 seconds, else use 15 seconds
+
+            updateProgressBar(displayDuration, () => {
                 stopAudioPlayback(); // Stop audio when moving to next story
                 video.pause();
                 video.currentTime = 0;
                 showStory(index + 1);
             });
-        };
 
-        setTimeout(() => {
-            if (!video.paused) {
-                stopAudioPlayback(); // Stop audio when moving to next story
-                video.pause();
-                video.currentTime = 0;
-                showStory(index + 1);
-            }
-        }, 15000);
-
-        currentVideo = video;  // Store the video element
-
-        if (story.audioElement) {
-            currentAudio = story.audioElement;  // Store the new audio element for video
-            currentAudio.play().catch(error => console.error('Audio playback failed:', error));
-
+            // Adjust the timeout to the appropriate duration
             setTimeout(() => {
-                if (currentAudio) {
-                    currentAudio.pause();
-                    currentAudio.currentTime = 0;
+                if (!video.paused) {
+                    stopAudioPlayback(); // Stop audio when moving to next story
+                    video.pause();
+                    video.currentTime = 0;
+                    showStory(index + 1);
                 }
-            }, 15000); // Stop the audio after 15 seconds
-        }
+            }, displayDuration);  // Set timeout based on actual or max 15 seconds duration
+
+            currentVideo = video;  // Store the video element
+
+            // If there's an audio element, play it along with the video
+            if (story.audioElement) {
+                currentAudio = story.audioElement;  // Store the new audio element for video
+                currentAudio.play().catch(error => console.error('Audio playback failed:', error));
+
+                setTimeout(() => {
+                    if (currentAudio) {
+                        currentAudio.pause();
+                        currentAudio.currentTime = 0;
+                    }
+                }, displayDuration); // Stop the audio after the same duration as the video
+            }
+        };
     }
+
 
     storyViewerContent.appendChild(storyContainer);
 
@@ -813,13 +827,12 @@ function handleAudioUpload(event) {
     }
 }
 
-// Global variable to track mute state
-let isMuted = false;
+let isMuted = false; // Initialize the mute state
 
 function toggleMute() {
     const muteButton = document.getElementById('muteButton');
 
-    // Toggle the mute state globally
+    // Toggle the global mute state
     isMuted = !isMuted;
 
     // Update the preview video (if exists)
@@ -828,14 +841,23 @@ function toggleMute() {
         previewVideo.muted = isMuted;
     }
 
-    // Update all videos inside stories
-    document.querySelectorAll('video').forEach(video => {
-        video.muted = isMuted;
+    // Update videos inside stories, but only if they were NOT originally muted
+    document.querySelectorAll('.story video').forEach(video => {
+        const storyElement = video.closest('.story');
+        const storyIndex = storyElement.getAttribute('data-index');
+        let storyData = storyQueue[storyIndex];
+
+        if (!storyData.isMuted) {  // ✅ Only toggle mute if the video was originally unmuted
+            video.muted = isMuted;
+            storyData.isMuted = isMuted; // ✅ Update the mute state in the queue
+        }
     });
 
     // Update button text based on mute state
     muteButton.textContent = isMuted ? 'Unmute' : 'Mute';
 }
+
+
 
 document.addEventListener('keydown', function(event) {
     if (!isStoryViewed) return;  // Prevent actions if story is not viewed
@@ -949,3 +971,4 @@ document.addEventListener('DOMContentLoaded', function() {
     const title = document.getElementById('storyTitle').value.trim();
     console.log('Title:', title);  // Check the value when the DOM is ready
 });
+
