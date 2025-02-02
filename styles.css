@@ -694,7 +694,7 @@ button:hover {
 /* Center the user posts section */
 .user-posts-container {
     width: 60%;
-    margin: 0 auto;
+    margin: 15px;
     text-align: center;
     padding: 20px;
     background-color: #f9f9f9;
@@ -817,4 +817,84 @@ video.post-media {
 .comment-list {
     margin-top: 10px;
     text-align: left;
+}
+
+
+
+
+.user-posts-wrapper {
+    display: flex;
+    gap: 20px;
+}
+
+.user-posts-container {
+    flex: 2;
+}
+
+.sidebar-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.suggested-users-section, .chat-panel {
+    background: #f3f3f3;
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 15px;
+    margin-right: 15px;
+    margin-left: 0;
+}
+
+.suggested-users-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.suggested-users-section li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.chat-panel {
+    position: relative;
+    width: 90%;
+    margin-bottom: 15px;
+}
+
+.chat-header {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.chat-messages {
+    height: 150px;
+    overflow-y: auto;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 10px;
+}
+
+#chatInput {
+    width: 80%;
+    padding: 5px;
+}
+
+.chat-button, .send-button {
+    margin-left: 20px;
+    border-radius: 5px;
+}
+
+.send-button, .post-comments button {
+    margin-top: 15px;
 }

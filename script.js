@@ -964,3 +964,24 @@ function addComment(button) {
 function sharePost() {
     alert("Post shared!");
 }
+
+
+function startChat(userName) {
+    document.getElementById('chatUserName').innerText = userName;
+    document.getElementById('chatPanel').style.display = 'block';
+}
+
+function closeChat() {
+    document.getElementById('chatPanel').style.display = 'none';
+}
+
+function sendMessage() {
+    const message = document.getElementById('chatInput').value;
+    if (message.trim() !== '') {
+        const chatBox = document.getElementById('chatMessages');
+        const newMessage = document.createElement('div');
+        newMessage.textContent = message;
+        chatBox.appendChild(newMessage);
+        document.getElementById('chatInput').value = '';
+    }
+}

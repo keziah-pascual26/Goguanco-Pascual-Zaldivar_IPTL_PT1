@@ -43,18 +43,54 @@
         </div>
     </div>
 
-    <div class="user-posts-container">
-        <h2>Share Your Smiski Moments</h2>
-        
-        <!-- Post Form -->
-        <div class="post-form">
-            <textarea id="postCaption" placeholder="Write a caption..."></textarea>
-            <input type="file" id="postImage" accept="image/*,video/*">
-            <button onclick="submitPost()">Post</button>
+    <div class="user-posts-wrapper">
+        <!-- User Posts Container -->
+        <div class="user-posts-container">
+            <h2>Share Your Smiski Moments</h2>
+            
+            <div class="post-form">
+                <textarea id="postCaption" placeholder="Write a caption..."></textarea>
+                <input type="file" id="postImage" accept="image/*,video/*">
+                <button onclick="submitPost()">Post</button>
+            </div>
+            
+            <div id="userPosts"></div>
         </div>
-        
-        <!-- Display Posts -->
-        <div id="userPosts"></div>
+    
+        <!-- Sidebar for People You Know & Chat -->
+        <div class="sidebar-section">
+            <div class="suggested-users-section">
+                <h3>Chat Your Friends</h3>
+                <ul id="suggestedUsers">
+                    <li>
+                        <img src="user1.png" alt="User 1" class="user-avatar">
+                        <span>Jane Doe</span>
+                        <button class="chat-button" onclick="startChat('Jane Doe')">Chat</button>
+                    </li>
+                    <li>
+                        <img src="user2.png" alt="User 2" class="user-avatar">
+                        <span>John Smith</span>
+                        <button class="chat-button" onclick="startChat('John Smith')">Chat</button>
+                    </li>
+                    <li>
+                        <img src="user3.png" alt="User 3" class="user-avatar">
+                        <span>Alice Brown</span>
+                        <button class="chat-button" onclick="startChat('Alice Brown')">Chat</button>
+                    </li>
+                </ul>
+            </div>
+    
+            <!-- Chat Panel (Initially Hidden) -->
+            <div id="chatPanel" class="chat-panel" style="display: none;">
+                <div class="chat-header">
+                    <span id="chatUserName">Chat</span>
+                    <button onclick="closeChat()">X</button>
+                </div>
+                <div class="chat-messages" id="chatMessages"></div>
+                <input type="text" id="chatInput" placeholder="Type a message...">
+                <button class="send-button" onclick="sendMessage()">Send</button>
+            </div>
+        </div>
     </div>
 
     <!-- Story Viewer -->
