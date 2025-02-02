@@ -186,19 +186,13 @@ function maximizeImage() {
     }
 }
 
-// Function to handle trimmed video
 function trimAndRecordVideo() {
     return new Promise((resolve, reject) => {
-        // Ensure everything is set up correctly and the video is trimmed
         const videoElement = document.getElementById('videoPreview');
-        const startTimeInput = document.getElementById('startTimeInput');
-        const endTimeInput = document.getElementById('endTimeInput');
-        const startTime = parseInt(startTimeInput.value);
-        const endTime = parseInt(endTimeInput.value);
-
+        const startTime = parseInt(document.getElementById('startTimeInput').value);
+        const endTime = parseInt(document.getElementById('endTimeInput').value);
         const newDuration = endTime - startTime;
 
-        // Validate the start and end times
         if (isNaN(startTime) || isNaN(endTime) || startTime >= endTime) {
             reject('Invalid start or end time.');
             return;
@@ -218,12 +212,11 @@ function trimAndRecordVideo() {
         };
 
         mediaRecorder.start();
-
         videoElement.currentTime = startTime;
         videoElement.play();
 
         videoElement.ontimeupdate = function () {
-            if (videoElement.currentTime >= endTime - 0.1) { // Slight buffer
+            if (videoElement.currentTime >= endTime - 0.1) {
                 videoElement.pause();
                 mediaRecorder.stop();
             }
@@ -232,14 +225,19 @@ function trimAndRecordVideo() {
         mediaRecorder.onstop = function () {
             const blob = new Blob(recordedChunks, { type: 'video/webm' });
             const videoUrl = URL.createObjectURL(blob);
-            
+
             // Log the new duration
             console.log('New duration of the trimmed video:', newDuration, 'seconds');
 
-            resolve(videoUrl, newDuration);
+            // Set the video source to the blob URL
+            document.getElementById('videoPreview').src = videoUrl;
+
+            // Resolve with the blob URL and the new duration
+            resolve({ videoUrl, newDuration });
         };
     });
 }
+
 
 
 
