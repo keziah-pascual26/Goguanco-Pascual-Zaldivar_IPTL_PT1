@@ -225,19 +225,28 @@ function trimAndRecordVideo() {
         mediaRecorder.onstop = function () {
             const blob = new Blob(recordedChunks, { type: 'video/webm' });
             const videoUrl = URL.createObjectURL(blob);
-
-            // Log the new duration
+        
+            // Calculate the new duration (ensure newDuration is properly set before this function runs)
             console.log('New duration of the trimmed video:', newDuration, 'seconds');
-
+        
             // Set the video source to the blob URL
             document.getElementById('videoPreview').src = videoUrl;
-
-            // Resolve with the blob URL and the new duration
-            resolve({ videoUrl, newDuration });
+        
+            // Instead of resolving both values together, resolve only videoUrl
+            resolve(videoUrl);
+        
+            // If needed elsewhere, update newDuration globally or call a separate function
+            handleNewDuration(newDuration);
         };
+        
     });
 }
 
+// Function to handle the new duration of the trimmed video
+function handleNewDuration(duration) {
+    console.log("Updated duration:", duration);
+    newDuration = duration; // Store the new duration globally if needed
+}
 
 
 
@@ -539,55 +548,61 @@ function showStory(index) {
         updateProgressBar(5000, () => showStory(index + 1)); 
 
     } 
-    // Handle video story
-    else if (story.type === 'video') {
-        const video = document.createElement('video');
-        video.src = story.src;
-        video.autoplay = true;
-        video.muted = isMuted;
-        video.playsInline = true;
-        video.style.width = '100%';
-        video.style.height = 'auto';
-        storyContainer.appendChild(video);
+// Handle video story
+else if (story.type === 'video') {
+    const video = document.createElement('video');
+    video.src = story.src;
+    video.autoplay = true;
+    video.muted = isMuted;
+    video.playsInline = true;
+    video.style.width = '100%';
+    video.style.height = 'auto';
+    storyContainer.appendChild(video);
 
-        // Once the video metadata is loaded, adjust the duration for the progress bar and timeout
-        video.onloadedmetadata = () => {
-            const videoDuration = video.duration * 1000;  // Convert video duration to milliseconds
-            const displayDuration = videoDuration < 15000 ? videoDuration : 15000;  // Use video duration if it's less than 15 seconds, else use 15 seconds
+    // Once the video metadata is loaded, adjust the duration for the progress bar and timeout
+    video.onloadedmetadata = () => {
+        let videoDuration = video.duration * 1000;  // Convert to milliseconds
+        
+        // If newDuration is set (trimmed video), use it instead of default video duration
+        if (typeof newDuration !== 'undefined' && newDuration > 0) {
+            videoDuration = newDuration * 1000; // Convert seconds to milliseconds
+        }
 
-            updateProgressBar(displayDuration, () => {
+        const displayDuration = videoDuration < 15000 ? videoDuration : 15000;  // Max 15 sec limit
+
+        updateProgressBar(displayDuration, () => {
+            stopAudioPlayback(); // Stop audio when moving to next story
+            video.pause();
+            video.currentTime = 0;
+            showStory(index + 1);
+        });
+
+        // Adjust the timeout to the appropriate duration
+        setTimeout(() => {
+            if (!video.paused) {
                 stopAudioPlayback(); // Stop audio when moving to next story
                 video.pause();
                 video.currentTime = 0;
                 showStory(index + 1);
-            });
-
-            // Adjust the timeout to the appropriate duration
-            setTimeout(() => {
-                if (!video.paused) {
-                    stopAudioPlayback(); // Stop audio when moving to next story
-                    video.pause();
-                    video.currentTime = 0;
-                    showStory(index + 1);
-                }
-            }, displayDuration);  // Set timeout based on actual or max 15 seconds duration
-
-            currentVideo = video;  // Store the video element
-
-            // If there's an audio element, play it along with the video
-            if (story.audioElement) {
-                currentAudio = story.audioElement;  // Store the new audio element for video
-                currentAudio.play().catch(error => console.error('Audio playback failed:', error));
-
-                setTimeout(() => {
-                    if (currentAudio) {
-                        currentAudio.pause();
-                        currentAudio.currentTime = 0;
-                    }
-                }, displayDuration); // Stop the audio after the same duration as the video
             }
-        };
-    }
+        }, displayDuration);  // Set timeout based on actual or max 15 seconds duration
+
+        currentVideo = video;  // Store the video element
+
+        // If there's an audio element, play it along with the video
+        if (story.audioElement) {
+            currentAudio = story.audioElement;  // Store the new audio element for video
+            currentAudio.play().catch(error => console.error('Audio playback failed:', error));
+
+            setTimeout(() => {
+                if (currentAudio) {
+                    currentAudio.pause();
+                    currentAudio.currentTime = 0;
+                }
+            }, displayDuration); // Stop the audio after the same duration as the video
+        }
+    };
+}
 
 
     storyViewerContent.appendChild(storyContainer);
