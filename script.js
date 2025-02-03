@@ -313,8 +313,13 @@ function addStories() {
 
     const mediaInput = document.getElementById('mediaInput');
     const storyTitleInput = document.getElementById('storyTitle');
+    const storyDescriptionInput = document.getElementById('storyDescription'); // New input for description
     const files = Array.from(mediaInput.files);
     const storyTitle = storyTitleInput.value.trim() || "Untitled Story";
+    const storyDescription = storyDescriptionInput.value.trim() || "";  // Get the description value
+
+    // Log the description for debugging
+    console.log('Story description:', storyDescription);
 
     if (files.length === 0) {
         alert('Please select at least one image or video.');
@@ -325,7 +330,7 @@ function addStories() {
     files.forEach(async (file, index) => {
         const storyElement = document.createElement('div');
         storyElement.classList.add('story');
-        storyElement.setAttribute('data-index', storyQueue.length);  
+        storyElement.setAttribute('data-index', storyQueue.length);
 
         let url = URL.createObjectURL(file);
         let fileType = file.type.startsWith('image/') ? 'image' : 'video';
@@ -339,7 +344,6 @@ function addStories() {
                     // Only trim if the user wants it
                     url = await trimAndRecordVideo(); // Wait for trimmed video
                 }
-                // If no trimming is required, just use the raw video URL
             } catch (error) {
                 alert('Error trimming video: ' + error);
                 return;
@@ -350,6 +354,7 @@ function addStories() {
             src: url,
             type: fileType,
             title: storyTitle,
+            description: storyDescription,  // Store the description with the story data
             rotation: rotationAngle,
             resizeFactor: resizeFactor,
             audio: audioUrl,  // Store the audio URL with the story data
@@ -394,6 +399,12 @@ function addStories() {
             showStory(currentStoryIndex);
         });
 
+        // Display the description under the story title
+        //const descriptionElement = document.createElement('p');
+        //descriptionElement.classList.add('story-description');
+        //descriptionElement.textContent = storyDescription;
+        //storyElement.appendChild(descriptionElement);
+
         storiesContainer.appendChild(storyElement);
     });
 
@@ -409,6 +420,7 @@ function addStories() {
 
     // Reset form inputs
     storyTitleInput.value = '';
+    storyDescriptionInput.value = '';  // Reset description input
     mediaInput.value = '';
 
     createStoryIndicators();
@@ -423,7 +435,7 @@ function addStories() {
         audioPreview.pause();
         audioPreview.currentTime = 0;
         audioPreview.remove();
-    } 
+    }
 
     // Clear the audio input field (if any)
     const audioInput = document.getElementById('audioInput');
@@ -431,6 +443,7 @@ function addStories() {
         audioInput.value = ''; 
     }
 }
+
 
 
 
