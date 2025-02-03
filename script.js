@@ -321,6 +321,62 @@ document.querySelectorAll('.reaction').forEach(button => {
 });
 
 
+function previewStories() {
+    console.log('Generating preview');
+
+    const mediaInput = document.getElementById('mediaInput');
+    const storyTitleInput = document.getElementById('storyTitle');
+    const storyDescriptionInput = document.getElementById('storyDescription');
+    const files = Array.from(mediaInput.files);
+    
+    const previewContainer = document.getElementById('storyPreview'); // Corrected ID
+    const confirmButton = document.getElementById('confirmUploadBtn');
+    const modal = document.getElementById('storyPreviewContainer');
+
+    // Clear previous previews
+    previewContainer.innerHTML = '';
+
+    if (files.length === 0) {
+        alert('Please select at least one image or video.');
+        return;
+    }
+
+    files.forEach((file) => {
+        let url = URL.createObjectURL(file);
+        let fileType = file.type.startsWith('image/') ? 'image' : 'video';
+
+        const previewElement = document.createElement('div');
+        previewElement.classList.add('story-preview');
+
+        if (fileType === 'image') {
+            const img = document.createElement('img');
+            img.src = url;
+            previewElement.appendChild(img);
+        } else if (fileType === 'video') {
+            const video = document.createElement('video');
+            video.src = url;
+            video.controls = true;
+            previewElement.appendChild(video);
+        }
+
+        previewContainer.appendChild(previewElement);
+    });
+
+    // Show the modal
+    modal.style.display = 'block';
+
+    // Show the confirmation button and set its event listener
+    confirmButton.style.display = 'block';
+    confirmButton.onclick = addStories;
+}
+
+// Function to close the modal
+function closePreviewModal() {
+    document.getElementById('storyPreviewContainer').style.display = 'none';
+}
+
+
+
 function addStories() {
     console.log('Post story');
 
