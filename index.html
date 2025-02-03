@@ -132,16 +132,21 @@
 
             <!-- Image and Video Editing Section (Initially Hidden) -->
             <div id="editorSection" style="display: none;">
-            <div id="imageEditor" style="display: block;">
-                <h3>Edit Image</h3>
-                <div>
-                    <button onclick="rotateImage()">Rotate</button>
-                    <button id="cropImage">Enable Cropping</button> <!-- Initially shows "Enable Cropping" -->
-                    <!-- Image Resizing Section -->
-                    <div class="image-resize-controls">
-                        <span>Resize:</span>
-                        <button id="minimizeButton" onclick="minimizeImage()">-</button>
-                        <button id="maximizeButton" onclick="maximizeImage()">+</button>
+                <div id="imageEditor" style="display: none;">
+                    <h3>Edit Image</h3>
+                    <div>
+                        <button onclick="rotateImage()">Rotate</button>
+                        <button onclick="cropImage()">Crop</button>
+                        <!-- Image Resizing Section -->
+                        <div class="image-resize-controls">
+                            <span>Resize:</span>
+                            <button id="minimizeButton" onclick="minimizeImage()">-</button>
+                            <button id="maximizeButton" onclick="maximizeImage()">+</button>
+                        </div>
+
+                    </div>
+                    <div id="cropper-container">
+                        <img id="imagePreview" src="" alt="Image Preview">
                     </div>
                 </div>
 
@@ -164,16 +169,9 @@
                     <!-- <video id="videoPreview" controls>
                         <source id="videoSource" src="" type="video/mp4">
                     </video> -->
-                <div id="cropper-container">
-                    <img id="imagePreview" src="" alt="Image Preview" />
                 </div>
                 
             </div>
-        </div>
-
-
-            
-        </div>
 
             <button onclick="addStories(), saveStory()">Post Story</button>
             <button onclick="closeCreateStoryModal()">Cancel</button>
