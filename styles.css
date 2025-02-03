@@ -684,3 +684,14 @@ button:hover {
     margin-bottom: 50px; /* Increased space between counts and buttons */
     flex-wrap: nowrap; /* Prevents wrapping to the next line */
 }
+
+.story-description-container {
+    position: absolute;
+    bottom: 100px; /* Adjust distance from the bottom */
+    left: 10px;   /* Adjust distance from the left */
+    background-color: rgba(0, 0, 0, 0.5); /* Optional: adds a semi-transparent background */
+    color: white; /* Optional: makes the text white for better visibility */
+    padding: 5px;
+    border-radius: 5px;
+    max-width: 90%; /* Optional: prevent the description from overflowing */
+}
