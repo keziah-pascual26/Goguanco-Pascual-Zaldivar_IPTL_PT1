@@ -58,7 +58,7 @@ function handleMediaUpload(event) {
                     cropper.destroy();
                 }
                 // Disable cropping initially (cropper is not initialized yet)
-                cropButton.style.display = 'none'; 
+                cropButton.style.display = 'block'; 
 
             };
             reader.readAsDataURL(file);
