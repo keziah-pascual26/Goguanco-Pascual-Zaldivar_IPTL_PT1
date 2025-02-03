@@ -125,6 +125,8 @@ function rotateImage() {
 }
 
 
+
+
 // Function to show the image or video preview
 function showPreview(file) {
     const previewContainer = document.getElementById('previewContainer');
@@ -325,11 +327,8 @@ function previewStories() {
     console.log('Generating preview');
 
     const mediaInput = document.getElementById('mediaInput');
-    const storyTitleInput = document.getElementById('storyTitle');
-    const storyDescriptionInput = document.getElementById('storyDescription');
     const files = Array.from(mediaInput.files);
-    
-    const previewContainer = document.getElementById('storyPreview'); // Corrected ID
+    const previewContainer = document.getElementById('storyPreview');
     const confirmButton = document.getElementById('confirmUploadBtn');
     const modal = document.getElementById('storyPreviewContainer');
 
@@ -367,12 +366,15 @@ function previewStories() {
 
     // Show the confirmation button and set its event listener
     confirmButton.style.display = 'block';
-    confirmButton.onclick = addStories;
+    confirmButton.onclick = () => {
+        addStories();  // Post the story
+    };
 }
 
-// Function to close the modal
+// Function to close the preview modal and bring back the editing modal
 function closePreviewModal() {
     document.getElementById('storyPreviewContainer').style.display = 'none';
+    document.getElementById('storyEditingContainer').style.display = 'block'; // Reopen editing modal
 }
 
 
@@ -452,7 +454,7 @@ function addStories() {
         if (fileType === 'image') {
             const img = document.createElement('img');
             img.src = storyData.src; // Use the cropped or original image
-            img.style.transform = `rotate(${rotationAngle}deg) scale(${resizeFactor})`; 
+            img.style.transform = rotate(${rotationAngle}deg) scale(${resizeFactor}); 
             storyElement.appendChild(img);
         } else if (fileType === 'video') {
             const video = document.createElement('video');
@@ -523,8 +525,6 @@ function addStories() {
         audioInput.value = ''; 
     }
 }
-
-
 
 // Show Story in Viewer
 
