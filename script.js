@@ -275,16 +275,10 @@ function addStories() {
         return;
     }
 
-     // Ensure cropper is initialized before use
-     if (!cropper) {
+    // Ensure cropper is initialized before use
+    if (isCroppingEnabled && !cropper) {
         console.log("Re-initializing cropper");
         enableCropping();  // Call to reinitialize cropper
-    }
-
-    // Wait until cropper is ready
-    if (!cropper || !cropper.ready) {
-        console.log("Cropper not ready.");
-        return;  // Exit if cropper is not ready
     }
 
     // Process files
@@ -296,10 +290,11 @@ function addStories() {
         let url = URL.createObjectURL(file);
         let fileType = file.type.startsWith('image/') ? 'image' : 'video';
 
+        // Handle video trimming if necessary
         if (fileType === 'video') {
             try {
                 // Check if trimming is necessary (example: checkbox or flag to enable trimming)
-                const shouldTrimVideo = document.getElementById('trimVideoCheckbox').checked; // Your method to check if trimming is selected
+                const shouldTrimVideo = document.getElementById('trimVideoCheckbox').checked;
 
                 if (shouldTrimVideo) {
                     // Only trim if the user wants it
@@ -311,30 +306,34 @@ function addStories() {
             }
         }
 
+        // Prepare story data
         let storyData = {
             src: url,
             type: fileType,
             title: storyTitle,
-            description: storyDescription,  // Store the description with the story data
+            description: storyDescription,
             rotation: rotationAngle,
             resizeFactor: resizeFactor,
-            audio: audioUrl,  // Store the audio URL with the story data
-            isMuted: isMuted   // Store the mute state at the time of upload
+            audio: audioUrl,
+            isMuted: isMuted
         };
 
-       // If an image is being cropped, apply the crop before posting
-       if (cropper && file.type.startsWith('image/')) {
-        console.log("nakapasok");
-        const canvas = cropper.getCroppedCanvas();
-        if (canvas) {
-            // Update the preview image with cropped image
-            storyData.src = canvas.toDataURL(); // Ensure the cropped image is added to the story data
-            cropper.destroy();
-            cropper = null;
-            console.log("heh");
-        }
-    }
+        // If an image is being cropped, apply the crop before posting
+        if (fileType === 'image' && cropper) {
+            console.log("Cropping image...");
 
+            // Get the cropped canvas only if cropping is enabled
+            const canvas = cropper.getCroppedCanvas();
+            if (canvas) {
+                // Update the story data with the cropped image
+                storyData.src = canvas.toDataURL(); // Ensure the cropped image is added to the story data
+                cropper.destroy();  // Destroy the cropper after use
+                cropper = null;
+                console.log("Cropped image added to story");
+            }
+        }
+
+        // Append the image or video to the story element
         if (fileType === 'image') {
             const img = document.createElement('img');
             img.src = storyData.src; // Use the cropped or original image
@@ -373,12 +372,6 @@ function addStories() {
             showStory(currentStoryIndex);
         });
 
-        // Display the description under the story title
-        //const descriptionElement = document.createElement('p');
-        //descriptionElement.classList.add('story-description');
-        //descriptionElement.textContent = storyDescription;
-        //storyElement.appendChild(descriptionElement);
-
         storiesContainer.appendChild(storyElement);
     });
 
@@ -415,6 +408,7 @@ function addStories() {
         audioInput.value = ''; 
     }
 }
+
 
 
 
