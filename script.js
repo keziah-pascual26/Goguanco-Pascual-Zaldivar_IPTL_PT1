@@ -313,15 +313,26 @@ function addStories() {
 
     const mediaInput = document.getElementById('mediaInput');
     const storyTitleInput = document.getElementById('storyTitle');
+    const storyDescriptionInput = document.getElementById('storyDescription');
     const files = Array.from(mediaInput.files);
     const storyTitle = storyTitleInput.value.trim() || "Untitled Story";
+    const storyDescription = storyDescriptionInput.value.trim();
+
+    // Use the values from the saveStory function for title and description
+    if (!storyTitle || !storyDescription) {
+        alert('Please fill in both title and description!');
+        return;
+    }
 
     if (files.length === 0) {
         alert('Please select at least one image or video.');
         return;
     }
 
-    // Process files
+    // Log the title and description for debugging purposes
+    console.log('Title:', storyTitle);
+    console.log('Description:', storyDescription);
+
     files.forEach(async (file, index) => {
         const storyElement = document.createElement('div');
         storyElement.classList.add('story');
@@ -350,13 +361,17 @@ function addStories() {
             src: url,
             type: fileType,
             title: storyTitle,
+            description: storyDescription, // Assign the description
             rotation: rotationAngle,
             resizeFactor: resizeFactor,
             audio: audioUrl,  // Store the audio URL with the story data
             isMuted: isMuted   // Store the mute state at the time of upload
         };
 
-        if (fileType === 'image') {
+        const descriptionDisplay = document.createElement('p');
+        storyElement.appendChild(descriptionDisplay);  // Display description for each story
+
+        if (file.type.startsWith('image/')) {
             const img = document.createElement('img');
             img.src = url;
             img.style.transform = `rotate(${rotationAngle}deg) scale(${resizeFactor})`; 
@@ -409,6 +424,7 @@ function addStories() {
 
     // Reset form inputs
     storyTitleInput.value = '';
+    storyDescriptionInput.value = '';  // Clear the description textarea
     mediaInput.value = '';
 
     createStoryIndicators();
@@ -592,9 +608,8 @@ function showStory(index) {
     updateActiveIndicator();
     storyViewer.classList.add('active');
 
-    // Show navigation buttons
-    document.getElementById('previousButton').style.display = index > 0 ? 'block' : 'none';  // Show Previous button if not on first story
-    document.getElementById('nextButton').style.display = index < storyQueue.length - 1 ? 'block' : 'none';  // Show Next button if not on last story
+    document.getElementById('previousButton').style.display = index > 0 ? 'block' : 'none';
+    document.getElementById('nextButton').style.display = index < storyQueue.length - 1 ? 'block' : 'none';
 
     // Create the progress bar if it doesn't exist
     if (!document.querySelector('.progress-bar')) {
@@ -619,11 +634,13 @@ function showStory(index) {
     }
 
     // Check if the story has a description (caption) and display it
+    // Update the description in the reaction panel
+    const descriptionDisplay = document.getElementById('storyDescriptionDisplay');
     if (story.description) {
-        const descriptionContainer = document.createElement('div');
-        descriptionContainer.classList.add('story-description-container');
-        descriptionContainer.innerHTML = `<p><strong>Description:</strong> ${story.description}</p>`;
-        storyViewerContent.appendChild(descriptionContainer);
+        descriptionDisplay.innerHTML = `<p><strong>Caption:</strong> ${story.description}</p>`;
+        descriptionDisplay.style.display = 'block';
+    } else {
+        descriptionDisplay.style.display = 'none';
     }
 }
 
@@ -923,29 +940,147 @@ function updateCharCount() {
 
 // Function to save the story with the description
 function saveStory() {
-    const title = document.getElementById('storyTitle').value.trim(); // Trim any whitespace
-    const description = document.getElementById('storyDescription').value.trim(); // Trim any whitespace
-    
-    console.log('Title:', title);
-console.log('Description:', description);
+    const title = document.getElementById('storyTitle').value.trim();
 
-    if (title && description) {
-        const story = {
-            title: title,
-            description: description,
-            media: [], // Add media files if needed
-        };
-        
-        // Push the new story into the storyQueue
-        storyQueue.push(story);
-        alert('Story saved successfully!');
-        closeCreateStoryModal(); // Close modal after saving
-    } else {
-        alert('Please fill in both title and description!');
+    if (!title) {
+        alert('Please fill in the title!');
+        return;
     }
+
+    console.log('Title:', title);
+
+    const story = {
+        title: title,
+        media: []
+    };
+
+    alert('Story saved successfully!');
+    closeCreateStoryModal();
 }
+
+
 
 document.addEventListener('DOMContentLoaded', function() {
     const title = document.getElementById('storyTitle').value.trim();
     console.log('Title:', title);  // Check the value when the DOM is ready
 });
+
+// Post Template (Dynamically Added)
+function submitPost() {
+    const caption = document.getElementById('postCaption').value;
+    const mediaInput = document.getElementById('postImage');
+    const mediaFile = mediaInput.files[0];
+
+    if (!caption && !mediaFile) {
+        alert("Please add a caption or a media file!");
+        return;
+    }
+
+    const postContainer = document.createElement('div');
+    postContainer.classList.add('user-post');
+
+    if (mediaFile) {
+        const mediaType = mediaFile.type.split('/')[0]; // "image" or "video"
+        if (mediaType === 'image') {
+            const image = document.createElement('img');
+            image.src = URL.createObjectURL(mediaFile);
+            image.classList.add('post-media');
+            postContainer.appendChild(image);
+        } else if (mediaType === 'video') {
+            const video = document.createElement('video');
+            video.src = URL.createObjectURL(mediaFile);
+            video.classList.add('post-media');
+            video.controls = true;
+            postContainer.appendChild(video);
+        } else {
+            alert("Unsupported file format. Please upload an image or video.");
+            return;
+        }
+    }
+
+    if (caption) {
+        const captionElement = document.createElement('p');
+        captionElement.textContent = caption;
+        postContainer.appendChild(captionElement);
+    }
+
+    // Reactions - Fixed Event Listeners!
+    const reactions = document.createElement('div');
+    reactions.classList.add('post-reactions');
+    reactions.innerHTML = `
+        <button class="reaction-btn" data-type="like">👍</button>
+        <button class="reaction-btn" data-type="love">❤️</button>
+        <button class="reaction-btn" data-type="haha">😂</button>
+        <button class="reaction-btn" data-type="sad">😢</button>
+        <button class="reaction-btn" data-type="angry">😡</button>
+        <button class="share-btn">📤 Share</button>
+    `;
+    postContainer.appendChild(reactions);
+
+    // Comments Section
+    const commentSection = document.createElement('div');
+    commentSection.classList.add('post-comments');
+    commentSection.innerHTML = `
+        <input type="text" placeholder="Write a comment..." class="comment-input">
+        <button class="comment-btn">Comment</button>
+        <div class="comment-list"></div>
+    `;
+    postContainer.appendChild(commentSection);
+
+    document.getElementById('userPosts').prepend(postContainer);
+    document.getElementById('postCaption').value = '';
+    mediaInput.value = '';
+
+    // Add event listeners to the new post
+    postContainer.querySelectorAll('.reaction-btn').forEach(button => {
+        button.addEventListener('click', () => react(button));
+    });
+
+    postContainer.querySelector('.share-btn').addEventListener('click', () => sharePost());
+    postContainer.querySelector('.comment-btn').addEventListener('click', function () {
+        addComment(this);
+    });
+}
+
+// Reactions function (now works!)
+function react(button) {
+    const reactionType = button.getAttribute('data-type');
+    alert(`You reacted with ${reactionType}!`);
+}
+
+// Add a comment
+function addComment(button) {
+    const input = button.previousElementSibling;
+    if (!input.value) return;
+
+    const comment = document.createElement('p');
+    comment.textContent = input.value;
+    button.nextElementSibling.appendChild(comment);
+    input.value = '';
+}
+
+// Share function
+function sharePost() {
+    alert("Post shared!");
+}
+
+
+function startChat(userName) {
+    document.getElementById('chatUserName').innerText = userName;
+    document.getElementById('chatPanel').style.display = 'block';
+}
+
+function closeChat() {
+    document.getElementById('chatPanel').style.display = 'none';
+}
+
+function sendMessage() {
+    const message = document.getElementById('chatInput').value;
+    if (message.trim() !== '') {
+        const chatBox = document.getElementById('chatMessages');
+        const newMessage = document.createElement('div');
+        newMessage.textContent = message;
+        chatBox.appendChild(newMessage);
+        document.getElementById('chatInput').value = '';
+    }
+}
