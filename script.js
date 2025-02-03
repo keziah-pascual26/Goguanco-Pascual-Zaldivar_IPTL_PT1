@@ -24,16 +24,23 @@ function editStory() {
 
     // Ensure that the editor (image or video) is visible based on the file type
     const imageEditor = document.getElementById('imageEditor');
-    const videoEditor = document.getElementById('videoEditor');
+    const videoEditors = document.querySelectorAll('.videoEditor');
 
     if (imageEditor.style.display === 'block') {
+        console.log('Image editor is being read by the code.');
         imageEditor.style.display = 'block';
-        videoEditor.style.display = 'none';
-    } else if (videoEditor.style.display === 'block') {
-        videoEditor.style.display = 'block';
+        videoEditors.forEach(videoEditor => videoEditor.style.display = 'none');
+        document.getElementById('cropImage').style.display = 'inline-block'; // Ensure the crop button is visible
+    } else if (videoEditors.length > 0) {
+        console.log('Video editor is being read by the code.');
         imageEditor.style.display = 'none';
+        videoEditors.forEach(videoEditor => videoEditor.style.display = 'block');
+    } else {
+        console.log('Neither image nor video editor is currently visible.');
     }
 }
+
+
 
 
 // Placeholder functions for image/video actions (to be implemented later)
@@ -1094,12 +1101,4 @@ function resetCroppingState() {
 
 
 
-// Attach event listener to the "Edit" button to show the editor section
-function editStory() {
-    // Show the image editor section and crop button
-    document.getElementById('editorSection').style.display = 'block';
-    document.getElementById('cropImage').style.display = 'inline-block'; // Ensure the crop button is visible
-    console.log('Image editor section displayed');
-    
-}
 

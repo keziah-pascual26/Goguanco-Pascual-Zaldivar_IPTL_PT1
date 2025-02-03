@@ -6,10 +6,6 @@
     <title>The Smiski Shelf</title>
     <link rel="stylesheet" href="styles.css">
     <script src="script.js" defer></script>
-
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
-
 </head>
 <body>
 
@@ -60,16 +56,13 @@
 
         <!-- Story Reactions Panel (Initially Hidden) -->
         <div class="reaction-panel" id="reactionPanel">
-            <!-- Story Description Display -->
-            <div id="storyDescriptionDisplay" class="story-description-container"></div>
-
             <div id="reactionCounts" style="display: none;">
                 <span>👍 <span id="likeCount">0</span></span>
                 <span>❤️ <span id="loveCount">0</span></span>
                 <span>😂 <span id="hahaCount">0</span></span>
                 <span>😢 <span id="sadCount">0</span></span>
                 <span>😡 <span id="angryCount">0</span></span>
-            </div> 
+            </div>          
 
             <div class="reactions">
                 <button class="reaction" data-reaction="like">
@@ -103,11 +96,10 @@
                 <input type="text" id="storyTitle" placeholder="Enter story title">
                 
                 <!-- Story Description with Character Limit -->
-                <div class="story-input-container">
-                    <textarea id="storyDescription" placeholder="Enter story description (Max: 100 characters)" 
-                        maxlength="100" oninput="updateCharCount()"></textarea>
-                    <p id="charCount" class="char-counter">100 characters remaining</p>
-                </div>
+                <textarea id="storyDescription" placeholder="Enter story description (Max: 100 characters)" 
+                    maxlength="100" oninput="updateCharCount()"></textarea>
+                <p id="charCount" class="char-counter">100 characters remaining</p>
+                <button>Save</button>
 
                 <div class="file-upload">
                     <label for="mediaInput">Choose files</label>
@@ -128,11 +120,8 @@
             <div class="preview-section">
                 <div id="previewContainer" style="display: none;">
                     <!-- Image or Video Preview will appear here -->
-                    <img src="placeholder.jpg" id="imagePreview" src="" alt="Image Preview" style="display: none;" loading="lazy">
-                    <video id="videoPreview" controls style="display: none;" loading="lazy">
-                        <source id="videoSource" src="" type="video/mp4">
-                    </video>
-
+                    <img id="imagePreview" src="" alt="Image Preview" style="display: none;">
+                    <video id="videoPreview" controls style="display: none;">
                         <source id="videoSource" src="" type="video/mp4">
                     </video>
                 </div>
@@ -142,7 +131,7 @@
             <button class="edit-button" onclick="editStory()">Edit</button>
 
             <!-- Image and Video Editing Section (Initially Hidden) -->
-           <div id="editorSection" style="display: none;">
+            <div id="editorSection" style="display: none;">
             <div id="imageEditor" style="display: block;">
                 <h3>Edit Image</h3>
                 <div>
@@ -183,19 +172,10 @@
         </div>
 
 
-            <div id="videoEditor" style="display: none;">
-                <h3>Edit Video</h3>
-                <div>
-                    <button id="muteButton" onclick="toggleMute()">Mute</button>
-                    <button onclick="trimVideo()">Trim Video</button>
-                </div>
-                <video id="videoPreview" controls>
-                    <source id="videoSource" src="" type="video/mp4">
-                </video>
-            </div>
+            
         </div>
 
-            <button onclick="addStories()">Post Story</button>
+            <button onclick="addStories(), saveStory()">Post Story</button>
             <button onclick="closeCreateStoryModal()">Cancel</button>
         </div>
     </div>
@@ -203,8 +183,6 @@
 
     <!-- Overlay for dimming the background when Create Story Modal is opened -->
     <div id="overlay" class="overlay"></div>
-
-
 
     <!-- Footer -->
     <footer class="footer">
