@@ -214,7 +214,8 @@ document.querySelectorAll('.reaction').forEach(button => {
 // Modified addStories function to include audio with image/video stories
 function addStories() {
     console.log('Post story');
-    
+    console.log("Cropping Enabled in addStories:", isCroppingEnabled);
+
     const mediaInput = document.getElementById('mediaInput');
     const storyTitleInput = document.getElementById('storyTitle');
     const files = Array.from(mediaInput.files);
@@ -225,92 +226,112 @@ function addStories() {
         return;
     }
 
-     // Ensure cropper is initialized before use
-    if (!cropper) {
-        console.log("Re-initializing cropper");
-        enableCropping();  // Call to reinitialize cropper
-    }
+    // Ensure cropping is applied if cropping is enabled
+    if (isCroppingEnabled && cropper && files.some(file => file.type.startsWith('image/'))) {
+        console.log("Cropping is enabled, applying crop...");
 
-    // Wait until cropper is ready
-    if (!cropper || !cropper.ready) {
-        console.log("Cropper not ready.");
-        return;  // Exit if cropper is not ready
-    }
+        if (isCroppingEnabled && cropper && files.some(file => file.type.startsWith('image/'))) {
+    console.log("Cropping is enabled, applying crop...");
+    
+    if (cropper) {
+        const croppedCanvas = cropper.getCroppedCanvas();
+        
+        if (croppedCanvas) {
+            const croppedImage = croppedCanvas.toDataURL('image/png');
+            console.log("Cropped Image Data:", croppedImage);
 
-    files.forEach((file, index) => {
-        const storyElement = document.createElement('div');
-        storyElement.classList.add('story');
-        storyElement.setAttribute('data-index', storyQueue.length);  
-
-        const url = URL.createObjectURL(file);
-
-        let storyData = {
-            src: url,
-            type: file.type.startsWith('image/') ? 'image' : 'video',
-            title: storyTitle,
-            rotation: rotationAngle,
-            resizeFactor: resizeFactor,
-            audio: audioUrl  // Store the audio URL with the story data
-        };
-
-
-
-
-       // If an image is being cropped, apply the crop before posting
-        if (cropper && file.type.startsWith('image/')) {
-            console.log("nakapasok");
-            const canvas = cropper.getCroppedCanvas();
-            if (canvas) {
-                // Update the preview image with cropped image
-                storyData.src = canvas.toDataURL(); // Ensure the cropped image is added to the story data
-                cropper.destroy();
-                cropper = null;
-                console.log("heh");
-            }
-        }
-
-        // Create and append the appropriate media element (image or video)
-        if (file.type.startsWith('image/')) {
-            const img = document.createElement('img');
-            img.src = storyData.src; // Use the cropped or original image
-            img.style.transform = `rotate(${rotationAngle}deg) scale(${resizeFactor})`; 
-            storyElement.appendChild(img);
-        } else if (file.type.startsWith('video/')) {
-            const video = document.createElement('video');
-            video.src = storyData.src;
-            video.controls = false;
-            video.muted = isMuted;
-            storyElement.appendChild(video);
+            storyQueue.push(storyData);
+            reactionCounts[storyQueue.length - 1] = { like: 0, love: 0, haha: 0, sad: 0, angry: 0 };
+            
+            // Set the cropped image in the preview element
+            const imagePreview = document.getElementById('croppedImage');
+            imagePreview.src = croppedImage;
         } else {
-            alert('Unsupported file type.');
-            return;
+            console.error("No cropped image found.");
         }
+    } else {
+        console.error("Cropper instance is not available.");
+    }
+}
 
-        // Attach audio if available
-        if (audioUrl) {
-            const audio = document.createElement('audio');
-            audio.src = audioUrl;
-            audio.controls = false;
-            audio.loop = true;
-            audio.pause();
-            storyElement.appendChild(audio);
-            storyData.audioElement = audio;
+        // Ensure cropped image is properly stored and used
+        if (window.croppedImageData) {
+            console.log("Using finalized cropped image...");
+            const storyData = {
+                src: window.croppedImageData, // Use stored cropped image
+                type: 'image',
+                title: storyTitle,
+                rotation: rotationAngle,
+                resizeFactor: resizeFactor,
+                audio: audioUrl
+            };
+
+            storyQueue.push(storyData);
+            reactionCounts[storyQueue.length - 1] = { like: 0, love: 0, haha: 0, sad: 0, angry: 0 };
+        } else {
+            console.error("Error: No cropped image found.");
         }
+    } else {
+        // Handle the case when cropping is not enabled or no image files selected
+        files.forEach((file) => {
+            const storyElement = document.createElement('div');
+            storyElement.classList.add('story');
+            storyElement.setAttribute('data-index', storyQueue.length);
 
-        // Add story details to queue
-        storyQueue.push(storyData);
-        reactionCounts[storyQueue.length - 1] = { like: 0, love: 0, haha: 0, sad: 0, angry: 0 };
+            const url = URL.createObjectURL(file);
 
-        // Attach click event to view the story
-        storyElement.addEventListener('click', () => {
-            currentStoryIndex = storyQueue.findIndex(item => item.src === storyData.src);
-            showStory(currentStoryIndex);
+            let storyData = {
+                src: url,
+                type: file.type.startsWith('image/') ? 'image' : 'video',
+                title: storyTitle,
+                rotation: rotationAngle,
+                resizeFactor: resizeFactor,
+                audio: audioUrl  // Store audio URL if applicable
+            };
+
+            // Handle image type
+            if (file.type.startsWith('image/')) {
+                const img = document.createElement('img');
+                img.src = storyData.src; // Use original or cropped image
+                img.style.transform = `rotate(${rotationAngle}deg) scale(${resizeFactor})`;
+                storyElement.appendChild(img);
+            } else if (file.type.startsWith('video/')) {
+                const video = document.createElement('video');
+                video.src = storyData.src;
+                video.controls = false;
+                video.muted = isMuted;
+                storyElement.appendChild(video);
+            } else {
+                alert('Unsupported file type.');
+                return;
+            }
+
+            // Attach audio if available
+            if (audioUrl) {
+                const audio = document.createElement('audio');
+                audio.src = audioUrl;
+                audio.controls = false;
+                audio.loop = true;
+                audio.pause();
+                storyElement.appendChild(audio);
+                storyData.audioElement = audio;
+            }
+
+            // Add story details to queue
+            storyQueue.push(storyData);
+            reactionCounts[storyQueue.length - 1] = { like: 0, love: 0, haha: 0, sad: 0, angry: 0 };
+
+            // Attach click event to view the story
+            storyElement.addEventListener('click', () => {
+                currentStoryIndex = storyQueue.findIndex(item => item.src === storyData.src);
+                showStory(currentStoryIndex);
+            });
+
+            storiesContainer.appendChild(storyElement);
         });
+    }
 
-        storiesContainer.appendChild(storyElement);
-    });
-
-    // **RESET rotation and resize after posting**
+    // Reset rotation and resize after posting
     rotationAngle = 0;
     resizeFactor = 1;
 
@@ -327,8 +348,8 @@ function addStories() {
     createStoryIndicators();
     closeCreateStoryModal();
 
-    // **Reset audio attached and reset the audio URL**
-    audioUrl = null; 
+    // Reset audio attached and reset the audio URL
+    audioUrl = null;
     const audioPreview = document.querySelector('audio');
     if (audioPreview) {
         audioPreview.pause();
@@ -348,6 +369,11 @@ function addStories() {
         audioInput.value = '';
     }
 }
+
+
+
+
+
 
 
 
@@ -920,27 +946,52 @@ let cropper = null; // Declare the cropper variable globally
 
 // Function to enable cropping and initialize the Cropper.js instance
 function enableCropping() {
-    const imagePreview = document.getElementById('imagePreview');
-    const cropButton = document.getElementById('cropImage');
+    console.log("Cropping Enabled before toggle:", isCroppingEnabled);
+    
+    const image = document.getElementById('imagePreview');
 
-    // Check if the image preview exists and isn't already cropped
-    if (imagePreview && !cropper) {
-        // Wait for the image to load if it's not already loaded
-        if (imagePreview.complete) {
-            // Image is already loaded, initialize cropper immediately
-            initializeCropper(imagePreview);
-        } else {
-            // Image is still loading, wait for it to load first
-            imagePreview.onload = () => {
-                initializeCropper(imagePreview);
-            };
-        }
+    if (isCroppingEnabled) {
+        console.log("Cropping already enabled. Destroying old instance...");
+        cropper.destroy();
+        isCroppingEnabled = false;
+        window.croppedImageData = null; // Reset stored cropped image
+    } else {
+        console.log("Initializing Cropper...");
+        cropper = new Cropper(image, {
+            aspectRatio: 1, // Adjust as needed
+            viewMode: 1,
+            autoCrop: true
+        });
+        isCroppingEnabled = true;
     }
-
-    // Toggle crop button text based on cropping state
-    cropButton.textContent = isCroppingEnabled ? 'Enable Cropping' : 'Done Cropping';
-    isCroppingEnabled = !isCroppingEnabled;  // Toggle the cropping state
+    
+    console.log("Cropping Enabled after toggle:", isCroppingEnabled);
 }
+
+// Add a console log inside the "Crop Image" button click handler to confirm the sequence
+document.getElementById('cropImage').addEventListener('click', () => {
+    console.log("Before toggling cropping, isCroppingEnabled:", isCroppingEnabled);
+    if (isCroppingEnabled) {
+        finalizeCropping();
+    } else {
+        enableCropping();
+    }
+    console.log("After toggling cropping, isCroppingEnabled:", isCroppingEnabled);
+});
+
+
+
+function toggleCropping() {
+    console.log("Toggling cropping...");
+    console.log("Cropping Enabled before toggle:", isCroppingEnabled);
+
+    isCroppingEnabled = !isCroppingEnabled;
+
+    console.log("Cropping Enabled after toggle:", isCroppingEnabled);
+}
+
+
+
 
 // Function to initialize the cropper
 function initializeCropper(imagePreview) {
@@ -969,32 +1020,31 @@ function initializeCropper(imagePreview) {
 
 // Function to finalize cropping and disable cropping functionality
 function finalizeCropping() {
-    const imagePreview = document.getElementById('imagePreview');
-    const cropButton = document.getElementById('cropImage');
-
-    if (isCroppingEnabled && cropper) {
-        // Get cropped image and update the preview
+    if (cropper) {
         const canvas = cropper.getCroppedCanvas();
         if (canvas) {
-            imagePreview.src = canvas.toDataURL();  // Update the preview image with the cropped version
-            cropper.destroy();  // Destroy cropper after cropping
-            cropper = null;  // Reset cropper instance
+              const croppedImage = cropper.getCroppedCanvas().toDataURL('image/png');
+            
+            // Update the preview image
+             const imagePreview = document.getElementById('croppedImage');
+                imagePreview.src = croppedImage;
+            
+            // Store the cropped image in a global variable
+            window.croppedImageData = croppedImageData;
+
+            // Destroy cropper instance
+            cropper.destroy();
+            cropper = null;
+            isCroppingEnabled = false;
+        } else {
+            console.error("Error: No canvas available for cropping.");
         }
     }
-
-    // Change the button text and disable cropping functionality
-    cropButton.textContent = 'Enable Cropping';  // Set text back to "Enable Cropping"
-    isCroppingEnabled = false;  // Disable cropping
 }
 
-// Attach event listener to the "Crop Image" button
-document.getElementById('cropImage').addEventListener('click', () => {
-    if (isCroppingEnabled) {
-        finalizeCropping();  // Finalize cropping and reset state when "Done Cropping" is clicked
-    } else {
-        enableCropping();  // Enable cropping and show cropper
-    }
-});
+
+
+
 
 // Function to reset cropping state when a new story/image is uploaded
 function resetCroppingState() {
