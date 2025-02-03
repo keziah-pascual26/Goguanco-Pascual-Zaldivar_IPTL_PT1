@@ -853,7 +853,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-let cropper; // Global variable to store Cropper instance
 
 // Function to handle media upload
 function handleMediaUpload(event) {
@@ -915,57 +914,108 @@ function handleMediaUpload(event) {
     previewContainer.style.display = 'block';
 }
 
+
+let isCroppingEnabled = false;  // Tracks whether cropping is enabled or not
+let cropper = null; // Declare the cropper variable globally
+
 // Function to enable cropping and initialize the Cropper.js instance
 function enableCropping() {
     const imagePreview = document.getElementById('imagePreview');
     const cropButton = document.getElementById('cropImage');
-    
+
+    // Check if the image preview exists and isn't already cropped
     if (imagePreview && !cropper) {
-        cropper = new Cropper(imagePreview, {
-            aspectRatio: 1,
-            viewMode: 2,
-            autoCropArea: 0.8,
-            movable: true,
-            zoomable: true,
-            rotatable: true,
-            scalable: true
-        });
-        cropButton.style.display = 'block';
-    }
-}
-
-
-// Function to crop the image when "Crop Image" button is clicked
-function cropImage() {
-    if (cropper) {
-        // Get the cropped image data
-        const croppedCanvas = cropper.getCroppedCanvas();
-        if (croppedCanvas) {
-            const croppedImageURL = croppedCanvas.toDataURL('image/png'); // Convert to base64 PNG
-
-            // Replace the preview image with the cropped version
-            document.getElementById('imagePreview').src = croppedImageURL;
-
-            // Optional: Destroy cropper instance after cropping
-            cropper.destroy();
-            cropper = null;
+        // Wait for the image to load if it's not already loaded
+        if (imagePreview.complete) {
+            // Image is already loaded, initialize cropper immediately
+            initializeCropper(imagePreview);
+        } else {
+            // Image is still loading, wait for it to load first
+            imagePreview.onload = () => {
+                initializeCropper(imagePreview);
+            };
         }
     }
+
+    // Toggle crop button text based on cropping state
+    cropButton.textContent = isCroppingEnabled ? 'Enable Cropping' : 'Done Cropping';
+    isCroppingEnabled = !isCroppingEnabled;  // Toggle the cropping state
 }
 
+// Function to initialize the cropper
+function initializeCropper(imagePreview) {
+    if (cropper) {
+        // Destroy the previous cropper instance before initializing a new one
+        cropper.destroy();
+    }
 
+    // Initialize the new cropper for the new image
+    cropper = new Cropper(imagePreview, {
+        aspectRatio: 1, // Aspect ratio set to 1:1 (Square crop)
+        viewMode: 2, // Limits cropping area
+        autoCropArea: 0.8, // Starts with 80% of image area
+        movable: true, // Allows image movement
+        zoomable: true, // Allows zooming in and out
+        rotatable: true, // Allows image rotation
+        scalable: true // Allows scaling of the image
+    });
 
+    // Log the initialization process to the console
+    console.log("Cropper Initialized");
 
+    // Ensure crop button is visible and not hidden
+    document.getElementById('cropImage').style.display = 'inline-block'; // Make sure it's visible
+}
 
+// Function to finalize cropping and disable cropping functionality
+function finalizeCropping() {
+    const imagePreview = document.getElementById('imagePreview');
+    const cropButton = document.getElementById('cropImage');
+
+    if (isCroppingEnabled && cropper) {
+        // Get cropped image and update the preview
+        const canvas = cropper.getCroppedCanvas();
+        if (canvas) {
+            imagePreview.src = canvas.toDataURL();  // Update the preview image with the cropped version
+            cropper.destroy();  // Destroy cropper after cropping
+            cropper = null;  // Reset cropper instance
+        }
+    }
+
+    // Change the button text and disable cropping functionality
+    cropButton.textContent = 'Enable Cropping';  // Set text back to "Enable Cropping"
+    isCroppingEnabled = false;  // Disable cropping
+}
 
 // Attach event listener to the "Crop Image" button
-document.getElementById('cropImage').addEventListener('click', cropImage);
+document.getElementById('cropImage').addEventListener('click', () => {
+    if (isCroppingEnabled) {
+        finalizeCropping();  // Finalize cropping and reset state when "Done Cropping" is clicked
+    } else {
+        enableCropping();  // Enable cropping and show cropper
+    }
+});
 
-// Attach event listener to the "Edit" button
-function editStory() {
-    // Enable cropping once the edit button is clicked
-    enableCropping();
-
-    // Show the image editor section
-    document.getElementById('editorSection').style.display = 'block';
+// Function to reset cropping state when a new story/image is uploaded
+function resetCroppingState() {
+    // Reset the button text to "Enable Cropping"
+    document.getElementById('cropImage').textContent = 'Enable Cropping';
+    isCroppingEnabled = false; // Ensure cropping is disabled initially
+    if (cropper) {
+        cropper.destroy();  // Destroy the cropper instance if it's active
+        cropper = null;  // Reset cropper instance
+    }
 }
+
+
+
+// Attach event listener to the "Edit" button to show the editor section
+function editStory() {
+    // Show the image editor section and crop button
+    document.getElementById('editorSection').style.display = 'block';
+    document.getElementById('cropImage').style.display = 'inline-block'; // Ensure the crop button is visible
+    console.log('Image editor section displayed');
+    // Reset the cropping state
+    resetCroppingState();
+}
+
