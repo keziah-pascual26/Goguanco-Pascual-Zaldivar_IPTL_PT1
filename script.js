@@ -16,7 +16,7 @@ let rotationAngle = 0;
 let currentStoryData = null;
 let resizeFactor = 1;  // A factor to control resizing
 
-// Function to handle media upload
+
 // Function to handle media upload
 function handleMediaUpload(event) {
     const file = event.target.files[0];
@@ -26,6 +26,7 @@ function handleMediaUpload(event) {
     const videoPreview = document.getElementById('videoPreview');
     const videoSource = document.getElementById('videoSource');
     const previewContainer = document.getElementById('previewContainer');
+    const cropButton = document.getElementById('cropImage');
 
     // Hide both editors initially
     imageEditor.style.display = 'none';
@@ -37,13 +38,13 @@ function handleMediaUpload(event) {
 
     // Hide editor section initially
     document.getElementById('editorSection').style.display = 'none';
+    cropButton.style.display = 'in-line block'; // Hide crop button initially
 
     if (file) {
         const fileType = file.type;
 
         // Show the appropriate editor and preview based on file type
         if (fileType.startsWith('image/')) {
-            console.log("image read");
             imageEditor.style.display = 'block';
             const reader = new FileReader();
             reader.onload = function () {
@@ -51,6 +52,7 @@ function handleMediaUpload(event) {
                 imagePreview.src = reader.result;
                 imagePreview.style.display = 'block';
 
+                 
                 // Destroy previous Cropper instance (if exists)
                 if (cropper) {
                     cropper.destroy();
@@ -61,7 +63,6 @@ function handleMediaUpload(event) {
             };
             reader.readAsDataURL(file);
         } else if (fileType.startsWith('video/')) {
-            console.log("video read");
             videoEditor.style.display = 'block';
             const reader = new FileReader();
             reader.onload = function () {
@@ -77,7 +78,6 @@ function handleMediaUpload(event) {
     previewContainer.style.display = 'block';
 }
 
-const cropButton = document.getElementById('cropButton');
 
 
 // Function to show the editor section when "Edit" button is clicked
@@ -91,13 +91,17 @@ function editStory() {
     const videoEditor = document.getElementById('videoEditor');
 
     if (imageEditor.style.display === 'block') {
+        console.log("image read")
         imageEditor.style.display = 'block';
         videoEditor.style.display = 'none';
     } else if (videoEditor.style.display === 'block') {
+        console.log("video read")
         videoEditor.style.display = 'block';
         imageEditor.style.display = 'none';
     }
 }
+
+
 
 
 // Placeholder functions for image/video actions (to be implemented later)
@@ -463,6 +467,7 @@ function addStories() {
         audioInput.value = ''; 
     }
 }
+
 
 
 // Show Story in Viewer
@@ -973,7 +978,6 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('Title:', title);  // Check the value when the DOM is ready
 });
 
-
 let isCroppingEnabled = false;  // Tracks whether cropping is enabled or not
 let cropper = null; // Declare the cropper variable globally
 
@@ -1073,3 +1077,4 @@ function resetCroppingState() {
         cropper = null;  // Reset cropper instance
     }
 }
+
