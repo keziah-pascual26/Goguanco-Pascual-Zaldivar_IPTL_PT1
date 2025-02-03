@@ -1021,7 +1021,7 @@ function initializeCropper(imagePreview) {
 
     // Initialize the new cropper for the new image
     cropper = new Cropper(imagePreview, {
-        aspectRatio: 1, // Aspect ratio set to 1:1 (Square crop)
+        aspectRatio: NaN, // Allow free cropping (no fixed aspect ratio)
         viewMode: 2, // Limits cropping area
         autoCropArea: 0.8, // Starts with 80% of image area
         movable: true, // Allows image movement
@@ -1029,6 +1029,7 @@ function initializeCropper(imagePreview) {
         rotatable: true, // Allows image rotation
         scalable: true // Allows scaling of the image
     });
+
 
     // Log the initialization process to the console
     console.log("Cropper Initialized");
