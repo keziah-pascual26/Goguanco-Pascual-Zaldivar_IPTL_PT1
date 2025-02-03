@@ -6,7 +6,7 @@ body {
     background-color: #f5efd4;
 }
 
-header, footer {
+header {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -63,21 +63,26 @@ header, footer {
 
 /* Banner Styling */
 .banner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 50px;
-  background: #729c2f;
-  height: 160px;
-  gap: 20px;
-  flex-wrap: wrap;
-  color: #feeb29;
+    background-image: url('smiskibanner.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #729c2f;
+    padding: 50px;
+    height: 160px;
+    gap: 20px;
+    flex-wrap: wrap;
+    color: #feeb29;
 }
 
 .text h1 {
   margin: 0;
   font-size: 1.8rem;
   font-weight: bold;
+  text-align: center;
 }
 
 .text p {
@@ -109,6 +114,7 @@ button img {
   height: auto;
   border-radius: 8px;
   object-fit: cover;
+  max-width: 100%;
 }
 
 /* Responsive Design */
@@ -404,10 +410,51 @@ button img {
 }
 
 /* Footer Styling */
+
 .footer {
-    background-color: #feeb29;
+    background: url('smiskifooter.png') no-repeat center/cover;
+    padding: 150px 100px;
     color: #729c2f;
-    padding: 10px 0;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+.footer-column {
+    flex: 1;
+    min-width: 200px;
+}
+.footer h3 {
+    font-weight: bold;
+}
+.footer ul {
+    list-style: none;
+    padding: 0;
+}
+.footer ul li {
+    margin: 8px 0;
+}
+.footer a {
+    text-decoration: none;
+    color: #729c2f;
+}
+.social-icons {
+    display: flex;
+    gap: 10px;
+}
+.social-icons a {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    background: #729c2f;
+    color: white;
+    text-align: center;
+    line-height: 40px;
+    border-radius: 50%;
+}
+.footer-bottom {
+    text-align: center;
+    padding: 20px;
+    font-size: 14px;
 }
 
 .story-container {
@@ -578,7 +625,6 @@ button:hover {
     left: 0;
     padding: 5px;
     border-radius: 20px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     display: flex;
     gap: 8px;
 }
@@ -694,4 +740,218 @@ button:hover {
     padding: 5px;
     border-radius: 5px;
     max-width: 90%; /* Optional: prevent the description from overflowing */
+}
+#storyDescriptionDisplay {
+    color: white; /* Set text color to white */
+    position: relative; /* Ensure you can adjust its position */
+    top: -25px; /* Adjust this value to make it go higher or lower */
+}
+
+
+/* Center the user posts section */
+.user-posts-container {
+    width: 60%;
+    margin: 15px;
+    text-align: center;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Style the post form */
+.post-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 15px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.post-form textarea {
+    width: 90%;
+    height: 80px;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    resize: none;
+}
+
+.post-form input[type="file"] {
+    border: none;
+}
+
+.post-form button {
+    padding: 10px 20px;
+    background-color: #ffcc00;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.post-form button:hover {
+    background-color: #ffbb00;
+}
+
+/* Style the posts */
+#userPosts {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.user-post {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 15px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    text-align: left;
+}
+
+.user-post p {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #333;
+}
+
+/* Ensure uniform media sizes */
+.post-media {
+    width: 100%;
+    max-height: 300px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+video.post-media {
+    object-fit: contain; /* Ensures video doesn't crop unexpectedly */
+}
+
+/* Reaction buttons */
+.post-reactions {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 10px;
+}
+
+.post-reactions button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+/* Comment section */
+.post-comments {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #ddd;
+}
+
+.comment-input {
+    width: calc(100% - 80px);
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+.post-comments button {
+    padding: 5px 10px;
+    margin-left: 5px;
+    background-color: #ffcc00;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.comment-list {
+    margin-top: 10px;
+    text-align: left;
+}
+
+
+
+
+.user-posts-wrapper {
+    display: flex;
+    gap: 20px;
+}
+
+.user-posts-container {
+    flex: 2;
+}
+
+.sidebar-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.suggested-users-section, .chat-panel {
+    background: #f3f3f3;
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 15px;
+    margin-right: 15px;
+    margin-left: 0;
+}
+
+.suggested-users-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.suggested-users-section li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.chat-panel {
+    position: relative;
+    width: 90%;
+    margin-bottom: 15px;
+}
+
+.chat-header {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.chat-messages {
+    height: 150px;
+    overflow-y: auto;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 10px;
+}
+
+#chatInput {
+    width: 80%;
+    padding: 5px;
+}
+
+.chat-button, .send-button {
+    margin-left: 20px;
+    border-radius: 5px;
+}
+
+.send-button, .post-comments button {
+    margin-top: 15px;
 }

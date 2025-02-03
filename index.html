@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="smiskilogo.png"> <!-- For PNG -->
     <title>The Smiski Shelf</title>
     <link rel="stylesheet" href="styles.css">
     <script src="script.js" defer></script>
@@ -47,6 +48,56 @@
         </div>
     </div>
 
+    <div class="user-posts-wrapper">
+        <!-- User Posts Container -->
+        <div class="user-posts-container">
+            <h2>Share Your Smiski Moments</h2>
+            
+            <div class="post-form">
+                <textarea id="postCaption" placeholder="Write a caption..."></textarea>
+                <input type="file" id="postImage" accept="image/*,video/*">
+                <button onclick="submitPost()">Post</button>
+            </div>
+            
+            <div id="userPosts"></div>
+        </div>
+    
+        <!-- Sidebar for People You Know & Chat -->
+        <div class="sidebar-section">
+            <div class="suggested-users-section">
+                <h3>Chat Your Friends</h3>
+                <ul id="suggestedUsers">
+                    <li>
+                        <img src="user1.png" alt="User 1" class="user-avatar">
+                        <span>Jane Doe</span>
+                        <button class="chat-button" onclick="startChat('Jane Doe')">Chat</button>
+                    </li>
+                    <li>
+                        <img src="user2.png" alt="User 2" class="user-avatar">
+                        <span>John Smith</span>
+                        <button class="chat-button" onclick="startChat('John Smith')">Chat</button>
+                    </li>
+                    <li>
+                        <img src="user3.png" alt="User 3" class="user-avatar">
+                        <span>Alice Brown</span>
+                        <button class="chat-button" onclick="startChat('Alice Brown')">Chat</button>
+                    </li>
+                </ul>
+            </div>
+    
+            <!-- Chat Panel (Initially Hidden) -->
+            <div id="chatPanel" class="chat-panel" style="display: none;">
+                <div class="chat-header">
+                    <span id="chatUserName">Chat</span>
+                    <button onclick="closeChat()">X</button>
+                </div>
+                <div class="chat-messages" id="chatMessages"></div>
+                <input type="text" id="chatInput" placeholder="Type a message...">
+                <button class="send-button" onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Story Viewer -->
     <div class="story-viewer" id="storyViewer">
         <div class="story-viewer-title" id="storyViewerTitle"></div>
@@ -60,6 +111,9 @@
 
         <!-- Story Reactions Panel (Initially Hidden) -->
         <div class="reaction-panel" id="reactionPanel">
+            <!-- Story Description Display -->
+            <div id="storyDescriptionDisplay" class="story-description-container"></div>
+
             <div id="reactionCounts" style="display: none;">
                 <span>👍 <span id="likeCount">0</span></span>
                 <span>❤️ <span id="loveCount">0</span></span>
@@ -100,10 +154,12 @@
                 <input type="text" id="storyTitle" placeholder="Enter story title">
                 
                 <!-- Story Description with Character Limit -->
-                <textarea id="storyDescription" placeholder="Enter story description (Max: 100 characters)" 
-                    maxlength="100" oninput="updateCharCount()"></textarea>
-                <p id="charCount" class="char-counter">100 characters remaining</p>
-                <button>Save</button>
+                <div class="story-input-container">
+                    <textarea id="storyDescription" placeholder="Enter story description (Max: 100 characters)" 
+                        maxlength="100" oninput="updateCharCount()"></textarea>
+                    <p id="charCount" class="char-counter">100 characters remaining</p>
+                    <button onclick="saveStory()">Save</button>
+                </div>
 
                 <div class="file-upload">
                     <label for="mediaInput">Choose files</label>
@@ -177,7 +233,7 @@
                 
             </div>
 
-            <button onclick="addStories(), saveStory()">Post Story</button>
+            <button onclick="saveStory(); addStories();">Post Story</button>
             <button onclick="closeCreateStoryModal()">Cancel</button>
         </div>
     </div>
@@ -188,5 +244,45 @@
 
     <!-- Footer -->
     <footer class="footer">
-        <p>&copy; 2025 The Smiski Shelf</p>
+        <div class="footer-column">
+            <h3>Smiski Series</h3>
+            <ul>
+                <li><a href="https://smiski.com/e/products/hippers-series/">Hippers</a></li>
+                <li><a href="https://smiski.com/e/products/moving-series/">Moving Series</a></li>
+                <li><a href="https://smiski.com/e/products/exercising-series/">Exercising Series</a></li>
+                <li><a href="https://smiski.com/e/products/dressing-series/">Dressing Series</a></li>
+                <li><a href="https://smiski.com/e/products/yoga-series/">Yoga Series</a></li>
+            </ul>
+        </div>
+        <div class="footer-column">
+            <h3>Learn</h3>
+            <ul>
+                <li><a href="#">Our Story</a></li>
+                <li><a href="#">Smiski Products</a></li>
+                <li><a href="#">Smiski Content</a></li>
+                <li><a href="#">Where to buy</a></li>
+                <li><a href="#">FAQs</a></li>
+            </ul>
+        </div>
+        <div class="footer-column">
+            <h3>More from Smiski</h3>
+            <ul>
+                <li><a href="#">Sign In</a></li>
+                <li><a href="#">Wholesale Opportunities</a></li>
+                <li><a href="#">Affiliate</a></li>
+                <li><a href="#">Contact Us</a></li>
+            </ul>
+        </div>
+        <div class="footer-column">
+            <h3>Follow us</h3>
+            <div class="social-icons">
+                <a href="https://www.youtube.com/channel/UCkKGZJ-oZ6PhxFVI_Ppm26g">Y</a>
+                <a href="https://www.facebook.com/smiski.japan">F</a>
+                <a href="https://www.instagram.com/smiski_usa/">I</a>
+                <a href="https://x.com/smiski_usa_">X</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 The Smiski Shelf</p>
+        </div>
     </footer>
