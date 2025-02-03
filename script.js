@@ -318,19 +318,14 @@ function addStories() {
             isMuted: isMuted
         };
 
-        // If an image is being cropped, apply the crop before posting
-        if (fileType === 'image' && cropper) {
+        // If an image is being cropped, use the cropped image data
+        if (fileType === 'image' && croppedImageData) {
             console.log("Cropping image...");
 
-            // Get the cropped canvas only if cropping is enabled
-            const canvas = cropper.getCroppedCanvas();
-            if (canvas) {
-                // Update the story data with the cropped image
-                storyData.src = canvas.toDataURL(); // Ensure the cropped image is added to the story data
-                cropper.destroy();  // Destroy the cropper after use
-                cropper = null;
-                console.log("Cropped image added to story");
-            }
+            // Update the story data with the cropped image if available
+            storyData.src = croppedImageData;
+            croppedImageData = null;  // Reset cropped image data after using it
+            console.log("Cropped image added to story");
         }
 
         // Append the image or video to the story element
@@ -1049,8 +1044,12 @@ function initializeCropper(imagePreview) {
     document.getElementById('cropImage').style.display = 'inline-block'; // Make sure it's visible
 }
 
-// Function to finalize cropping and disable cropping functionality
+
+let croppedImageData = null;  // Global variable to hold the cropped image data
+
 function finalizeCropping() {
+    console.log("finalizeCropping()");
+
     const imagePreview = document.getElementById('imagePreview');
     const cropButton = document.getElementById('cropImage');
 
@@ -1058,7 +1057,8 @@ function finalizeCropping() {
         // Get cropped image and update the preview
         const canvas = cropper.getCroppedCanvas();
         if (canvas) {
-            imagePreview.src = canvas.toDataURL();  // Update the preview image with the cropped version
+            croppedImageData = canvas.toDataURL();  // Store cropped image in the global variable
+            imagePreview.src = croppedImageData;  // Update the preview image with the cropped version
             cropper.destroy();  // Destroy cropper after cropping
             cropper = null;  // Reset cropper instance
         }
@@ -1069,17 +1069,20 @@ function finalizeCropping() {
     isCroppingEnabled = false;  // Disable cropping
 }
 
+
 // Attach event listener to the "Crop Image" button
 document.getElementById('cropImage').addEventListener('click', () => {
     if (isCroppingEnabled) {
         finalizeCropping();  // Finalize cropping and reset state when "Done Cropping" is clicked
     } else {
         enableCropping();  // Enable cropping and show cropper
+        
     }
 });
 
 // Function to reset cropping state when a new story/image is uploaded
 function resetCroppingState() {
+    console.log("resetCroppingState()")
     // Reset the button text to "Enable Cropping"
     document.getElementById('cropImage').textContent = 'Enable Cropping';
     isCroppingEnabled = false; // Ensure cropping is disabled initially
@@ -1097,7 +1100,6 @@ function editStory() {
     document.getElementById('editorSection').style.display = 'block';
     document.getElementById('cropImage').style.display = 'inline-block'; // Ensure the crop button is visible
     console.log('Image editor section displayed');
-    // Reset the cropping state
-    resetCroppingState();
+    
 }
 
