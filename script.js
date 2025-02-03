@@ -322,6 +322,15 @@ document.querySelectorAll('.reaction').forEach(button => {
 
 
 function addStories() {
+
+    // Display a confirmation dialog
+    const userConfirmed = confirm("Are you sure you want to post this story?");
+    
+    if (!userConfirmed) {
+        console.log("User canceled the story posting.");
+        return; // Exit if the user cancels
+    }
+
     console.log('Post story');
 
     const mediaInput = document.getElementById('mediaInput');
@@ -652,13 +661,16 @@ function showStory(index) {
         }
     }
 
-    // Check if the story has a description (caption) and display it
-    if (story.description) {
-        descriptionDisplay.innerHTML = `<p><strong>Caption:</strong> ${story.description}</p>`;
-        descriptionDisplay.style.display = 'block';
-    } else {
-        descriptionDisplay.style.display = 'none';
-    }
+// Check if the story has a description (caption) and display it
+if (story.description) {
+    const descriptionDisplay = document.getElementById('storyDescriptionDisplay');
+    descriptionDisplay.innerHTML = `<p><strong>Caption:</strong> ${story.description}</p>`;
+    descriptionDisplay.style.display = 'block';
+} else {
+    const descriptionDisplay = document.getElementById('storyDescriptionDisplay');
+    descriptionDisplay.style.display = 'none';
+}
+
 }
 
 
