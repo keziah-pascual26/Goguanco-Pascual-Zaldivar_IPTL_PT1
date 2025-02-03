@@ -6,7 +6,7 @@ body {
     background-color: #f5efd4;
 }
 
-header, footer {
+header {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -63,21 +63,26 @@ header, footer {
 
 /* Banner Styling */
 .banner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 50px;
-  background: #729c2f;
-  height: 160px;
-  gap: 20px;
-  flex-wrap: wrap;
-  color: #feeb29;
+    background-image: url('smiskibanner.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #729c2f;
+    padding: 50px;
+    height: 160px;
+    gap: 20px;
+    flex-wrap: wrap;
+    color: #feeb29;
 }
 
 .text h1 {
   margin: 0;
   font-size: 1.8rem;
   font-weight: bold;
+  text-align: center;
 }
 
 .text p {
@@ -109,6 +114,7 @@ button img {
   height: auto;
   border-radius: 8px;
   object-fit: cover;
+  max-width: 100%;
 }
 
 /* Responsive Design */
@@ -404,10 +410,51 @@ button img {
 }
 
 /* Footer Styling */
+
 .footer {
-    background-color: #feeb29;
+    background: url('smiskifooter.png') no-repeat center/cover;
+    padding: 150px 100px;
     color: #729c2f;
-    padding: 10px 0;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+.footer-column {
+    flex: 1;
+    min-width: 200px;
+}
+.footer h3 {
+    font-weight: bold;
+}
+.footer ul {
+    list-style: none;
+    padding: 0;
+}
+.footer ul li {
+    margin: 8px 0;
+}
+.footer a {
+    text-decoration: none;
+    color: #729c2f;
+}
+.social-icons {
+    display: flex;
+    gap: 10px;
+}
+.social-icons a {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    background: #729c2f;
+    color: white;
+    text-align: center;
+    line-height: 40px;
+    border-radius: 50%;
+}
+.footer-bottom {
+    text-align: center;
+    padding: 20px;
+    font-size: 14px;
 }
 
 .story-container {
