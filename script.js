@@ -58,7 +58,7 @@ function handleMediaUpload(event) {
                     cropper.destroy();
                 }
                 // Disable cropping initially (cropper is not initialized yet)
-                cropButton.style.display = 'block'; 
+                cropButton.style.display = 'none'; 
 
             };
             reader.readAsDataURL(file);
@@ -572,46 +572,39 @@ function showStory(index) {
         video.style.width = '100%';
         video.style.height = 'auto';
         storyContainer.appendChild(video);
-    
+
         video.onloadedmetadata = () => {
-            let duration = Math.min(video.duration * 1000, 15000); // Use video duration but cap it at 15 seconds
-    
-            updateProgressBar(duration, () => {
+            updateProgressBar(15000, () => {
                 stopAudioPlayback(); // Stop audio when moving to next story
                 video.pause();
                 video.currentTime = 0;
                 showStory(index + 1);
             });
-    
-            setTimeout(() => {
-                if (!video.paused) {
-                    stopAudioPlayback(); // Stop audio when moving to next story
-                    video.pause();
-                    video.currentTime = 0;
-                    showStory(index + 1);
-                }
-            }, duration);
         };
-    
+
+        setTimeout(() => {
+            if (!video.paused) {
+                stopAudioPlayback(); // Stop audio when moving to next story
+                video.pause();
+                video.currentTime = 0;
+                showStory(index + 1);
+            }
+        }, 15000);
+
         currentVideo = video;  // Store the video element
-    
+
         if (story.audioElement) {
             currentAudio = story.audioElement;  // Store the new audio element for video
             currentAudio.play().catch(error => console.error('Audio playback failed:', error));
-    
-            video.onloadedmetadata = () => {
-                let duration = Math.min(video.duration * 1000, 15000);
-    
-                setTimeout(() => {
-                    if (currentAudio) {
-                        currentAudio.pause();
-                        currentAudio.currentTime = 0;
-                    }
-                }, duration); // Stop the audio after the determined duration
-            };
+
+            setTimeout(() => {
+                if (currentAudio) {
+                    currentAudio.pause();
+                    currentAudio.currentTime = 0;
+                }
+            }, 15000); // Stop the audio after 15 seconds
         }
     }
-    
 
     storyViewerContent.appendChild(storyContainer);
 
@@ -1021,7 +1014,7 @@ function initializeCropper(imagePreview) {
 
     // Initialize the new cropper for the new image
     cropper = new Cropper(imagePreview, {
-        aspectRatio: NaN, // Allow free cropping (no fixed aspect ratio)
+        aspectRatio: 1, // Aspect ratio set to 1:1 (Square crop)
         viewMode: 2, // Limits cropping area
         autoCropArea: 0.8, // Starts with 80% of image area
         movable: true, // Allows image movement
@@ -1029,7 +1022,6 @@ function initializeCropper(imagePreview) {
         rotatable: true, // Allows image rotation
         scalable: true // Allows scaling of the image
     });
-
 
     // Log the initialization process to the console
     console.log("Cropper Initialized");
