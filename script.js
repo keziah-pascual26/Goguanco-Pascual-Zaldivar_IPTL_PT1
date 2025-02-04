@@ -351,31 +351,10 @@ function addStories() {
     let previewContainer = document.getElementById('storyPreviewContainer');
     previewContainer.innerHTML = '';  // Clear previous content
 
-    files.forEach((file, index) => {
-        let previewElement;
-        let fileType = file.type.startsWith('image/') ? 'image' : 'video';
-
-        if (fileType === 'image') {
-            previewElement = document.createElement('img');
-            previewElement.src = URL.createObjectURL(file); // Initially set to the original file
-            previewElement.style.maxWidth = '100%';
-
-            // If image has been cropped, update the preview with the cropped image
-            if (croppedImageData) {
-                previewElement.src = croppedImageData;  // Use the cropped image data
-                croppedImageData = null;  // Reset cropped data after preview
-            }
-        } else if (fileType === 'video') {
-            previewElement = document.createElement('video');
-            previewElement.src = URL.createObjectURL(file);  // Initially set to the original video file
-            previewElement.style.maxWidth = '100%';
-
-            // If there are video modifications (e.g., trimming), apply them here
-            if (modifiedVideoUrl) {
-                previewElement.src = modifiedVideoUrl; // Update with trimmed video
-            }
-        }
-
+    files.forEach((file) => {
+        let previewElement = document.createElement(file.type.startsWith('image/') ? 'img' : 'video');
+        previewElement.src = URL.createObjectURL(file);
+        previewElement.style.maxWidth = '100%';
         previewContainer.appendChild(previewElement);
     });
 
@@ -401,7 +380,6 @@ function addStories() {
         closeConfirmationModal();
     };
 }
-
 
 function closeConfirmationModal() {
     const confirmationModal = document.getElementById('confirmationModal');
@@ -455,7 +433,7 @@ function processFilesForUpload(storyTitle, storyDescription, files) {
         if (fileType === 'image') {
             const img = document.createElement('img');
             img.src = storyData.src; // Use the cropped or original image
-            img.style.transform = `rotate(${rotationAngle}deg) scale(${resizeFactor})`; 
+            img.style.transform = `rotate(${rotationAngle}deg) scale(${resizeFactor})`;
             storyElement.appendChild(img);
         } else if (fileType === 'video') {
             const video = document.createElement('video');
