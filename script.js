@@ -330,11 +330,18 @@ function addStories() {
     const storyTitleInput = document.getElementById('storyTitle');
     const storyDescriptionInput = document.getElementById('storyDescription'); // New input for description
     const files = Array.from(mediaInput.files);
-    const storyTitle = storyTitleInput.value.trim() || "Untitled Story";
-    const storyDescription = storyDescriptionInput.value.trim() || "";  // Get the description value
+    const storyTitle = storyTitleInput.value.trim();
+    const storyDescription = storyDescriptionInput.value.trim();
 
-    // Log the description for debugging
-    console.log('Story description:', storyDescription);
+    // Log the title and description for debugging
+    console.log('Story Title:', storyTitle);
+    console.log('Story Description:', storyDescription);
+
+    // Validate title and description
+    if (!storyTitle || !storyDescription) {
+        alert('Please enter both a title and a description for your story.');
+        return;
+    }
 
     if (files.length === 0) {
         alert('Please select at least one image or video.');
@@ -351,34 +358,32 @@ function addStories() {
     let previewContainer = document.getElementById('storyPreviewContainer');
     previewContainer.innerHTML = '';  // Clear previous content
 
-    files.forEach((file) => {
+    files.forEach((file, index) => {
         let previewElement;
         let fileType = file.type.startsWith('image/') ? 'image' : 'video';
 
-        // If it's an image, use the cropped version if available
         if (fileType === 'image') {
             previewElement = document.createElement('img');
-
-            // If cropping is enabled and we have cropped image data, use that for preview
-            if (croppedImageData) {
-                previewElement.src = croppedImageData;  // Use cropped image for preview
-                console.log("Displaying cropped image in preview");
-            } else {
-                previewElement.src = URL.createObjectURL(file);  // Use original image if no cropping
-            }
-
-            // Apply rotation and resize for preview
-            previewElement.style.transform = `rotate(${rotationAngle}deg) scale(${resizeFactor})`;
-        } 
-        // If it's a video, show the preview of the original or trimmed video
-        else if (fileType === 'video') {
-            previewElement = document.createElement('video');
-            previewElement.src = URL.createObjectURL(file);  // For now, using the original file; can modify for trimmed video
+            previewElement.src = URL.createObjectURL(file); // Initially set to the original file
             previewElement.style.maxWidth = '100%';
-            previewElement.controls = true;  // Show controls in preview
+
+            // If image has been cropped, update the preview with the cropped image
+            if (croppedImageData) {
+                previewElement.src = croppedImageData;  // Use the cropped image data
+                croppedImageData = null;  // Reset cropped data after preview
+            }
+        } else if (fileType === 'video') {
+            previewElement = document.createElement('video');
+            previewElement.src = URL.createObjectURL(file);  // Initially set to the original video file
+            previewElement.style.maxWidth = '100%';
+
+            // If there are video modifications (e.g., trimming), apply them here
+            if (modifiedVideoUrl) {
+                previewElement.src = modifiedVideoUrl; // Update with trimmed video
+                modifiedVideoUrl = null; // Reset modified video URL after preview
+            }
         }
 
-        previewElement.style.maxWidth = '100%';
         previewContainer.appendChild(previewElement);
     });
 
@@ -388,7 +393,8 @@ function addStories() {
 
     // Show the confirmation modal
     const confirmationModal = document.getElementById('confirmationModal');
-    confirmationModal.style.display = 'flex';
+    console.log('Displaying Preview Modal');
+    confirmationModal.style.display = 'flex';  // Ensure it displays no matter what
 
     // Handle "Confirm" button click
     document.getElementById('confirmBtn').onclick = () => {
@@ -457,7 +463,7 @@ function processFilesForUpload(storyTitle, storyDescription, files) {
         if (fileType === 'image') {
             const img = document.createElement('img');
             img.src = storyData.src; // Use the cropped or original image
-            img.style.transform = `rotate(${rotationAngle}deg) scale(${resizeFactor})`;
+            img.style.transform = `rotate(${rotationAngle}deg) scale(${resizeFactor})`; 
             storyElement.appendChild(img);
         } else if (fileType === 'video') {
             const video = document.createElement('video');
@@ -1086,7 +1092,7 @@ function updateCharCount() {
         charCount.textContent = remaining + " characters remaining";
     }
 
-
+/*
 // Function to save the story with the description
 function saveStory() {
     const title = document.getElementById('storyTitle').value.trim();
@@ -1106,6 +1112,8 @@ function saveStory() {
     alert('Story saved successfully!');
     closeCreateStoryModal();
 }
+
+*/
 
 
 
