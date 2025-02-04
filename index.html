@@ -6,7 +6,15 @@
     <link rel="icon" type="image/png" href="smiskilogo.png"> <!-- For PNG -->
     <title>The Smiski Shelf</title>
     <link rel="stylesheet" href="styles.css">
+
     <script src="script.js" defer></script>
+    <script type="module" src="modal-handling.js"></script>
+    <script type="module" src="story-handling.js"></script>
+    <script type="module" src="media-handling.js"></script>
+    <script type="module" src="reaction-handling.js"></script>
+    <script type="module" src="utils.js"></script>
+
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
@@ -33,7 +41,7 @@
         <div class="text">
             <h1>The Smiski Shelf</h1>
             <p>Where Every Smiski Has a Story</p>
-            <button id="createStoryButton" onclick="openCreateStoryModal()">Create your Smiski Story</button>
+            <button id="createStoryButton">Create your Smiski Story</button>
         </div>
         <img src="banner-pic.png" alt="Smiski" class="image" />
     </div>
@@ -43,7 +51,7 @@
         <div class="stories-header">
             <h2>Smiski Stories</h2>
         </div>
-        <div class="story add-story" onclick="openCreateStoryModal()">
+        <div class="story add-story" id="createStoryButton">
             +
         </div>
     </div>
@@ -163,7 +171,7 @@
 
                 <div class="file-upload">
                     <label for="mediaInput">Choose files</label>
-                    <input type="file" id="mediaInput" accept="image/*, video/*" multiple onchange="handleMediaUpload(event)">
+                    <input type="file" id="mediaInput" accept="image/*, video/*" multiple>
                 </div>
 
                 <div class="audio-upload">
@@ -188,7 +196,7 @@
             </div>
 
             <!-- Edit Button -->
-            <button class="edit-button" onclick="editStory()">Edit</button>
+            <button class="edit-button" id="editButton">Edit</button>
 
             <!-- Image and Video Editing Section (Initially Hidden) -->
             <div id="editorSection" style="display: none;">

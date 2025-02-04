@@ -1,5 +1,4 @@
 // Get the button, modal, and overlay elements
-const createStoryButton = document.getElementById('createStoryButton');
 const createStoryModal = document.getElementById('createStoryModal');
 const overlay = document.getElementById('overlay');
 const storiesContainer = document.getElementById('storiesContainer');
@@ -16,67 +15,6 @@ let rotationAngle = 0;
 let currentStoryData = null;
 let resizeFactor = 1;  // A factor to control resizing
 
-
-// Function to handle media upload
-function handleMediaUpload(event) {
-    const file = event.target.files[0];
-    const imageEditor = document.getElementById('imageEditor');
-    const videoEditor = document.getElementById('videoEditor');
-    const imagePreview = document.getElementById('imagePreview');
-    const videoPreview = document.getElementById('videoPreview');
-    const videoSource = document.getElementById('videoSource');
-    const previewContainer = document.getElementById('previewContainer');
-    const cropButton = document.getElementById('cropImage');
-
-    // Hide both editors initially
-    imageEditor.style.display = 'none';
-    videoEditor.style.display = 'none';
-
-    // Hide preview initially
-    imagePreview.style.display = 'none';
-    videoPreview.style.display = 'none';
-
-    // Hide editor section initially
-    document.getElementById('editorSection').style.display = 'none';
-    cropButton.style.display = 'in-line block'; // Hide crop button initially
-
-    if (file) {
-        const fileType = file.type;
-
-        // Show the appropriate editor and preview based on file type
-        if (fileType.startsWith('image/')) {
-            imageEditor.style.display = 'block';
-            const reader = new FileReader();
-            reader.onload = function () {
-                // Set the image preview source
-                imagePreview.src = reader.result;
-                imagePreview.style.display = 'block';
-
-                 
-                // Destroy previous Cropper instance (if exists)
-                if (cropper) {
-                    cropper.destroy();
-                }
-                // Disable cropping initially (cropper is not initialized yet)
-                cropButton.style.display = 'block'; 
-
-            };
-            reader.readAsDataURL(file);
-        } else if (fileType.startsWith('video/')) {
-            videoEditor.style.display = 'block';
-            const reader = new FileReader();
-            reader.onload = function () {
-                videoSource.src = reader.result;
-                videoPreview.style.display = 'block';
-                videoPreview.load();
-            };
-            reader.readAsDataURL(file);
-        }
-    }
-
-    // Show the preview container once the media is selected
-    previewContainer.style.display = 'block';
-}
 
 
 
@@ -249,54 +187,37 @@ function trimAndRecordVideo() {
 }
 
 
-// Open Create Story Modal
-function openCreateStoryModal() {
-    // Show the modal and overlay
-    document.getElementById('createStoryModal').style.display = 'block';
-    document.getElementById('overlay').style.display = 'block';
-    
-    // Reset the form inputs when opening the modal
-    resetModalInputs();
-}
+import { openCreateStoryModal, closeCreateStoryModal } from "./modal-handling.js";
+import { enableCropping, finalizeCropping, handleMediaUpload, editStory, croppedImageData, modifiedVideoUrl, isCroppingEnabled, cropper } from "./media-handling.js";
 
-// Function to reset modal inputs when opening the modal
-function resetModalInputs() {
-    document.getElementById('storyTitle').value = '';  
-    document.getElementById('mediaInput').value = '';  
-    document.getElementById('audioInput').value = '';  
+// Add event listener for the create story button
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("createStoryButton").addEventListener("click", openCreateStoryModal);
+    console.log("script.js: createStoryButton event listener added.");
 
-    document.getElementById('previewContainer').style.display = 'none';
-    document.getElementById('imagePreview').style.display = 'none';
-    document.getElementById('videoPreview').style.display = 'none';
-    document.getElementById('imageEditor').style.display = 'none';
-    document.getElementById('videoEditor').style.display = 'none';
-    document.getElementById('editorSection').style.display = 'none';
-    document.getElementById('rotateImage').style.display = 'none';
+    // Close modal when overlay is clicked
+    document.getElementById('overlay').addEventListener('click', closeCreateStoryModal);
 
-    // Reset the rotation of the preview image
-    const imagePreview = document.getElementById('imagePreview');
-    if (imagePreview) {
-        imagePreview.style.transform = 'rotate(0deg) scale(1)'; // Reset rotation and scale
-    }
+    // Add event listener for the crop image button
+    document.getElementById('cropImage').addEventListener('click', () => {
+        if (isCroppingEnabled) {
+            finalizeCropping();  // Finalize cropping and reset state when "Done Cropping" is clicked
+        } else {
+            enableCropping();  // Enable cropping and show cropper
+        }
+    });
 
-    // **RESET rotation and scaling globally**
-    rotationAngle = 0;
-    resizeFactor = 1;
-}
+    // Add event listener for media upload
+    document.getElementById('mediaInput').addEventListener('change', handleMediaUpload);
+
+    // Add event listener for the edit button
+    document.getElementById('editButton').addEventListener('click', editStory);
+});
 
 
 
-// Close Create Story Modal
-function closeCreateStoryModal() {
-    resizeFactor = 1;  // Reset to the default size factor
-    createStoryModal.style.display = 'none';
-    overlay.style.display = 'none'; // Hide the overlay
-    
-}
 
 
-// Event Listener for opening modal
-createStoryButton.addEventListener('click', openCreateStoryModal);
 
 // Close modal when overlay is clicked
 overlay.addEventListener('click', closeCreateStoryModal);
@@ -1132,14 +1053,17 @@ function finalizeCropping() {
 }
 
 
-// Attach event listener to the "Crop Image" button
-document.getElementById('cropImage').addEventListener('click', () => {
-    if (isCroppingEnabled) {
-        finalizeCropping();  // Finalize cropping and reset state when "Done Cropping" is clicked
-    } else {
-        enableCropping();  // Enable cropping and show cropper
-        
-    }
+
+import { finalizeCropping, enableCropping } from "./media-handling.js";
+
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById('cropImage').addEventListener('click', () => {
+        if (isCroppingEnabled) {
+            finalizeCropping();  // Finalize cropping and reset state when "Done Cropping" is clicked
+        } else {
+            enableCropping();  // Enable cropping and show cropper
+        }
+    });
 });
 
 // Function to reset cropping state when a new story/image is uploaded
