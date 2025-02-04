@@ -63,7 +63,7 @@ header {
 
 /* Banner Styling */
 .banner {
-    background-image: url('smiskibanner.png');
+    background-image: url('smiskibanner.svg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
