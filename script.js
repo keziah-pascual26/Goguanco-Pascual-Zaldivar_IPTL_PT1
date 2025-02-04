@@ -199,54 +199,120 @@ function maximizeImage() {
     }
 }
 
-// Function to handle trimming the video
-function trimAndRecordVideo() {
-    return new Promise((resolve, reject) => {
-        // Ensure everything is set up correctly and the video is trimmed
+let originalVideoUrl = null; // Store the original video URL
+
+// Hide "Undo Trim" button initially
+document.getElementById("undoTrimButton").style.display = "none";
+
+async function trimAndRecordVideo() {
+    return new Promise(async (resolve, reject) => {
+        console.log("Trimming function started...");
+
         const videoElement = document.getElementById('videoPreview');
+        const videoSource = document.getElementById('videoSource');
+        const fileInput = document.getElementById("mediaInput");
         const startTimeInput = document.getElementById('startTimeInput');
         const endTimeInput = document.getElementById('endTimeInput');
-        const startTime = parseInt(startTimeInput.value);
-        const endTime = parseInt(endTimeInput.value);
+        const undoTrimButton = document.getElementById("undoTrimButton"); // Get Undo Trim button
 
-        // Validate the start and end times
+        const startTime = parseInt(startTimeInput.value) || 0;
+        const endTime = parseInt(endTimeInput.value) || 0;
+
+        console.log(`Start time: ${startTime}, End time: ${endTime}`);
+
         if (isNaN(startTime) || isNaN(endTime) || startTime >= endTime) {
+            console.error("Invalid start or end time.");
             reject('Invalid start or end time.');
             return;
         }
 
-        const stream = videoElement.captureStream();
-        if (stream.getTracks().length === 0) {
-            reject('No valid audio or video tracks found.');
+        if (endTime - startTime > 15) {
+            console.error("Trim duration cannot exceed 15 seconds.");
+            reject('Trim duration cannot exceed 15 seconds.');
             return;
         }
 
-        const mediaRecorder = new MediaRecorder(stream);
-        let recordedChunks = [];
-        
-        mediaRecorder.ondataavailable = function(event) {
-            recordedChunks.push(event.data);
-        };
+        try {
+            console.log("Initializing FFmpeg...");
+            const { createFFmpeg } = FFmpeg;
+            const ffmpeg = createFFmpeg({ log: true });
+            await ffmpeg.load();
+            console.log("FFmpeg loaded successfully.");
 
-        mediaRecorder.start();
-
-        videoElement.currentTime = startTime;
-        videoElement.play();
-
-        videoElement.ontimeupdate = function () {
-            if (videoElement.currentTime >= endTime - 0.1) { // Slight buffer
-                videoElement.pause();
-                mediaRecorder.stop();
+            let videoData;
+            if (fileInput.files.length > 0) {
+                console.log("Video file selected from input.");
+                const file = fileInput.files[0];
+                originalVideoUrl = URL.createObjectURL(file); // Store original video URL
+                videoData = new Uint8Array(await file.arrayBuffer());
+            } else if (videoElement.src.startsWith("blob:")) {
+                console.error("Cannot fetch blob URLs. Please upload a video file.");
+                reject("Cannot fetch blob URLs. Please upload a video file.");
+                return;
+            } else if (videoElement.src) {
+                console.log("Fetching video from source URL...");
+                const response = await fetch(videoElement.src);
+                videoData = new Uint8Array(await response.arrayBuffer());
+            } else {
+                console.error("No video source found.");
+                reject("No video source found.");
+                return;
             }
-        };
 
-        mediaRecorder.onstop = function () {
-            const blob = new Blob(recordedChunks, { type: 'video/webm' });
-            const videoUrl = URL.createObjectURL(blob);
-            resolve(videoUrl);  // Resolve the Promise with the video URL
-        };
+            console.log("Writing video file to FFmpeg filesystem...");
+            ffmpeg.FS('writeFile', 'input.mp4', videoData);
+
+            console.log(`Running FFmpeg command: Trimming video from ${startTime} to ${endTime} seconds...`);
+            await ffmpeg.run('-i', 'input.mp4', '-ss', startTime.toString(), '-to', endTime.toString(), '-c', 'copy', 'output.mp4');
+
+            console.log("Reading trimmed video file...");
+            const data = ffmpeg.FS('readFile', 'output.mp4');
+
+            console.log("Creating Blob URL for trimmed video...");
+            const blob = new Blob([data.buffer], { type: 'video/mp4' });
+            const trimmedVideoUrl = URL.createObjectURL(blob);
+
+            console.log("Trimmed video successfully created! Updating preview...");
+
+            // Update the preview with the trimmed video
+            videoSource.src = trimmedVideoUrl;
+            videoPreview.load();
+            videoPreview.style.display = 'block';
+
+            // Show the "Undo Trim" button
+            undoTrimButton.style.display = "block";
+
+            resolve(trimmedVideoUrl);
+        } catch (error) {
+            console.error("Error trimming video:", error.message);
+            reject(`Error trimming video: ${error.message}`);
+        }
     });
 }
+
+// Function to undo the trim and restore the original video
+function undoTrimAndRecordVideo() {
+    const videoSource = document.getElementById('videoSource');
+    const videoPreview = document.getElementById('videoPreview');
+    const undoTrimButton = document.getElementById("undoTrimButton");
+
+    if (originalVideoUrl) {
+        console.log("Restoring original video...");
+        videoSource.src = originalVideoUrl;
+        videoPreview.load();
+        videoPreview.style.display = 'block';
+
+        // Hide the "Undo Trim" button after restoring
+        undoTrimButton.style.display = "none";
+    } else {
+        console.error("No original video found to restore.");
+        alert("No original video found to restore.");
+    }
+}
+
+
+
+
 
 
 // Open Create Story Modal
@@ -323,7 +389,7 @@ document.querySelectorAll('.reaction').forEach(button => {
 // Function to handle the image preview
 
 
-function addStories() {
+async function addStories() {
     console.log('Post story');
 
     const mediaInput = document.getElementById('mediaInput');
@@ -351,6 +417,8 @@ function addStories() {
     let previewContainer = document.getElementById('storyPreviewContainer');
     previewContainer.innerHTML = '';  // Clear previous content
 
+    let trimmedVideoUrl = null;  // Variable to hold the trimmed video URL
+
     files.forEach((file) => {
         let previewElement;
         let fileType = file.type.startsWith('image/') ? 'image' : 'video';
@@ -376,6 +444,18 @@ function addStories() {
             previewElement.src = URL.createObjectURL(file);  // For now, using the original file; can modify for trimmed video
             previewElement.style.maxWidth = '100%';
             previewElement.controls = true;  // Show controls in preview
+
+            // Check if the video needs to be trimmed
+            const shouldTrimVideo = document.getElementById('trimVideoCheckbox').checked;
+            if (shouldTrimVideo) {
+                // Call trimAndRecordVideo function and get the trimmed video URL
+                trimAndRecordVideo().then(trimmedUrl => {
+                    trimmedVideoUrl = trimmedUrl;  // Store the trimmed video URL
+                    previewElement.src = trimmedVideoUrl;  // Update preview to show trimmed video
+                }).catch(error => {
+                    console.error('Error trimming video:', error);
+                });
+            }
         }
 
         previewElement.style.maxWidth = '100%';
@@ -394,7 +474,7 @@ function addStories() {
     document.getElementById('confirmBtn').onclick = () => {
         // Proceed with uploading the story
         console.log('Confirming the story upload');
-        processFilesForUpload(storyTitle, storyDescription, files); // Upload the story
+        processFilesForUpload(storyTitle, storyDescription, files, trimmedVideoUrl); // Pass the trimmed video URL if available
         closeConfirmationModal();
     };
 
@@ -405,27 +485,22 @@ function addStories() {
     };
 }
 
-function closeConfirmationModal() {
-    const confirmationModal = document.getElementById('confirmationModal');
-    confirmationModal.style.display = 'none';
-}
-
-function processFilesForUpload(storyTitle, storyDescription, files) {
+async function processFilesForUpload(storyTitle, storyDescription, files, trimmedVideoUrl) {
     files.forEach(async (file, index) => {
         const storyElement = document.createElement('div');
         storyElement.classList.add('story');
         storyElement.setAttribute('data-index', storyQueue.length);
 
-        let url = URL.createObjectURL(file);
+        let url = trimmedVideoUrl || URL.createObjectURL(file);  // Use trimmed video URL if available
         let fileType = file.type.startsWith('image/') ? 'image' : 'video';
 
         // Handle video trimming if necessary
-        if (fileType === 'video') {
+        if (fileType === 'video' && !trimmedVideoUrl) {
             try {
                 const shouldTrimVideo = document.getElementById('trimVideoCheckbox').checked;
 
                 if (shouldTrimVideo) {
-                    url = await trimAndRecordVideo(); // Wait for trimmed video
+                    url = await trimAndRecordVideo(); // Wait for trimmed video if not already available
                 }
             } catch (error) {
                 alert('Error trimming video: ' + error);
@@ -532,6 +607,7 @@ function processFilesForUpload(storyTitle, storyDescription, files) {
         audioInput.value = ''; 
     }
 }
+
 
 
 
