@@ -992,6 +992,7 @@ video.post-media {
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
     z-index: 9999; /* Ensures the modal is on top */
+    display: none;
 }
 
 .comment-section {
