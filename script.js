@@ -823,7 +823,6 @@ function showStory(index) {
     
         currentVideo = video;
     }
-    
 
     storyViewerContent.appendChild(storyContainer);
 
@@ -845,6 +844,7 @@ function showStory(index) {
     // Create comment section container
     const commentSection = document.createElement('div');
     commentSection.classList.add('comment-section');
+    commentSection.style.display = 'none'; // Hide the comment section initially
 
     // Create the comment input field
     const commentInput = document.createElement('input');
@@ -900,7 +900,7 @@ function showStory(index) {
     // Style the comment section beside reactions
     commentSection.style.position = 'absolute';
     commentSection.style.right = '20px';
-    commentSection.style.top = '50px';
+    commentSection.style.top = '120px';
     commentSection.style.width = '250px';
     commentSection.style.padding = '10px';
     commentSection.style.border = '1px solid #ccc';
@@ -911,11 +911,20 @@ function showStory(index) {
     commentsList.style.maxHeight = '200px';
     commentsList.style.overflowY = 'auto';
 
-    commentInput.style.width = '100%';
+    commentInput.style.width = 'calc(100% - 20px)';
     commentInput.style.marginBottom = '5px';
+    commentInput.style.padding = '5px'; // Add padding to the input box for better spacing
 
     commentButton.style.width = '100%';
     commentButton.style.cursor = 'pointer';
+    commentButton.style.padding = '5px'; // Add padding to the button for better spacing
+
+    // Change the button background color and text color
+    commentButton.style.backgroundColor = '#4CAF50'; // Green background color
+    commentButton.style.color = 'white'; // White text color
+    commentButton.style.border = 'none'; // Remove default border
+    commentButton.style.borderRadius = '5px'; // Round the corners
+    commentButton.style.fontSize = '16px'; // Set a font size for the text
 
     // Function to stop any playing audio or video when the story viewer is closed or changed
     function stopAudioPlayback() {
@@ -928,7 +937,29 @@ function showStory(index) {
             currentVideo.currentTime = 0;
         }
     }
+
+    // Create the toggle button for showing/hiding the comment section
+    const toggleCommentsButton = document.createElement('button');
+    toggleCommentsButton.classList.add('toggle-comments-button');
+    toggleCommentsButton.innerHTML = '<img src="comment.png" alt="Toggle Comments" style="width: 24px; height: 24px;">';
+
+    // Add event listener to toggle comment visibility
+    toggleCommentsButton.addEventListener('click', () => {
+        commentSection.style.display = commentSection.style.display === 'none' ? 'block' : 'none';
+    });
+
+    // Position the button
+    toggleCommentsButton.style.position = 'absolute';
+    toggleCommentsButton.style.right = '20px';
+    toggleCommentsButton.style.top = '60px';
+    toggleCommentsButton.style.background = 'none';
+    toggleCommentsButton.style.border = 'none';
+    toggleCommentsButton.style.cursor = 'pointer';
+
+    // Append the toggle button to the story viewer
+    storyViewerContent.appendChild(toggleCommentsButton);
 }
+
 
 
 

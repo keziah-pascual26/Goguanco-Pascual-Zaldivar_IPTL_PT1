@@ -291,7 +291,7 @@ button img {
 
 /* Buttons */
 .create-story-modal button {
-    background-color: #007bff;
+    background-color: #4CAF50;
     color: white;
     padding: 10px 20px;
     border: none;
@@ -303,7 +303,7 @@ button img {
 }
 
 .create-story-modal button:hover {
-    background-color: #0056b3;
+    background-color: #3d883e;
 }
 
 /* Modal Content Alignment Adjustments */
@@ -584,16 +584,21 @@ button:hover {
 /* Position the Previous button on the left */
 #previousButton {
     left: 10px;
+    width: 70px;
+    height: 70px;
 }
 
 /* Position the Next button on the right */
 #nextButton {
     right: 10px;
+    width: 70px;
+    height: 70px;
 }
 
 /* Hide the buttons by default */
 #previousButton, #nextButton {
     display: none;
+    border-radius: 50%;
 }
 
 .reactions {
