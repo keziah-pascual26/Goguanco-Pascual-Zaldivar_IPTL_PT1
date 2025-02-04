@@ -202,18 +202,19 @@ function maximizeImage() {
 // Function to handle trimming the video
 function trimAndRecordVideo() {
     return new Promise((resolve, reject) => {
-        // Ensure everything is set up correctly and the video is trimmed
         const videoElement = document.getElementById('videoPreview');
         const startTimeInput = document.getElementById('startTimeInput');
         const endTimeInput = document.getElementById('endTimeInput');
         const startTime = parseInt(startTimeInput.value);
         const endTime = parseInt(endTimeInput.value);
 
-        // Validate the start and end times
         if (isNaN(startTime) || isNaN(endTime) || startTime >= endTime) {
             reject('Invalid start or end time.');
             return;
         }
+
+        // Mute the video to prevent audio playback during recording
+        videoElement.muted = true;
 
         const stream = videoElement.captureStream();
         if (stream.getTracks().length === 0) {
@@ -223,30 +224,31 @@ function trimAndRecordVideo() {
 
         const mediaRecorder = new MediaRecorder(stream);
         let recordedChunks = [];
-        
-        mediaRecorder.ondataavailable = function(event) {
+
+        mediaRecorder.ondataavailable = function (event) {
             recordedChunks.push(event.data);
         };
 
         mediaRecorder.start();
-
         videoElement.currentTime = startTime;
         videoElement.play();
 
         videoElement.ontimeupdate = function () {
-            if (videoElement.currentTime >= endTime - 0.1) { // Slight buffer
+            if (videoElement.currentTime >= endTime - 0.1) { 
                 videoElement.pause();
                 mediaRecorder.stop();
             }
         };
 
         mediaRecorder.onstop = function () {
+            videoElement.muted = false; // Unmute after recording
             const blob = new Blob(recordedChunks, { type: 'video/webm' });
             const videoUrl = URL.createObjectURL(blob);
-            resolve(videoUrl);  // Resolve the Promise with the video URL
+            resolve(videoUrl);
         };
     });
 }
+
 
 
 // Open Create Story Modal
