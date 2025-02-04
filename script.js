@@ -350,6 +350,11 @@ function resetModalInputs() {
     resizeFactor = 1;
 }
 
+document.addEventListener('DOMContentLoaded', function() {
+    // Add click event listener to the "Create Story" button
+    document.getElementById('createStoryButtonPlus').addEventListener('click', openCreateStoryModal);
+});
+
 
 
 // Close Create Story Modal
@@ -427,12 +432,17 @@ async function addStories() {
     let trimmedVideoUrl = null;  // Variable to hold the trimmed video URL
 
     files.forEach((file) => {
-        let previewElement;
-        let fileType = file.type.startsWith('image/') ? 'image' : 'video';
+        let previewElement = null;
+        let fileType = file.type.startsWith('image/') ? 'image' : file.type.startsWith('video/') ? 'video' : null;
 
         if (fileType === 'image') {
             previewElement = document.createElement('img');
             previewElement.src = URL.createObjectURL(file); // Initially set to the original file
+            previewElement.style.maxWidth = '100%';
+        }
+        else if (fileType === 'video') {
+            previewElement = document.createElement('video');
+            previewElement.src = URL.createObjectURL(file); // Set to original video
             previewElement.style.maxWidth = '100%';
             previewElement.controls = true;  // Show controls in preview
 
@@ -449,7 +459,12 @@ async function addStories() {
             }
         }
 
-        previewContainer.appendChild(previewElement);
+        // Append the previewElement if it's valid
+        if (previewElement) {
+            previewContainer.appendChild(previewElement);
+        } else {
+            console.warn('Unsupported file type, no preview element created.');
+        }
     });
 
     // Set title and description in the preview modal
@@ -475,6 +490,13 @@ async function addStories() {
         closeConfirmationModal();
     };
 }
+
+// Function to close the confirmation modal
+function closeConfirmationModal() {
+    const confirmationModal = document.getElementById('confirmationModal');
+    confirmationModal.style.display = 'none';  // Close the modal
+}
+
 
 async function processFilesForUpload(storyTitle, storyDescription, files, trimmedVideoUrl) {
     files.forEach(async (file, index) => {
