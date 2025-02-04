@@ -602,7 +602,7 @@ function showStory(index) {
     closeButton.textContent = 'Close';
     closeButton.classList.add('close-button');
     closeButton.addEventListener('click', () => {
-        stopAudioPlayback(); // Stop any playing audio when closing the story
+        stopAudioPlayback();
         closeStoryViewer();
     });
     storyViewerContent.appendChild(closeButton);
@@ -610,8 +610,7 @@ function showStory(index) {
     const storyContainer = document.createElement('div');
     storyContainer.classList.add('story-container');
 
-    // Stop any previously playing audio or video
-    stopAudioPlayback(); 
+    stopAudioPlayback();
 
     // Handle image story
     if (story.type === 'image') {
@@ -621,7 +620,7 @@ function showStory(index) {
         storyContainer.appendChild(img);
 
         if (story.audioElement) {
-            currentAudio = story.audioElement;  // Store the new audio element
+            currentAudio = story.audioElement;
             currentAudio.play().catch(error => console.error('Audio playback failed:', error));
 
             setTimeout(() => {
@@ -629,62 +628,57 @@ function showStory(index) {
                     currentAudio.pause();
                     currentAudio.currentTime = 0;
                 }
-            }, 5000); // Stop the audio after 5 seconds
+            }, 5000);
         }
 
-        updateProgressBar(5000, () => showStory(index + 1)); 
+        updateProgressBar(5000, () => showStory(index + 1));
 
-    } 
-    // Handle video story
-    else if (story.type === 'video') {
+    } else if (story.type === 'video') {
         const video = document.createElement('video');
         video.src = story.src;
         video.autoplay = true;
-        video.muted = isMuted; 
+        video.muted = isMuted;
         video.playsInline = true;
         video.style.width = '100%';
         video.style.height = 'auto';
         storyContainer.appendChild(video);
-    
+
         video.onloadedmetadata = () => {
-            let duration = Math.min(video.duration * 1000, 15000); // Use video duration but cap it at 15 seconds
-    
+            let duration = Math.min(video.duration * 1000, 15000);
             updateProgressBar(duration, () => {
-                stopAudioPlayback(); // Stop audio when moving to next story
+                stopAudioPlayback();
                 video.pause();
                 video.currentTime = 0;
                 showStory(index + 1);
             });
-    
+
             setTimeout(() => {
                 if (!video.paused) {
-                    stopAudioPlayback(); // Stop audio when moving to next story
+                    stopAudioPlayback();
                     video.pause();
                     video.currentTime = 0;
                     showStory(index + 1);
                 }
             }, duration);
         };
-    
-        currentVideo = video;  // Store the video element
-    
+
+        currentVideo = video;
+
         if (story.audioElement) {
-            currentAudio = story.audioElement;  // Store the new audio element for video
+            currentAudio = story.audioElement;
             currentAudio.play().catch(error => console.error('Audio playback failed:', error));
-    
+
             video.onloadedmetadata = () => {
                 let duration = Math.min(video.duration * 1000, 15000);
-    
                 setTimeout(() => {
                     if (currentAudio) {
                         currentAudio.pause();
                         currentAudio.currentTime = 0;
                     }
-                }, duration); // Stop the audio after the determined duration
+                }, duration);
             };
         }
     }
-    
 
     storyViewerContent.appendChild(storyContainer);
 
@@ -703,15 +697,80 @@ function showStory(index) {
     document.getElementById('previousButton').style.display = index > 0 ? 'block' : 'none';
     document.getElementById('nextButton').style.display = index < storyQueue.length - 1 ? 'block' : 'none';
 
-    // Create the progress bar if it doesn't exist
-    if (!document.querySelector('.progress-bar')) {
-        const progressBarContainer = document.createElement('div');
-        progressBarContainer.classList.add('progress-bar-container');
-        const progressBar = document.createElement('div');
-        progressBar.classList.add('progress-bar');
-        progressBarContainer.appendChild(progressBar);
-        storyViewerContent.appendChild(progressBarContainer);
+    // Create comment section container
+    const commentSection = document.createElement('div');
+    commentSection.classList.add('comment-section');
+
+    // Create the comment input field
+    const commentInput = document.createElement('input');
+    commentInput.type = 'text';
+    commentInput.placeholder = 'Write a comment...';
+    commentInput.classList.add('comment-input');
+
+    // Create the comment button
+    const commentButton = document.createElement('button');
+    commentButton.textContent = 'Post';
+    commentButton.classList.add('comment-button');
+
+    // Create a div to display comments
+    const commentsList = document.createElement('div');
+    commentsList.classList.add('comments-list');
+
+    // Store comments per story
+    if (!story.comments) {
+        story.comments = [];
     }
+
+    // Display existing comments
+    function displayComments() {
+        commentsList.innerHTML = '';
+        story.comments.forEach(comment => {
+            const commentItem = document.createElement('p');
+            commentItem.textContent = comment;
+            commentItem.classList.add('comment-item');
+            commentsList.appendChild(commentItem);
+        });
+    }
+
+    displayComments();
+
+    // Add event listener to post a comment
+    commentButton.addEventListener('click', () => {
+        const commentText = commentInput.value.trim();
+        if (commentText !== '') {
+            story.comments.push(commentText);
+            commentInput.value = ''; // Clear input field
+            displayComments();
+        }
+    });
+
+    // Append comment input, button, and list to comment section
+    commentSection.appendChild(commentsList);
+    commentSection.appendChild(commentInput);
+    commentSection.appendChild(commentButton);
+
+    // Add the comment section to the story viewer
+    storyViewerContent.appendChild(commentSection);
+
+    // Style the comment section beside reactions
+    commentSection.style.position = 'absolute';
+    commentSection.style.right = '20px';
+    commentSection.style.top = '50px';
+    commentSection.style.width = '250px';
+    commentSection.style.padding = '10px';
+    commentSection.style.border = '1px solid #ccc';
+    commentSection.style.background = '#fff';
+    commentSection.style.borderRadius = '10px';
+    commentSection.style.boxShadow = '0px 0px 5px rgba(0,0,0,0.2)';
+
+    commentsList.style.maxHeight = '200px';
+    commentsList.style.overflowY = 'auto';
+
+    commentInput.style.width = '100%';
+    commentInput.style.marginBottom = '5px';
+
+    commentButton.style.width = '100%';
+    commentButton.style.cursor = 'pointer';
 
     // Function to stop any playing audio or video when the story viewer is closed or changed
     function stopAudioPlayback() {
@@ -725,7 +784,6 @@ function showStory(index) {
         }
     }
 
-    // Check if the story has a description (caption) and display it
     if (story.description) {
         descriptionDisplay.innerHTML = `<p><strong>Caption:</strong> ${story.description}</p>`;
         descriptionDisplay.style.display = 'block';
@@ -733,6 +791,7 @@ function showStory(index) {
         descriptionDisplay.style.display = 'none';
     }
 }
+
 
 
 

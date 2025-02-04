@@ -666,17 +666,6 @@ button:hover {
     cursor: pointer;
 }
 
-#previewContainer {
-    position: relative;
-    width: 100%; /* Adjust as needed */
-    max-width: 300px; /* Prevents excessive width */
-    aspect-ratio: 9 / 16; /* Maintains the 9:16 ratio */
-    overflow: hidden; /* Prevents content overflow */
-    display: flex; 
-    justify-content: center; /* Centers content horizontally */
-    align-items: center; /* Centers content vertically */
-    background-color: black; /* Adds contrast */
-}
 
 #previewContainer {
     position: relative;
@@ -976,10 +965,66 @@ video.post-media {
     text-align: center;
 }
 
+#storyPreviewContainer {
+    width: 100%; /* Ensures responsiveness */
+    max-width: 300px; /* Optional: limit the size */
+    aspect-ratio: 9 / 16; /* Maintains 9:16 ratio */
+    background-color: black; /* Optional: adds contrast */
+    overflow: hidden; /* Prevents overflow */
+    justify-content: center; /* Horizontally centers the content */
+    align-items: center; /* Vertically centers the content */
+}
+
 #storyPreviewContainer img,
 #storyPreviewContainer video {
-    max-width: 100%;
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Keeps the aspect ratio intact */
+}
+
+#confirmationModal {
+    justify-content: center; /* Centers the modal content horizontally */
+    align-items: center; /* Centers the modal content vertically */
+    position: fixed; /* Keeps the modal fixed in place */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    z-index: 9999; /* Ensures the modal is on top */
+}
+
+.comment-section {
+    margin-top: 15px;
+    padding: 10px;
+    border-top: 1px solid #ccc;
+}
+
+.comment-list {
+    max-height: 150px;
+    overflow-y: auto;
     margin-bottom: 10px;
+}
+
+.comment-input {
+    width: calc(100% - 60px);
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-right: 5px;
+}
+
+.comment-button {
+    padding: 8px 12px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.comment-button:hover {
+    background-color: #0056b3;
 }
 
 
