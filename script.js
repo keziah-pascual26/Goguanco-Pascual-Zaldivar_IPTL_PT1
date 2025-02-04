@@ -476,6 +476,12 @@ async function addStories() {
     console.log('Displaying Preview Modal');
     confirmationModal.style.display = 'flex';  // Ensure it displays no matter what
 
+    document.body.classList.add('modal-open'); // Add class to prevent scrolling
+    // Show the overlay and confirmation modal
+    document.getElementById('overlay').style.display = 'block';
+
+
+
     // Handle "Confirm" button click
     document.getElementById('confirmBtn').onclick = () => {
         // Proceed with uploading the story
@@ -495,7 +501,11 @@ async function addStories() {
 function closeConfirmationModal() {
     const confirmationModal = document.getElementById('confirmationModal');
     confirmationModal.style.display = 'none';  // Close the modal
-}
+        document.body.classList.remove('modal-open'); // Remove class to allow scrolling
+    document.getElementById('overlay').style.display = 'none';
+    document.getElementById('confirmationModal').style.display = 'none';
+    
+}   
 
 
 async function processFilesForUpload(storyTitle, storyDescription, files, trimmedVideoUrl) {
