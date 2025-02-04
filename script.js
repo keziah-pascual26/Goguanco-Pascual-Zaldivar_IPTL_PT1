@@ -352,8 +352,32 @@ function addStories() {
     previewContainer.innerHTML = '';  // Clear previous content
 
     files.forEach((file) => {
-        let previewElement = document.createElement(file.type.startsWith('image/') ? 'img' : 'video');
-        previewElement.src = URL.createObjectURL(file);
+        let previewElement;
+        let fileType = file.type.startsWith('image/') ? 'image' : 'video';
+
+        // If it's an image, use the cropped version if available
+        if (fileType === 'image') {
+            previewElement = document.createElement('img');
+
+            // If cropping is enabled and we have cropped image data, use that for preview
+            if (croppedImageData) {
+                previewElement.src = croppedImageData;  // Use cropped image for preview
+                console.log("Displaying cropped image in preview");
+            } else {
+                previewElement.src = URL.createObjectURL(file);  // Use original image if no cropping
+            }
+
+            // Apply rotation and resize for preview
+            previewElement.style.transform = `rotate(${rotationAngle}deg) scale(${resizeFactor})`;
+        } 
+        // If it's a video, show the preview of the original or trimmed video
+        else if (fileType === 'video') {
+            previewElement = document.createElement('video');
+            previewElement.src = URL.createObjectURL(file);  // For now, using the original file; can modify for trimmed video
+            previewElement.style.maxWidth = '100%';
+            previewElement.controls = true;  // Show controls in preview
+        }
+
         previewElement.style.maxWidth = '100%';
         previewContainer.appendChild(previewElement);
     });
