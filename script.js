@@ -750,16 +750,35 @@ function showStory(index) {
         video.style.width = '100%';
         video.style.height = 'auto';
         storyContainer.appendChild(video);
-
+    
+        // Ensure metadata is loaded to get the correct duration
         video.onloadedmetadata = () => {
-            let duration = Math.min(video.duration * 1000, 15000);
-            updateProgressBar(duration, () => {
+            let videoDuration = Math.min(video.duration * 1000, 15000); // Limit to 15s max
+    
+            // Start and sync audio with the video
+            if (story.audioElement) {
+                currentAudio = story.audioElement;
+                currentAudio.currentTime = 0; // Ensure it starts from the beginning
+                currentAudio.play().catch(error => console.error('Audio playback failed:', error));
+    
+                // Stop audio exactly when the video ends
+                setTimeout(() => {
+                    if (currentAudio) {
+                        currentAudio.pause();
+                        currentAudio.currentTime = 0;
+                    }
+                }, videoDuration);
+            }
+    
+            // Update progress bar and handle transition to next story
+            updateProgressBar(videoDuration, () => {
                 stopAudioPlayback();
                 video.pause();
                 video.currentTime = 0;
                 showStory(index + 1);
             });
-
+    
+            // Ensure the video and audio stop if they are still playing when the duration ends
             setTimeout(() => {
                 if (!video.paused) {
                     stopAudioPlayback();
@@ -767,26 +786,12 @@ function showStory(index) {
                     video.currentTime = 0;
                     showStory(index + 1);
                 }
-            }, duration);
+            }, videoDuration);
         };
-
+    
         currentVideo = video;
-
-        if (story.audioElement) {
-            currentAudio = story.audioElement;
-            currentAudio.play().catch(error => console.error('Audio playback failed:', error));
-
-            video.onloadedmetadata = () => {
-                let duration = Math.min(video.duration * 1000, 15000);
-                setTimeout(() => {
-                    if (currentAudio) {
-                        currentAudio.pause();
-                        currentAudio.currentTime = 0;
-                    }
-                }, duration);
-            };
-        }
     }
+    
 
     storyViewerContent.appendChild(storyContainer);
 
