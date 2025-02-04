@@ -955,3 +955,19 @@ video.post-media {
 .send-button, .post-comments button {
     margin-top: 15px;
 }
+
+#previewModal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    z-index: 1000;
+    display: none; /* Initially hidden */
+}
+
+#previewContainer {
+    margin-bottom: 20px;
+}
+

@@ -206,7 +206,7 @@
 
                     </div>
                     <div id="cropper-container">
-                        <img id="imagePreview" src="" alt="Image Preview">
+                        
                     </div>
                 </div>
 
@@ -232,6 +232,16 @@
                 </div>
                 
             </div>
+
+            <div id="previewModal" style="display: none;">
+                <div id="previewContainer">
+                    <!-- Preview content (image/video, title, description) will go here -->
+                </div>
+                <button id="confirmBtn">Confirm</button>
+                <button id="cancelBtn">Cancel</button>
+            </div>
+
+
 
             <button onclick="saveStory(); addStories();">Post Story</button>
             <button onclick="closeCreateStoryModal()">Cancel</button>

@@ -320,153 +320,87 @@ document.querySelectorAll('.reaction').forEach(button => {
     });
 });
 
+// Function to handle the image preview
 
-function addStories() {
+
+async function addStories() {
     console.log('Post story');
 
     const mediaInput = document.getElementById('mediaInput');
     const storyTitleInput = document.getElementById('storyTitle');
-    const storyDescriptionInput = document.getElementById('storyDescription'); // New input for description
+    const storyDescriptionInput = document.getElementById('storyDescription');
     const files = Array.from(mediaInput.files);
     const storyTitle = storyTitleInput.value.trim() || "Untitled Story";
     const storyDescription = storyDescriptionInput.value.trim() || "";  // Get the description value
-
-    // Log the description for debugging
-    console.log('Story description:', storyDescription);
 
     if (files.length === 0) {
         alert('Please select at least one image or video.');
         return;
     }
 
-    // Ensure cropper is initialized before use
-    if (isCroppingEnabled && !cropper) {
-        console.log("Re-initializing cropper");
-        enableCropping();  // Call to reinitialize cropper
-    }
+    // Show preview modal
+    const previewModal = document.getElementById('previewModal');
+    const previewContainer = document.getElementById('previewContainer');
+    previewContainer.innerHTML = ''; // Clear any previous content
 
-    // Process files
-    files.forEach(async (file, index) => {
-        const storyElement = document.createElement('div');
-        storyElement.classList.add('story');
-        storyElement.setAttribute('data-index', storyQueue.length);
-
-        let url = URL.createObjectURL(file);
-        let fileType = file.type.startsWith('image/') ? 'image' : 'video';
-
-        // Handle video trimming if necessary
-        if (fileType === 'video') {
-            try {
-                // Check if trimming is necessary (example: checkbox or flag to enable trimming)
-                const shouldTrimVideo = document.getElementById('trimVideoCheckbox').checked;
-
-                if (shouldTrimVideo) {
-                    // Only trim if the user wants it
-                    url = await trimAndRecordVideo(); // Wait for trimmed video
-                }
-            } catch (error) {
-                alert('Error trimming video: ' + error);
-                return;
-            }
-        }
-
-        // Prepare story data
-        let storyData = {
-            src: url,
-            type: fileType,
-            title: storyTitle,
-            description: storyDescription,
-            rotation: rotationAngle,
-            resizeFactor: resizeFactor,
-            audio: audioUrl,
-            isMuted: isMuted
-        };
-
-        // If an image is being cropped, use the cropped image data
-        if (fileType === 'image' && croppedImageData) {
-            console.log("Cropping image...");
-
-            // Update the story data with the cropped image if available
-            storyData.src = croppedImageData;
-            croppedImageData = null;  // Reset cropped image data after using it
-            console.log("Cropped image added to story");
-        }
-
-        // Append the image or video to the story element
-        if (fileType === 'image') {
-            const img = document.createElement('img');
-            img.src = storyData.src; // Use the cropped or original image
-            img.style.transform = `rotate(${rotationAngle}deg) scale(${resizeFactor})`; 
-            storyElement.appendChild(img);
-        } else if (fileType === 'video') {
-            const video = document.createElement('video');
-            video.src = storyData.src;
-            video.controls = false;
-            video.muted = isMuted;  // Apply the current mute state
-            storyElement.appendChild(video);
-        } else {
-            alert('Unsupported file type.');
-            return;
-        }
-
-        // Attach audio if available
-        if (audioUrl) {
-            const audio = document.createElement('audio');
-            audio.src = audioUrl;
-            audio.controls = false;
-            audio.loop = true;
-            audio.pause(); // Ensure the audio is not playing automatically
-            storyElement.appendChild(audio);
-
-            storyData.audioElement = audio;
-        }
-
-        // Add story details to queue
-        storyQueue.push(storyData);
-        reactionCounts[storyQueue.length - 1] = { like: 0, love: 0, haha: 0, sad: 0, angry: 0 };
-
-        // Attach click event to view the story
-        storyElement.addEventListener('click', () => {
-            currentStoryIndex = storyQueue.findIndex(item => item.src === storyData.src);
-            showStory(currentStoryIndex);
-        });
-
-        storiesContainer.appendChild(storyElement);
+    // Add media previews (Image/Video)
+    files.forEach((file) => {
+        const fileType = file.type.startsWith('image/') ? 'image' : 'video';
+        const previewItem = document.createElement(fileType === 'image' ? 'img' : 'video');
+        previewItem.src = URL.createObjectURL(file);
+        previewItem.style.maxWidth = '100%';
+        previewItem.style.marginBottom = '10px';
+        previewContainer.appendChild(previewItem);
     });
 
-    // **RESET rotation and resize after posting**
-    rotationAngle = 0;
-    resizeFactor = 1;
+    // Add title and description preview
+    const titleElement = document.createElement('h4');
+    titleElement.innerText = storyTitle || "Untitled Story";
+    previewContainer.appendChild(titleElement);
+    const descriptionElement = document.createElement('p');
+    descriptionElement.innerText = storyDescription || "No description provided.";
+    previewContainer.appendChild(descriptionElement);
 
-    // Reset preview image transformation
-    const previewImage = document.getElementById('imagePreview');
-    if (previewImage) {
-        previewImage.style.transform = 'rotate(0deg) scale(1)';
-    }
+    // Show the modal
+    previewModal.style.display = 'block';
 
-    // Reset form inputs
-    storyTitleInput.value = '';
-    storyDescriptionInput.value = '';  // Reset description input
-    mediaInput.value = '';
+    // Handle confirmation to post the story
+    const confirmBtn = document.getElementById('confirmBtn');
+    confirmBtn.onclick = () => {
+        // Proceed with story upload
+        files.forEach((file) => {
+            let url = URL.createObjectURL(file);
+            let fileType = file.type.startsWith('image/') ? 'image' : 'video';
 
-    createStoryIndicators();
-    closeCreateStoryModal();
+            // Add the confirmed story to the queue
+            let storyData = {
+                src: url,
+                type: fileType,
+                title: storyTitle,
+                description: storyDescription
+            };
 
-    // **Reset the audio attached and reset the audio URL**
-    audioUrl = null;  
-    const audioPreview = document.querySelector('audio');
-    if (audioPreview) {
-        audioPreview.pause();
-        audioPreview.currentTime = 0;
-        audioPreview.remove();
-    }
+            // Add story to display (add your logic here for display)
+            console.log('Story added:', storyData);
+        });
 
-    // Clear the audio input field
-    const audioInput = document.getElementById('audioInput');
-    if (audioInput) {
-        audioInput.value = ''; 
-    }
+        // Close the preview modal
+        previewModal.style.display = 'none';
+
+        // Reset input fields
+        storyTitleInput.value = '';
+        storyDescriptionInput.value = '';
+        mediaInput.value = '';
+    };
+
+    // Handle cancel action for preview modal
+    const cancelBtn = document.getElementById('cancelBtn');
+    cancelBtn.onclick = () => {
+        // Hide the preview modal without doing anything
+        previewModal.style.display = 'none';
+    };
 }
+
 
 
 
