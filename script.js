@@ -323,83 +323,171 @@ document.querySelectorAll('.reaction').forEach(button => {
 // Function to handle the image preview
 
 
-async function addStories() {
-    console.log('Post story');
+function addStories() {
+    console.log('Preparing preview for stories');
 
     const mediaInput = document.getElementById('mediaInput');
     const storyTitleInput = document.getElementById('storyTitle');
     const storyDescriptionInput = document.getElementById('storyDescription');
+
     const files = Array.from(mediaInput.files);
     const storyTitle = storyTitleInput.value.trim() || "Untitled Story";
-    const storyDescription = storyDescriptionInput.value.trim() || "";  // Get the description value
+    const storyDescription = storyDescriptionInput.value.trim() || "";
 
     if (files.length === 0) {
         alert('Please select at least one image or video.');
         return;
     }
 
-    // Show preview modal
-    const previewModal = document.getElementById('previewModal');
-    const previewContainer = document.getElementById('previewContainer');
-    previewContainer.innerHTML = ''; // Clear any previous content
+    const previewContainer = document.getElementById('storyPreview');
+    previewContainer.innerHTML = ''; // Clear previous previews
 
-    // Add media previews (Image/Video)
-    files.forEach((file) => {
-        const fileType = file.type.startsWith('image/') ? 'image' : 'video';
-        const previewItem = document.createElement(fileType === 'image' ? 'img' : 'video');
-        previewItem.src = URL.createObjectURL(file);
-        previewItem.style.maxWidth = '100%';
-        previewItem.style.marginBottom = '10px';
-        previewContainer.appendChild(previewItem);
+    let storyPreviewData = [];
+
+    files.forEach((file, index) => {
+        let fileType = file.type.startsWith('image/') ? 'image' : 'video';
+        let url = URL.createObjectURL(file);
+
+        const storyPreviewElement = document.createElement('div');
+        storyPreviewElement.classList.add('story-preview-item');
+
+        let previewSrc = fileType === 'image' && croppedImageData ? croppedImageData : url;
+
+        if (fileType === 'image') {
+            const img = document.createElement('img');
+            img.src = previewSrc; // Use cropped version if available
+            img.style.maxWidth = '100%';
+            img.style.transform = `rotate(${rotationAngle}deg) scale(${resizeFactor})`; // Apply rotation & resize
+            storyPreviewElement.appendChild(img);
+        } else if (fileType === 'video') {
+            const video = document.createElement('video');
+            video.src = url;
+            video.controls = true;
+            video.muted = isMuted; // Apply mute if needed
+            storyPreviewElement.appendChild(video);
+        }
+
+        const titleElem = document.createElement('p');
+        titleElem.textContent = `Title: ${storyTitle}`;
+        const descElem = document.createElement('p');
+        descElem.textContent = `Description: ${storyDescription}`;
+
+        // Remove button for preview items
+        const removeBtn = document.createElement('button');
+        removeBtn.textContent = "Remove";
+        removeBtn.onclick = () => {
+            storyPreviewElement.remove();
+            storyPreviewData.splice(index, 1); // Remove from preview data
+        };
+
+        storyPreviewElement.appendChild(titleElem);
+        storyPreviewElement.appendChild(descElem);
+        storyPreviewElement.appendChild(removeBtn);
+        previewContainer.appendChild(storyPreviewElement);
+
+        // Store preview data
+        storyPreviewData.push({
+            src: previewSrc,
+            type: fileType,
+            title: storyTitle,
+            description: storyDescription,
+            rotation: rotationAngle,
+            resizeFactor: resizeFactor,
+            audio: audioUrl,
+            isMuted: isMuted
+        });
     });
 
-    // Add title and description preview
-    const titleElement = document.createElement('h4');
-    titleElement.innerText = storyTitle || "Untitled Story";
-    previewContainer.appendChild(titleElement);
-    const descriptionElement = document.createElement('p');
-    descriptionElement.innerText = storyDescription || "No description provided.";
-    previewContainer.appendChild(descriptionElement);
+    // Show the preview modal
+    document.getElementById('storyPreviewContainer').style.display = 'block';
 
-    // Show the modal
-    previewModal.style.display = 'block';
-
-    // Handle confirmation to post the story
-    const confirmBtn = document.getElementById('confirmBtn');
-    confirmBtn.onclick = () => {
-        // Proceed with story upload
-        files.forEach((file) => {
-            let url = URL.createObjectURL(file);
-            let fileType = file.type.startsWith('image/') ? 'image' : 'video';
-
-            // Add the confirmed story to the queue
-            let storyData = {
-                src: url,
-                type: fileType,
-                title: storyTitle,
-                description: storyDescription
-            };
-
-            // Add story to display (add your logic here for display)
-            console.log('Story added:', storyData);
-        });
-
-        // Close the preview modal
-        previewModal.style.display = 'none';
-
-        // Reset input fields
-        storyTitleInput.value = '';
-        storyDescriptionInput.value = '';
-        mediaInput.value = '';
+    // Confirm upload
+    document.getElementById('confirmUpload').onclick = () => {
+        processStories(storyPreviewData);
+        document.getElementById('storyPreviewContainer').style.display = 'none';
     };
 
-    // Handle cancel action for preview modal
-    const cancelBtn = document.getElementById('cancelBtn');
-    cancelBtn.onclick = () => {
-        // Hide the preview modal without doing anything
-        previewModal.style.display = 'none';
+    // Cancel upload
+    document.getElementById('cancelUpload').onclick = () => {
+        document.getElementById('storyPreviewContainer').style.display = 'none';
     };
 }
+
+// ** Process and Add Stories After Confirmation **
+function processStories(stories) {
+    console.log('Uploading stories:', stories);
+
+    const storiesContainer = document.getElementById('storiesContainer');
+
+    stories.forEach((storyData, index) => {
+        const storyElement = document.createElement('div');
+        storyElement.classList.add('story');
+        storyElement.setAttribute('data-index', storyQueue.length);
+
+        // Append the image or video to the story element
+        if (storyData.type === 'image') {
+            const img = document.createElement('img');
+            img.src = storyData.src; // Use edited version
+            img.style.transform = `rotate(${storyData.rotation}deg) scale(${storyData.resizeFactor})`; 
+            storyElement.appendChild(img);
+        } else if (storyData.type === 'video') {
+            const video = document.createElement('video');
+            video.src = storyData.src;
+            video.controls = false;
+            video.muted = storyData.isMuted;
+            storyElement.appendChild(video);
+        }
+
+        // Attach audio if available
+        if (storyData.audio) {
+            const audio = document.createElement('audio');
+            audio.src = storyData.audio;
+            audio.controls = false;
+            audio.loop = true;
+            storyElement.appendChild(audio);
+        }
+
+        // Add to queue
+        storyQueue.push(storyData);
+        reactionCounts[storyQueue.length - 1] = { like: 0, love: 0, haha: 0, sad: 0, angry: 0 };
+
+        // Attach click event to view the story
+        storyElement.addEventListener('click', () => {
+            currentStoryIndex = storyQueue.findIndex(item => item.src === storyData.src);
+            showStory(currentStoryIndex);
+        });
+
+        storiesContainer.appendChild(storyElement);
+    });
+
+    // Reset transformations
+    rotationAngle = 0;
+    resizeFactor = 1;
+
+    // Reset preview
+    const previewImage = document.getElementById('imagePreview');
+    if (previewImage) {
+        previewImage.style.transform = 'rotate(0deg) scale(1)';
+    }
+
+    // Clear input fields
+    document.getElementById('storyTitle').value = '';
+    document.getElementById('storyDescription').value = '';
+    document.getElementById('mediaInput').value = '';
+
+    // Reset audio
+    audioUrl = null;
+    const audioInput = document.getElementById('audioInput');
+    if (audioInput) {
+        audioInput.value = '';
+    }
+
+    createStoryIndicators();
+    closeCreateStoryModal();
+}
+
+
+
 
 
 
