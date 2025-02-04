@@ -359,31 +359,34 @@ function addStories() {
     previewContainer.innerHTML = '';  // Clear previous content
 
     files.forEach((file, index) => {
-        let previewElement;
+        let previewElement = document.createElement(file.type.startsWith('image/') ? 'img' : 'video');
+        previewElement.src = URL.createObjectURL(file);
         let fileType = file.type.startsWith('image/') ? 'image' : 'video';
 
+        // If it's an image, use the cropped version if available
         if (fileType === 'image') {
             previewElement = document.createElement('img');
-            previewElement.src = URL.createObjectURL(file); // Initially set to the original file
-            previewElement.style.maxWidth = '100%';
 
-            // If image has been cropped, update the preview with the cropped image
+            // If cropping is enabled and we have cropped image data, use that for preview
             if (croppedImageData) {
-                previewElement.src = croppedImageData;  // Use the cropped image data
-                croppedImageData = null;  // Reset cropped data after preview
+                previewElement.src = croppedImageData;  // Use cropped image for preview
+                console.log("Displaying cropped image in preview");
+            } else {
+                previewElement.src = URL.createObjectURL(file);  // Use original image if no cropping
             }
-        } else if (fileType === 'video') {
-            previewElement = document.createElement('video');
-            previewElement.src = URL.createObjectURL(file);  // Initially set to the original video file
-            previewElement.style.maxWidth = '100%';
 
-            // If there are video modifications (e.g., trimming), apply them here
-            if (modifiedVideoUrl) {
-                previewElement.src = modifiedVideoUrl; // Update with trimmed video
-                modifiedVideoUrl = null; // Reset modified video URL after preview
-            }
+            // Apply rotation and resize for preview
+            previewElement.style.transform = `rotate(${rotationAngle}deg) scale(${resizeFactor})`;
+        } 
+        // If it's a video, show the preview of the original or trimmed video
+        else if (fileType === 'video') {
+            previewElement = document.createElement('video');
+            previewElement.src = URL.createObjectURL(file);  // For now, using the original file; can modify for trimmed video
+            previewElement.style.maxWidth = '100%';
+            previewElement.controls = true;  // Show controls in preview
         }
 
+        previewElement.style.maxWidth = '100%';
         previewContainer.appendChild(previewElement);
     });
 
