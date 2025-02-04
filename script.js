@@ -324,70 +324,116 @@ document.querySelectorAll('.reaction').forEach(button => {
 
 
 function addStories() {
-    console.log('Preparing preview for stories');
+    console.log('Post story');
 
     const mediaInput = document.getElementById('mediaInput');
     const storyTitleInput = document.getElementById('storyTitle');
-    const storyDescriptionInput = document.getElementById('storyDescription');
-
+    const storyDescriptionInput = document.getElementById('storyDescription'); // New input for description
     const files = Array.from(mediaInput.files);
     const storyTitle = storyTitleInput.value.trim() || "Untitled Story";
-    const storyDescription = storyDescriptionInput.value.trim() || "";
+    const storyDescription = storyDescriptionInput.value.trim() || "";  // Get the description value
+
+    // Log the description for debugging
+    console.log('Story description:', storyDescription);
 
     if (files.length === 0) {
         alert('Please select at least one image or video.');
         return;
     }
 
-    const previewContainer = document.getElementById('storyPreview');
-    previewContainer.innerHTML = ''; // Clear previous previews
+    // Ensure cropper is initialized before use
+    if (isCroppingEnabled && !cropper) {
+        console.log("Re-initializing cropper");
+        enableCropping();  // Call to reinitialize cropper
+    }
 
-    let storyPreviewData = [];
+    // Create preview content
+    let previewContainer = document.getElementById('storyPreviewContainer');
+    previewContainer.innerHTML = '';  // Clear previous content
 
     files.forEach((file, index) => {
+        let previewElement;
         let fileType = file.type.startsWith('image/') ? 'image' : 'video';
-        let url = URL.createObjectURL(file);
-
-        const storyPreviewElement = document.createElement('div');
-        storyPreviewElement.classList.add('story-preview-item');
-
-        let previewSrc = fileType === 'image' && croppedImageData ? croppedImageData : url;
 
         if (fileType === 'image') {
-            const img = document.createElement('img');
-            img.src = previewSrc; // Use cropped version if available
-            img.style.maxWidth = '100%';
-            img.style.transform = `rotate(${rotationAngle}deg) scale(${resizeFactor})`; // Apply rotation & resize
-            storyPreviewElement.appendChild(img);
+            previewElement = document.createElement('img');
+            previewElement.src = URL.createObjectURL(file); // Initially set to the original file
+            previewElement.style.maxWidth = '100%';
+
+            // If image has been cropped, update the preview with the cropped image
+            if (croppedImageData) {
+                previewElement.src = croppedImageData;  // Use the cropped image data
+                croppedImageData = null;  // Reset cropped data after preview
+            }
         } else if (fileType === 'video') {
-            const video = document.createElement('video');
-            video.src = url;
-            video.controls = true;
-            video.muted = isMuted; // Apply mute if needed
-            storyPreviewElement.appendChild(video);
+            previewElement = document.createElement('video');
+            previewElement.src = URL.createObjectURL(file);  // Initially set to the original video file
+            previewElement.style.maxWidth = '100%';
+
+            // If there are video modifications (e.g., trimming), apply them here
+            if (modifiedVideoUrl) {
+                previewElement.src = modifiedVideoUrl; // Update with trimmed video
+            }
         }
 
-        const titleElem = document.createElement('p');
-        titleElem.textContent = `Title: ${storyTitle}`;
-        const descElem = document.createElement('p');
-        descElem.textContent = `Description: ${storyDescription}`;
+        previewContainer.appendChild(previewElement);
+    });
 
-        // Remove button for preview items
-        const removeBtn = document.createElement('button');
-        removeBtn.textContent = "Remove";
-        removeBtn.onclick = () => {
-            storyPreviewElement.remove();
-            storyPreviewData.splice(index, 1); // Remove from preview data
-        };
+    // Set title and description in the preview modal
+    document.getElementById('previewStoryTitle').textContent = storyTitle || "Untitled Story";
+    document.getElementById('previewStoryDescription').textContent = storyDescription || "No description provided";
 
-        storyPreviewElement.appendChild(titleElem);
-        storyPreviewElement.appendChild(descElem);
-        storyPreviewElement.appendChild(removeBtn);
-        previewContainer.appendChild(storyPreviewElement);
+    // Show the confirmation modal
+    const confirmationModal = document.getElementById('confirmationModal');
+    confirmationModal.style.display = 'flex';
 
-        // Store preview data
-        storyPreviewData.push({
-            src: previewSrc,
+    // Handle "Confirm" button click
+    document.getElementById('confirmBtn').onclick = () => {
+        // Proceed with uploading the story
+        console.log('Confirming the story upload');
+        processFilesForUpload(storyTitle, storyDescription, files); // Upload the story
+        closeConfirmationModal();
+    };
+
+    // Handle "Cancel" button click
+    document.getElementById('cancelBtn').onclick = () => {
+        console.log('Cancelling the story upload');
+        closeConfirmationModal();
+    };
+}
+
+
+function closeConfirmationModal() {
+    const confirmationModal = document.getElementById('confirmationModal');
+    confirmationModal.style.display = 'none';
+}
+
+function processFilesForUpload(storyTitle, storyDescription, files) {
+    files.forEach(async (file, index) => {
+        const storyElement = document.createElement('div');
+        storyElement.classList.add('story');
+        storyElement.setAttribute('data-index', storyQueue.length);
+
+        let url = URL.createObjectURL(file);
+        let fileType = file.type.startsWith('image/') ? 'image' : 'video';
+
+        // Handle video trimming if necessary
+        if (fileType === 'video') {
+            try {
+                const shouldTrimVideo = document.getElementById('trimVideoCheckbox').checked;
+
+                if (shouldTrimVideo) {
+                    url = await trimAndRecordVideo(); // Wait for trimmed video
+                }
+            } catch (error) {
+                alert('Error trimming video: ' + error);
+                return;
+            }
+        }
+
+        // Prepare story data
+        let storyData = {
+            src: url,
             type: fileType,
             title: storyTitle,
             description: storyDescription,
@@ -395,59 +441,46 @@ function addStories() {
             resizeFactor: resizeFactor,
             audio: audioUrl,
             isMuted: isMuted
-        });
-    });
+        };
 
-    // Show the preview modal
-    document.getElementById('storyPreviewContainer').style.display = 'block';
-
-    // Confirm upload
-    document.getElementById('confirmUpload').onclick = () => {
-        processStories(storyPreviewData);
-        document.getElementById('storyPreviewContainer').style.display = 'none';
-    };
-
-    // Cancel upload
-    document.getElementById('cancelUpload').onclick = () => {
-        document.getElementById('storyPreviewContainer').style.display = 'none';
-    };
-}
-
-// ** Process and Add Stories After Confirmation **
-function processStories(stories) {
-    console.log('Uploading stories:', stories);
-
-    const storiesContainer = document.getElementById('storiesContainer');
-
-    stories.forEach((storyData, index) => {
-        const storyElement = document.createElement('div');
-        storyElement.classList.add('story');
-        storyElement.setAttribute('data-index', storyQueue.length);
+        // If an image is being cropped, use the cropped image data
+        if (fileType === 'image' && croppedImageData) {
+            console.log("Cropping image...");
+            storyData.src = croppedImageData;
+            croppedImageData = null;
+            console.log("Cropped image added to story");
+        }
 
         // Append the image or video to the story element
-        if (storyData.type === 'image') {
+        if (fileType === 'image') {
             const img = document.createElement('img');
-            img.src = storyData.src; // Use edited version
-            img.style.transform = `rotate(${storyData.rotation}deg) scale(${storyData.resizeFactor})`; 
+            img.src = storyData.src; // Use the cropped or original image
+            img.style.transform = `rotate(${rotationAngle}deg) scale(${resizeFactor})`; 
             storyElement.appendChild(img);
-        } else if (storyData.type === 'video') {
+        } else if (fileType === 'video') {
             const video = document.createElement('video');
             video.src = storyData.src;
             video.controls = false;
-            video.muted = storyData.isMuted;
+            video.muted = isMuted;  // Apply the current mute state
             storyElement.appendChild(video);
+        } else {
+            alert('Unsupported file type.');
+            return;
         }
 
         // Attach audio if available
-        if (storyData.audio) {
+        if (audioUrl) {
             const audio = document.createElement('audio');
-            audio.src = storyData.audio;
+            audio.src = audioUrl;
             audio.controls = false;
             audio.loop = true;
+            audio.pause(); // Ensure the audio is not playing automatically
             storyElement.appendChild(audio);
+
+            storyData.audioElement = audio;
         }
 
-        // Add to queue
+        // Add story details to queue
         storyQueue.push(storyData);
         reactionCounts[storyQueue.length - 1] = { like: 0, love: 0, haha: 0, sad: 0, angry: 0 };
 
@@ -460,31 +493,47 @@ function processStories(stories) {
         storiesContainer.appendChild(storyElement);
     });
 
-    // Reset transformations
+    // **RESET rotation and resize after posting**
     rotationAngle = 0;
     resizeFactor = 1;
 
-    // Reset preview
+    // Reset preview image transformation
     const previewImage = document.getElementById('imagePreview');
     if (previewImage) {
         previewImage.style.transform = 'rotate(0deg) scale(1)';
     }
 
-    // Clear input fields
-    document.getElementById('storyTitle').value = '';
-    document.getElementById('storyDescription').value = '';
-    document.getElementById('mediaInput').value = '';
-
-    // Reset audio
-    audioUrl = null;
-    const audioInput = document.getElementById('audioInput');
-    if (audioInput) {
-        audioInput.value = '';
-    }
+    // Reset form inputs
+    const storyTitleInput = document.getElementById('storyTitle');
+    const storyDescriptionInput = document.getElementById('storyDescription');
+    const mediaInput = document.getElementById('mediaInput');
+    
+    storyTitleInput.value = '';
+    storyDescriptionInput.value = '';  // Reset description input
+    mediaInput.value = '';
 
     createStoryIndicators();
     closeCreateStoryModal();
+
+    // **Reset the audio attached and reset the audio URL**
+    audioUrl = null;  
+    const audioPreview = document.querySelector('audio');
+    if (audioPreview) {
+        audioPreview.pause();
+        audioPreview.currentTime = 0;
+        audioPreview.remove();
+    }
+
+    // Clear the audio input field
+    const audioInput = document.getElementById('audioInput');
+    if (audioInput) {
+        audioInput.value = ''; 
+    }
 }
+
+
+
+
 
 
 

@@ -233,11 +233,21 @@
                 
             </div>
 
-            <div id="storyPreviewContainer" class="story-preview-modal" style="display: none;">
-                <div id="storyPreview"></div>
-                <button id="confirmUpload">Confirm Upload</button>
-                <button id="cancelUpload">Cancel</button>
+        <!-- Story Confirmation Modal -->
+        <div id="confirmationModal" class="modal">
+            <div class="modal-content">
+                <h2>Confirm Your Story</h2>
+                <div id="storyPreviewContainer">
+                    <!-- Preview will be inserted here -->
+                </div>
+                <p><strong>Title:</strong> <span id="previewStoryTitle"></span></p>
+                <p><strong>Description:</strong> <span id="previewStoryDescription"></span></p>
+                <button id="confirmBtn">Confirm</button>
+                <button id="cancelBtn">Cancel</button>
             </div>
+        </div>
+
+
 
 
 
