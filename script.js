@@ -439,6 +439,17 @@ async function addStories() {
             previewElement = document.createElement('img');
             previewElement.src = URL.createObjectURL(file); // Initially set to the original file
             previewElement.style.maxWidth = '100%';
+
+                        // If cropping is enabled and we have cropped image data, use that for preview
+                        if (croppedImageData) {
+                            previewElement.src = croppedImageData;  // Use cropped image for preview
+                            console.log("Displaying cropped image in preview");
+                        } else {
+                            previewElement.src = URL.createObjectURL(file);  // Use original image if no cropping
+                        }
+            
+                        // Apply rotation and resize for preview
+                        previewElement.style.transform = `rotate(${rotationAngle}deg) scale(${resizeFactor})`;
         }
         else if (fileType === 'video') {
             previewElement = document.createElement('video');
@@ -476,6 +487,12 @@ async function addStories() {
     console.log('Displaying Preview Modal');
     confirmationModal.style.display = 'flex';  // Ensure it displays no matter what
 
+    document.body.classList.add('modal-open'); // Add class to prevent scrolling
+    // Show the overlay and confirmation modal
+    document.getElementById('overlay').style.display = 'block';
+
+
+
     // Handle "Confirm" button click
     document.getElementById('confirmBtn').onclick = () => {
         // Proceed with uploading the story
@@ -495,7 +512,11 @@ async function addStories() {
 function closeConfirmationModal() {
     const confirmationModal = document.getElementById('confirmationModal');
     confirmationModal.style.display = 'none';  // Close the modal
-}
+        document.body.classList.remove('modal-open'); // Remove class to allow scrolling
+    document.getElementById('overlay').style.display = 'none';
+    document.getElementById('confirmationModal').style.display = 'none';
+    
+}   
 
 
 async function processFilesForUpload(storyTitle, storyDescription, files, trimmedVideoUrl) {

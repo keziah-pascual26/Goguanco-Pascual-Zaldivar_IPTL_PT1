@@ -992,8 +992,24 @@ video.post-media {
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
     z-index: 9999; /* Ensures the modal is on top */
-    display: none;
+    display: none; /* Start with hidden */
 }
+
+/* Dim the rest of the content when the modal is shown */
+body.modal-open {
+    overflow: hidden; /* Prevent scrolling when modal is open */
+}
+
+.no-scroll .modal-content {
+    overflow: hidden;
+}
+
+.dimming {
+    opacity: 0.5;
+    pointer-events: none; /* Prevent interaction */
+}
+
+
 
 .comment-section {
     margin-top: 15px;

@@ -144,7 +144,7 @@
 
     <!-- Create Story Modal -->
     <div id="createStoryModal" class="create-story-modal">
-        <div class="modal-content">
+        <div id="modal-content" class="modal-content">
             <!-- Title -->
             <h2>Create Your Smiski Story</h2>
 
@@ -233,7 +233,19 @@
                 
             </div>
 
-        <!-- Story Confirmation Modal -->
+       
+
+
+
+
+
+
+            <button onclick="addStories();">Post Story</button>
+            <button onclick="closeCreateStoryModal()">Cancel</button>
+        </div>
+    </div>
+
+     <!-- Story Confirmation Modal -->
         <div id="confirmationModal" class="modal">
             <div class="modal-content">
                 <h2>Confirm Your Story</h2>
@@ -246,16 +258,6 @@
                 <button id="cancelBtn">Cancel</button>
             </div>
         </div>
-
-
-
-
-
-
-            <button onclick="addStories();">Post Story</button>
-            <button onclick="closeCreateStoryModal()">Cancel</button>
-        </div>
-    </div>
 
 
     <!-- Overlay for dimming the background when Create Story Modal is opened -->
