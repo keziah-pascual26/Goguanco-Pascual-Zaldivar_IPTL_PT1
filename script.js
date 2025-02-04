@@ -687,6 +687,25 @@ function showStory(index) {
     storyViewerContent.innerHTML = ''; // Clear previous story content
     storyViewerTitle.textContent = story.title;
 
+    // Create or find the description display
+    let descriptionDisplay = document.getElementById('storyDescriptionDisplay');
+    if (!descriptionDisplay) {
+        descriptionDisplay = document.createElement('div');
+        descriptionDisplay.id = 'storyDescriptionDisplay';
+        descriptionDisplay.style.marginTop = '10px';
+        descriptionDisplay.style.fontStyle = 'italic';
+        descriptionDisplay.style.color = '#555';
+        storyViewerContent.appendChild(descriptionDisplay);
+    }
+
+    // Show or hide description based on availability
+    if (story.description) {
+        descriptionDisplay.innerHTML = `<p><strong>Caption:</strong> ${story.description}</p>`;
+        descriptionDisplay.style.display = 'block';
+    } else {
+        descriptionDisplay.style.display = 'none';
+    }
+
     const closeButton = document.createElement('button');
     closeButton.textContent = 'Close';
     closeButton.classList.add('close-button');
@@ -872,14 +891,8 @@ function showStory(index) {
             currentVideo.currentTime = 0;
         }
     }
-
-    if (story.description) {
-        descriptionDisplay.innerHTML = `<p><strong>Caption:</strong> ${story.description}</p>`;
-        descriptionDisplay.style.display = 'block';
-    } else {
-        descriptionDisplay.style.display = 'none';
-    }
 }
+
 
 
 
