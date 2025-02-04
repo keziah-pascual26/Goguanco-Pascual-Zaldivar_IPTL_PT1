@@ -439,6 +439,17 @@ async function addStories() {
             previewElement = document.createElement('img');
             previewElement.src = URL.createObjectURL(file); // Initially set to the original file
             previewElement.style.maxWidth = '100%';
+
+                        // If cropping is enabled and we have cropped image data, use that for preview
+                        if (croppedImageData) {
+                            previewElement.src = croppedImageData;  // Use cropped image for preview
+                            console.log("Displaying cropped image in preview");
+                        } else {
+                            previewElement.src = URL.createObjectURL(file);  // Use original image if no cropping
+                        }
+            
+                        // Apply rotation and resize for preview
+                        previewElement.style.transform = `rotate(${rotationAngle}deg) scale(${resizeFactor})`;
         }
         else if (fileType === 'video') {
             previewElement = document.createElement('video');
