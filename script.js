@@ -1483,7 +1483,12 @@ function submitPost() {
     postContainer.querySelector('.comment-btn').addEventListener('click', function () {
         addComment(this);
     });
+
+    closeModal(); 
+
 }
+
+
 
 // Reactions function (now works!)
 function react(button) {
@@ -1527,3 +1532,38 @@ function sendMessage() {
         document.getElementById('chatInput').value = '';
     }
 }
+
+//Search function in header
+document.getElementById("searchButton").addEventListener("click", function() {
+    let query = document.getElementById("searchInput").value.trim();
+    if (query) {
+        alert("You searched for: " + query);
+        // You can modify this to redirect to a search results page:
+        // window.location.href = "search.html?q=" + encodeURIComponent(query);
+    } else {
+        alert("Please enter a search term!");
+    }
+});
+
+document.getElementById("searchInput").addEventListener("keypress", function(event) {
+    if (event.key === "Enter") {
+        document.getElementById("searchButton").click();
+    }
+});
+
+// Function to open the modal when the post textbox is clicked
+function openPostModal() {
+    // Show the modal and overlay
+    document.getElementById('postModal').style.display = 'block';
+    document.getElementById('overlay').style.display = 'block';
+
+}
+
+// Function to close the modal
+function closeModal() {
+    document.getElementById("postModal").style.display = "none";
+    document.getElementById('overlay').style.display = 'none';
+}
+
+
+
