@@ -221,18 +221,30 @@
                     <h3>Edit Video</h3>
                     <div>
                         <button id="muteButton" onclick="toggleMute()">Mute</button>
-                        <button onclick="trimAndRecordVideo()">Trim Video</button>
-                        <button id="undoTrimButton" onclick="undoTrimAndRecordVideo()" style="display: none;">Undo Trim</button>
-                        <input type="checkbox" id="trimVideoCheckbox" /> Trim Video </input>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="trimVideoCheckbox" style="width: 16px; height: 16px; cursor: pointer;">
+                            <label for="trimVideoCheckbox" style="margin: 0; font-size: 14px;">Confirm Trim Video</label>
+                        </div>
+                        <div class="video-editor-buttons">
+                            <button onclick="trimAndRecordVideo()">Preview Trim Video</button>
+                            
+                            <button id="undoTrimButton" onclick="undoTrimAndRecordVideo()">Undo Trim</button>
+                            
+                        </div>
+                        
+                        
+       
+                        
 
                     </div>
+                    <div class="video-time-controls">
+                        <label for="startTimeInput">Start Time (s):</label>
+                        <input type="number" id="startTimeInput" min="0" placeholder="Start">
                     
-                    <!-- Input fields for start and end time -->
-                    <label for="startTimeInput">Start Time (seconds):</label>
-                    <input type="number" id="startTimeInput" min="0" placeholder="Start time in seconds">
-                
-                    <label for="endTimeInput">End Time (seconds):</label>
-                    <input type="number" id="endTimeInput" min="0" placeholder="End time in seconds">
+                        <label for="endTimeInput">End Time (s):</label>
+                        <input type="number" id="endTimeInput" min="0" placeholder="End">
+                    </div>
+                    
                     
                     <!-- <video id="videoPreview" controls>
                         <source id="videoSource" src="" type="video/mp4">
