@@ -1484,6 +1484,8 @@ function submitPost() {
         addComment(this);
     });
 
+    closeModal(); 
+
 }
 
 
@@ -1549,7 +1551,19 @@ document.getElementById("searchInput").addEventListener("keypress", function(eve
     }
 });
 
+// Function to open the modal when the post textbox is clicked
+function openPostModal() {
+    // Show the modal and overlay
+    document.getElementById('postModal').style.display = 'block';
+    document.getElementById('overlay').style.display = 'block';
 
+}
+
+// Function to close the modal
+function closeModal() {
+    document.getElementById("postModal").style.display = "none";
+    document.getElementById('overlay').style.display = 'none';
+}
 
 
 

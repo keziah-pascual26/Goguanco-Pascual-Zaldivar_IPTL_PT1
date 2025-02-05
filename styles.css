@@ -333,15 +333,12 @@ button img {
     display: none;
 }
 
-
-
 /* Modal Content Layout */
 .create-story-modal .modal-content {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
     align-items: flex-start;
-    background-color: white; /* White background for the modal content */
 }
 
 /* Title */
@@ -1433,6 +1430,31 @@ video.post-media {
 }
 
 
+/* Basic modal styling */
+.modal {
+    width: 700px; /* Adjusted for better spacing */
+    height: auto; /* Let content define height */
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow: auto;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #f5fac7;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    z-index: 1100;
+    display: none;
+}
+
+.modal-content {
+    background-color: #f5fac7;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+}
 
 #storyPreviewContainer {
     width: 100%; /* Ensures responsiveness */
@@ -1462,7 +1484,6 @@ video.post-media {
     background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
     z-index: 9999; /* Ensures the modal is on top */
     display: none; /* Start with hidden */
-
 }
 
 /* Dim the rest of the content when the modal is shown */
@@ -1470,7 +1491,9 @@ body.modal-open {
     overflow: hidden; /* Prevent scrolling when modal is open */
 }
 
-
+.no-scroll .modal-content {
+    overflow: hidden;
+}
 
 .dimming {
     opacity: 0.5;
