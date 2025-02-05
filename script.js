@@ -93,10 +93,7 @@ function editStory() {
     // Toggle the editor section
     if (editorSection.style.display === 'block') {
         // Hide everything
-        editorSection.style.display = 'none';
-        imageEditor.style.display = 'none';
-        videoEditor.style.display = 'none';
-        editButton.textContent = 'Edit'; // Change button text back
+        resetEditButton(); // Reset button when hiding editor
     } else {
         // Show editor section
         editorSection.style.display = 'block';
@@ -120,6 +117,19 @@ function editStory() {
             }
         }
     }
+}
+
+// Function to reset the edit button when modal is closed or story is posted
+function resetEditButton() {
+    const editorSection = document.getElementById('editorSection');
+    const editButton = document.querySelector('.edit-button'); 
+    const imageEditor = document.getElementById('imageEditor');
+    const videoEditor = document.getElementById('videoEditor');
+
+    editorSection.style.display = 'none';
+    imageEditor.style.display = 'none';
+    videoEditor.style.display = 'none';
+    editButton.textContent = 'Edit'; // Reset button text
 }
 
 
@@ -378,12 +388,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
+// Function to reset modal inputs
+function resettingModalInputs() {
+    document.getElementById('storyTitle').value = '';
+    document.getElementById('storyDescription').value = ''; // Reset the storyDescription field
+    document.getElementById('mediaInput').value = '';
+    document.getElementById('startTimeInput').value = '';
+    document.getElementById('endTimeInput').value = '';
+    document.getElementById('cropImage').style.display = 'none';
+    document.getElementById('editorSection').style.display = 'none';
+}
+
 // Close Create Story Modal
 function closeCreateStoryModal() {
     resizeFactor = 1;  // Reset to the default size factor
     createStoryModal.style.display = 'none';
     overlay.style.display = 'none'; // Hide the overlay
-    
+
+    resettingModalInputs(); // Reset the form inputs when closing the modal
+    resetEditButton(); // Reset the edit button when closing the modal
 }
 
 
@@ -672,6 +695,7 @@ async function processFilesForUpload(storyTitle, storyDescription, files, trimme
     if (audioInput) {
         audioInput.value = ''; 
     }
+    resetEditButton(); // Reset the edit button after posting
 }
 
 
