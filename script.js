@@ -381,6 +381,9 @@ document.addEventListener('DOMContentLoaded', function() {
 // Close Create Story Modal
 function closeCreateStoryModal() {
     resizeFactor = 1;  // Reset to the default size factor
+    document.getElementById("storyDescription").value = ""; // Clear the textarea
+    document.getElementById("charCount").textContent = "100 characters remaining"; // Reset character count
+    
     createStoryModal.style.display = 'none';
     overlay.style.display = 'none'; // Hide the overlay
     
