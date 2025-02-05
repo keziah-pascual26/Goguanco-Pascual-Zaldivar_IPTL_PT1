@@ -1178,11 +1178,13 @@ video.post-media {
 
 .user-posts-wrapper {
     display: flex;
-    gap: 20px;
+    padding: 20px;
+    justify-content: space-between;
 }
 
 .user-posts-container {
     flex: 2;
+    margin-right: 20px;
 }
 
 .sidebar-section {
@@ -1190,6 +1192,38 @@ video.post-media {
     display: flex;
     flex-direction: column;
     gap: 20px;
+    width: 300px;
+}
+
+.sidebar-section .suggested-users-section {
+    margin-bottom: 20px;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 767px) {
+    .user-posts-wrapper {
+        flex-direction: column; /* Stack the content */
+    }
+    .sidebar-section {
+        width: 100%; /* Sidebar takes full width */
+        margin-top: 20px;
+    }
+}
+
+/* Ensuring responsiveness based on the 9:16 aspect ratio */
+@media screen and (max-width: 600px) and (min-height: 1067px) {
+    .user-posts-wrapper {
+        flex-direction: column;
+    }
+    .sidebar-section {
+        width: 100%;
+        margin-top: 20px;
+    }
+}
+
+/* Further mobile adjustments */
+.chat-panel {
+    display: none;
 }
 
 .suggested-users-section, .chat-panel {
