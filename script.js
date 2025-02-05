@@ -93,10 +93,7 @@ function editStory() {
     // Toggle the editor section
     if (editorSection.style.display === 'block') {
         // Hide everything
-        editorSection.style.display = 'none';
-        imageEditor.style.display = 'none';
-        videoEditor.style.display = 'none';
-        editButton.textContent = 'Edit'; // Change button text back
+        resetEditButton(); // Reset button when hiding editor
     } else {
         // Show editor section
         editorSection.style.display = 'block';
@@ -120,6 +117,19 @@ function editStory() {
             }
         }
     }
+}
+
+// Function to reset the edit button when modal is closed or story is posted
+function resetEditButton() {
+    const editorSection = document.getElementById('editorSection');
+    const editButton = document.querySelector('.edit-button'); 
+    const imageEditor = document.getElementById('imageEditor');
+    const videoEditor = document.getElementById('videoEditor');
+
+    editorSection.style.display = 'none';
+    imageEditor.style.display = 'none';
+    videoEditor.style.display = 'none';
+    editButton.textContent = 'Edit'; // Reset button text
 }
 
 
@@ -378,12 +388,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
+// Function to reset modal inputs
+function resettingModalInputs() {
+    document.getElementById('storyTitle').value = '';
+    document.getElementById('storyDescription').value = ''; // Reset the storyDescription field
+    document.getElementById('mediaInput').value = '';
+    document.getElementById('startTimeInput').value = '';
+    document.getElementById('endTimeInput').value = '';
+    document.getElementById('cropImage').style.display = 'none';
+    document.getElementById('editorSection').style.display = 'none';
+}
+
 // Close Create Story Modal
 function closeCreateStoryModal() {
     resizeFactor = 1;  // Reset to the default size factor
     createStoryModal.style.display = 'none';
     overlay.style.display = 'none'; // Hide the overlay
-    
+
+    resettingModalInputs(); // Reset the form inputs when closing the modal
+    resetEditButton(); // Reset the edit button when closing the modal
 }
 
 
@@ -488,14 +511,21 @@ async function addStories() {
             previewElement.src = URL.createObjectURL(file); // Set to original video
             previewElement.style.maxWidth = '100%';
             previewElement.controls = true;  // Show controls in preview
-
+    
             // Check if the video needs to be trimmed
             const shouldTrimVideo = document.getElementById('trimVideoCheckbox').checked;
             if (shouldTrimVideo) {
                 // Call trimAndRecordVideo function and get the trimmed video URL
-                trimAndRecordVideo().then(trimmedUrl => {
+                trimAndRecordVideo(0, 15, file).then(trimmedUrl => {
                     trimmedVideoUrl = trimmedUrl;  // Store the trimmed video URL
                     previewElement.src = trimmedVideoUrl;  // Update preview to show trimmed video
+                }).catch(error => {
+                    console.error('Error trimming video:', error);
+                });
+            } else {
+                // Validate video duration and trim if necessary
+                trimmedPreview(file).then(trimmedUrl => {
+                    previewElement.src = trimmedUrl;  // Update preview to show trimmed video
                 }).catch(error => {
                     console.error('Error trimming video:', error);
                 });
@@ -538,6 +568,82 @@ async function addStories() {
         console.log('Cancelling the story upload');
         closeConfirmationModal();
     };
+}
+
+async function trimmedPreview(file) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const videoElement = document.createElement('video');
+            videoElement.src = URL.createObjectURL(file);
+            videoElement.style.display = 'none';
+            document.body.appendChild(videoElement);
+
+            videoElement.onloadedmetadata = async () => {
+                if (videoElement.duration > 15) {
+                    try {
+                        const trimmedUrl = await trimAndRecordVideoPreview(0, 15, file);
+                        resolve(trimmedUrl);
+                    } catch (error) {
+                        reject(error);
+                    }
+                } else {
+                    resolve(videoElement.src);
+                }
+                document.body.removeChild(videoElement);
+            };
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+async function trimAndRecordVideoPreview(startTime, endTime, file) {
+    return new Promise(async (resolve, reject) => {
+        console.log("Trimming function started...");
+
+        // Validate start and end times
+        if (isNaN(startTime) || isNaN(endTime) || startTime >= endTime) {
+            console.error("Invalid start or end time.");
+            reject('Invalid start or end time.');
+            return;
+        }
+
+        if (endTime - startTime > 15) {
+            console.error("Trim duration cannot exceed 15 seconds.");
+            reject('Trim duration cannot exceed 15 seconds.');
+            return;
+        }
+
+        try {
+            console.log("Initializing FFmpeg...");
+            const { createFFmpeg } = FFmpeg;
+            const ffmpeg = createFFmpeg({ log: true });
+            await ffmpeg.load();
+            console.log("FFmpeg loaded successfully.");
+
+            const videoData = new Uint8Array(await file.arrayBuffer());
+
+            console.log("Writing video file to FFmpeg filesystem...");
+            ffmpeg.FS('writeFile', 'input.mp4', videoData);
+
+            console.log(`Running FFmpeg command: Trimming video from ${startTime} to ${endTime} seconds...`);
+            await ffmpeg.run('-i', 'input.mp4', '-ss', startTime.toString(), '-to', endTime.toString(), '-c', 'copy', 'output.mp4');
+
+            console.log("Reading trimmed video file...");
+            const data = ffmpeg.FS('readFile', 'output.mp4');
+
+            console.log("Creating Blob URL for trimmed video...");
+            const blob = new Blob([data.buffer], { type: 'video/mp4' });
+            const trimmedVideoUrl = URL.createObjectURL(blob);
+
+            console.log("Trimmed video successfully created!");
+
+            resolve(trimmedVideoUrl);
+        } catch (error) {
+            console.error("Error trimming video:", error.message);
+            reject(`Error trimming video: ${error.message}`);
+        }
+    });
 }
 
 // Function to close the confirmation modal
@@ -672,6 +778,7 @@ async function processFilesForUpload(storyTitle, storyDescription, files, trimme
     if (audioInput) {
         audioInput.value = ''; 
     }
+    resetEditButton(); // Reset the edit button after posting
 }
 
 
