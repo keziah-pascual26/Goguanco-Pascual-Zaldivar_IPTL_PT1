@@ -896,6 +896,15 @@ textarea#storyDescription {
     max-height: 270px;
 }
 
+
+#editorSection button {
+    background-color: #e9d824;
+}
+
+#editorSection button:hover {
+    background-color: rgb(196, 167, 5);
+}
+
 #imageEditor, #videoEditor {
     margin-bottom: 20px;
 }
