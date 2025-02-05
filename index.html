@@ -68,38 +68,24 @@
     </div>
     </div>
 
-    <div class="user-posts-wrapper">
+<div class="user-posts-wrapper">
         <!-- User Posts Container -->
-        <div class="user-posts-container" id="smiskimoments">
+        <div class="user-posts-container">
             <h2>Share Your Smiski Moments</h2>
-
-            <!-- Profile and text box -->
-            <div class="post-input-container">
-                <img src="user-profile.png" alt="Profile Picture" class="profile-pic">
-                <textarea id="postBox" placeholder="What's on your mind?" onclick="openPostModal()" readonly></textarea>
+            
+            <div class="post-form">
+                <textarea id="postCaption" placeholder="Write a caption..."></textarea>
+                <input type="file" id="postImage" accept="image/*,video/*">
+                <button onclick="submitPost()">Post</button>
             </div>
             
-            <!-- Modal for creating a post -->
-            <div id="postModal" class="modal" style="display: none;">
-                <div class="modal-content">
-                    <span class="close-modal-button" onclick="closeModal()">&times;</span>
-                    <h3>Create a New Post</h3>
-                    <div class="post-form">
-                        <textarea id="postCaption" placeholder="Write a caption..."></textarea>
-                        <input type="file" id="postImage" accept="image/*,video/*">
-                        <button onclick="submitPost()">Post</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Display user posts -->
             <div id="userPosts"></div>
         </div>
     
         <!-- Sidebar for People You Know & Chat -->
         <div class="sidebar-section">
             <div class="suggested-users-section">
-                <h3 id="chat-section">Chat Your Friends</h3>
+                <h3>Chat Your Friends</h3>
                 <ul id="suggestedUsers">
                     <li>
                         <img src="user1.png" alt="User 1" class="user-avatar">
