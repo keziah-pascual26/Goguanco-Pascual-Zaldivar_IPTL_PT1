@@ -6,15 +6,27 @@ body {
     background-color: #f5efd4;
 }
 
-header {
+html {
+    scroll-behavior: smooth;
+}
+
+/* Header */
+.header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 10px 20px;
-    background-color: #feeb29;
+    background-color: #feeb29; /* Transparent navbar */
     color: #729c2f;
-    gap: 10px; /* Ensures consistent spacing */
-    flex-wrap: wrap; /* Automatically wraps content on smaller screens */
+    gap: 10px;
+    flex-wrap: wrap;
+    position: fixed;
+    width: 100vw; /* Ensure it spans exactly the screen width */
+    max-width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    box-sizing: border-box;
 }
 
 /* Logo and Text Container */
@@ -34,6 +46,34 @@ header {
     font-size: clamp(1rem, 2vw, 1.5rem); /* Adjusts dynamically with screen size */
     font-weight: bold;
     color: #729c2f;
+}
+
+/* Search Bar */
+.search-container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(255, 255, 255, 0.8); /* Slightly transparent background */
+    border-radius: 20px;
+    padding: 3px 8px;
+    width: fit-content;
+}
+
+.search-bar {
+    border: none;
+    outline: none;
+    padding: 5px;
+    border-radius: 15px;
+    font-size: 14px; /* Slightly smaller font */
+    width: 150px; /* Make it smaller */
+    background: transparent;
+}
+
+.search-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px; /* Slightly smaller icon */
 }
 
 /* Navigation and User Info */
@@ -63,41 +103,81 @@ header {
 
 /* Banner Styling */
 .banner {
-    background-image: url('smiskibanner.svg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 50px;
+  background: #729c2f url('smiskibanner-2.svg') no-repeat center center; /* Use the SVG file as a background image */
+  height: 360px;
+  gap: 20px;
+  flex-wrap: wrap;
+  color: #feeb29;
+  margin-top: 50px;
+}
+
+/* Container for images */
+.banner-pics {
     display: flex;
-    align-items: center;
+    justify-content: flex-start; /* Align images to the right // Optional: space between images */
+    flex-wrap: nowrap; /* Allow images to wrap on smaller screens */
+    overflow: hidden; /* Ensure images stay within the container */
+    max-width: 100%; /* Ensure the container doesn't exceed the width of the banner */
+}
+
+/* Individual images */
+.banner-pics .image {
+    height: auto;
+    width: 250px; /* Set a fixed width or adjust as needed */
+    object-fit: contain; /* Maintain aspect ratio */
+}
+
+/* Make sure the banner is responsive */
+@media (max-width: 768px) {
+    .banner {
+        flex-direction: column; /* Stack the content for smaller screens */
+        text-align: center;
+    }
+
+    .banner-pics {
+        justify-content: center; /* Center images for smaller screens */
+        margin-top: 20px;
+    }
+
+    .banner-pics .image {
+        width: 100px; /* Reduce image size on smaller screens */
+    }
+}
+
+.text {
+    flex: 1; /* Ensure it takes up available space on the left */
+    display: flex;
+    flex-direction: column;
     justify-content: center;
-    background-color: #729c2f;
-    padding: 50px;
-    height: 160px;
-    gap: 20px;
-    flex-wrap: wrap;
-    color: #feeb29;
+    align-items: flex-start; /* Align text to the left */
+    padding: 10px;
 }
 
 .text h1 {
   margin: 0;
-  font-size: 1.8rem;
+  font-size: 2.8rem;
   font-weight: bold;
-  text-align: center;
+  text-align: left; /* Align text to the left */
 }
 
 .text p {
   margin: 5px 0;
-  font-size: 1rem;
+  font-size: 1.2rem;
 }
 
 .text button {
-  padding: 10px 15px;
+  padding: 12px 20px; /* Increase padding for bigger button */
   background: #f5efd4;
   color: #729c2f;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
   font-weight: bold;
+  font-size: 1.2rem; /* Increase font size */
 }
 
 .text button:hover {
@@ -108,21 +188,46 @@ button img {
     pointer-events: none; /* Ensure the image doesn't block clicks */
 }
 
+/* Responsive design */
+@media (max-width: 768px) {
+    .text h1 {
+        font-size: 2rem; /* Reduce heading size for smaller screens */
+    }
 
-.image {
-  width: 150px;
-  height: auto;
-  border-radius: 8px;
-  object-fit: cover;
-  max-width: 100%;
+    .text p {
+        font-size: 1rem; /* Adjust paragraph size */
+    }
+
+    .text button {
+        padding: 10px 15px; /* Adjust button padding */
+        font-size: 1rem; /* Adjust button font size */
+    }
+
+    .nav-links a {
+    font-size: 1rem; /* Adjust link size on smaller screens */
+    margin: 0 10px; /* Adjust spacing between links */
+  }
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .banner {
-    flex-direction: column;
-    text-align: center;
-  }
+/* Divider below the banner */
+.nav-divider {
+  background-color: #333; /* Dark background for the divider */
+  padding: 20px 0; /* Add padding for spacing */
+  text-align: center; /* Center the links */
+}
+
+/* Navigation links inside the divider */
+.nav-links a {
+  color: #fff; /* White text color */
+  text-decoration: none; /* Remove underline */
+  font-size: 1.1rem;
+  margin: 0 20px; /* Space between the links */
+  font-weight: bold;
+}
+
+.nav-links a:hover {
+  color: #feeb29; /* Highlight color on hover */
+  text-decoration: underline; /* Underline on hover */
 }
 
 

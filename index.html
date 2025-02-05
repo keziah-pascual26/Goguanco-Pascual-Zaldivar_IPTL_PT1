@@ -13,13 +13,17 @@
 </head>
 <body>
 
-    <!-- Header -->
+   <!-- Header -->
     <header class="header">
         <div class="logo-container">
             <img src="logo.png" alt="Logo" class="logo-image">
             <h1 class="logo-text">The Smiski Shelf</h1>
         </div>
         <nav class="nav">
+            <div class="search-container">
+                <input type="text" id="searchInput" class="search-bar" placeholder="Search...">
+                <button id="searchButton" class="search-button">🔍</button>
+            </div>
             <div class="user-info">
                 <span class="greeting">Hello, User!</span>
                 <img src="user-profile.png" alt="User" class="user-image">
@@ -34,10 +38,25 @@
             <p>Where Every Smiski Has a Story</p>
             <button id="createStoryButton">Create your Smiski Story</button>
         </div>
-        <img src="banner-pic.png" alt="Smiski" class="image" />
+        <div class="banner-pics">
+            <img src="banner-pic-1.png" alt="Smiski" class="image" />
+            <img src="banner-pic-2.png" alt="Smiski" class="image" />
+            <img src="banner-pic.png" alt="Smiski" class="image" />
+        </div>
+    </div>
+
+        <!-- Divider for navigation -->
+    <div class="nav-divider">
+        <div class="nav-links">
+            <a href="#smiskistories-section">Smiski Stories</a>
+            <a href="#smiskimoments">Smiski Moments</a>
+            <a href="#chat-section">Smiski Chats</a>
+            <a href="#footersection">About Smiski Shelf</a>
+        </div>
     </div>
 
     <!-- Smiski Stories Section -->
+    <div class="smiskistories-section">
     <div class="stories-container" id="storiesContainer">
         <div class="stories-header">
             <h2>Smiski Stories</h2>
@@ -46,11 +65,12 @@
             +
         </div>
     </div>
+    </div>
 
     <div class="user-posts-wrapper">
         <!-- User Posts Container -->
         <div class="user-posts-container">
-            <h2>Share Your Smiski Moments</h2>
+            <h2 id="smiskimoments">Share Your Smiski Moments</h2>
             
             <div class="post-form">
                 <textarea id="postCaption" placeholder="Write a caption..."></textarea>
@@ -64,7 +84,7 @@
         <!-- Sidebar for People You Know & Chat -->
         <div class="sidebar-section">
             <div class="suggested-users-section">
-                <h3>Chat Your Friends</h3>
+                <h3 id="chat-section">Chat Your Friends</h3>
                 <ul id="suggestedUsers">
                     <li>
                         <img src="user1.png" alt="User 1" class="user-avatar">
@@ -282,7 +302,7 @@
     <div id="overlay" class="overlay"></div>
 
     <!-- Footer -->
-    <footer class="footer">
+    <footer class="footer" id="footersection">
         <div class="footer-column">
             <h3>Smiski Series</h3>
             <ul>
