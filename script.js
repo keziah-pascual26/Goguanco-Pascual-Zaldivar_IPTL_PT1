@@ -80,24 +80,45 @@ function handleMediaUpload(event) {
 
 
 
-// Function to show the editor section when "Edit" button is clicked
 function editStory() {
-    // Display the editor section
     const editorSection = document.getElementById('editorSection');
-    editorSection.style.display = 'block';
-
-    // Ensure that the editor (image or video) is visible based on the file type
+    const editButton = document.querySelector('.edit-button'); 
     const imageEditor = document.getElementById('imageEditor');
     const videoEditor = document.getElementById('videoEditor');
+    const mediaInput = document.getElementById('mediaInput'); // Input field for file upload
 
-    if (imageEditor.style.display === 'block') {
-        console.log("image read")
-        imageEditor.style.display = 'block';
-        videoEditor.style.display = 'none';
-    } else if (videoEditor.style.display === 'block') {
-        console.log("video read")
-        videoEditor.style.display = 'block';
+    // Get the uploaded file (if any)
+    const file = mediaInput.files[0];
+
+    // Toggle the editor section
+    if (editorSection.style.display === 'block') {
+        // Hide everything
+        editorSection.style.display = 'none';
         imageEditor.style.display = 'none';
+        videoEditor.style.display = 'none';
+        editButton.textContent = 'Edit'; // Change button text back
+    } else {
+        // Show editor section
+        editorSection.style.display = 'block';
+        editButton.textContent = 'Hide Edit Options'; // Update button text
+
+        // Check the file type to show the appropriate editor
+        if (file) {
+            const fileType = file.type;
+
+            // If the uploaded file is a video, show the video editor
+            if (fileType.includes('video')) {
+                console.log("Displaying Video Editor");
+                videoEditor.style.display = 'block';
+                imageEditor.style.display = 'none';
+            } 
+            // If the uploaded file is an image, show the image editor
+            else if (fileType.includes('image')) {
+                console.log("Displaying Image Editor");
+                imageEditor.style.display = 'block';
+                videoEditor.style.display = 'none';
+            }
+        }
     }
 }
 
