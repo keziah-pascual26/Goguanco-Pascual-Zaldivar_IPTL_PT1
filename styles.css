@@ -20,7 +20,7 @@ html {
     color: #729c2f;
     gap: 10px;
     flex-wrap: wrap;
-    position: fixed;
+    position: absolute;
     width: 100vw; /* Ensure it spans exactly the screen width */
     max-width: 100%;
     top: 0;
