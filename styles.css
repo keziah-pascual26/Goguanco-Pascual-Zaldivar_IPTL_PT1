@@ -6,59 +6,16 @@ body {
     background-color: #f5efd4;
 }
 
-html {
-    scroll-behavior: smooth;
-}
-
-/* Header */
-.header {
+header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 10px 20px;
-    background-color: #feeb29; /* Transparent navbar */
+    background-color: #feeb29;
     color: #729c2f;
-    gap: 10px;
-    flex-wrap: wrap;
-    position: fixed;
-    width: 100vw; /* Ensure it spans exactly the screen width */
-    max-width: 100%;
-    top: 0;
-    left: 0;
-    z-index: 1000;
-    box-sizing: border-box;
+    gap: 10px; /* Ensures consistent spacing */
+    flex-wrap: wrap; /* Automatically wraps content on smaller screens */
 }
-
-
-/* Search Bar */
-.search-container {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    background: rgba(255, 255, 255, 0.8); /* Slightly transparent background */
-    border-radius: 20px;
-    padding: 3px 8px;
-    width: fit-content;
-}
-
-.search-bar {
-    border: none;
-    outline: none;
-    padding: 5px;
-    border-radius: 15px;
-    font-size: 14px; /* Slightly smaller font */
-    width: 150px; /* Make it smaller */
-    background: transparent;
-}
-
-.search-button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 16px; /* Slightly smaller icon */
-}
-
-
 
 /* Logo and Text Container */
 .logo-container {
@@ -106,81 +63,41 @@ html {
 
 /* Banner Styling */
 .banner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 50px;
-  background: #729c2f url('smiskibanner-2.svg') no-repeat center center; /* Use the SVG file as a background image */
-  height: 360px;
-  gap: 20px;
-  flex-wrap: wrap;
-  color: #feeb29;
-  margin-top: 50px;
-}
-
-/* Container for images */
-.banner-pics {
+    background-image: url('smiskibanner.svg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     display: flex;
-    justify-content: flex-start; /* Align images to the right *//* Optional: space between images */
-    flex-wrap: nowrap; /* Allow images to wrap on smaller screens */
-    overflow: hidden; /* Ensure images stay within the container */
-    max-width: 100%; /* Ensure the container doesn't exceed the width of the banner */
-}
-
-/* Individual images */
-.banner-pics .image {
-    height: auto;
-    width: 250px; /* Set a fixed width or adjust as needed */
-    object-fit: contain; /* Maintain aspect ratio */
-}
-
-/* Make sure the banner is responsive */
-@media (max-width: 768px) {
-    .banner {
-        flex-direction: column; /* Stack the content for smaller screens */
-        text-align: center;
-    }
-
-    .banner-pics {
-        justify-content: center; /* Center images for smaller screens */
-        margin-top: 20px;
-    }
-
-    .banner-pics .image {
-        width: 100px; /* Reduce image size on smaller screens */
-    }
-}
-
-.text {
-    flex: 1; /* Ensure it takes up available space on the left */
-    display: flex;
-    flex-direction: column;
+    align-items: center;
     justify-content: center;
-    align-items: flex-start; /* Align text to the left */
-    padding: 10px;
+    background-color: #729c2f;
+    padding: 50px;
+    height: 160px;
+    gap: 20px;
+    flex-wrap: wrap;
+    color: #feeb29;
 }
 
 .text h1 {
   margin: 0;
-  font-size: 2.8rem;
+  font-size: 1.8rem;
   font-weight: bold;
-  text-align: left; /* Align text to the left */
+  text-align: center;
 }
 
 .text p {
   margin: 5px 0;
-  font-size: 1.2rem;
+  font-size: 1rem;
 }
 
 .text button {
-  padding: 12px 20px; /* Increase padding for bigger button */
+  padding: 10px 15px;
   background: #f5efd4;
   color: #729c2f;
   border: none;
-  border-radius: 8px;
+  border-radius: 5px;
   cursor: pointer;
   font-weight: bold;
-  font-size: 1.2rem; /* Increase font size */
 }
 
 .text button:hover {
@@ -191,57 +108,23 @@ button img {
     pointer-events: none; /* Ensure the image doesn't block clicks */
 }
 
-/* Responsive design */
-@media (max-width: 768px) {
-    .text h1 {
-        font-size: 2rem; /* Reduce heading size for smaller screens */
-    }
-
-    .text p {
-        font-size: 1rem; /* Adjust paragraph size */
-    }
-
-    .text button {
-        padding: 10px 15px; /* Adjust button padding */
-        font-size: 1rem; /* Adjust button font size */
-    }
-
-    .nav-links a {
-    font-size: 1rem; /* Adjust link size on smaller screens */
-    margin: 0 10px; /* Adjust spacing between links */
-  }
-}
-
-/* Divider below the banner */
-.nav-divider {
-  background-color: #333; /* Dark background for the divider */
-  padding: 20px 0; /* Add padding for spacing */
-  text-align: center; /* Center the links */
-}
-
-/* Navigation links inside the divider */
-.nav-links a {
-  color: #fff; /* White text color */
-  text-decoration: none; /* Remove underline */
-  font-size: 1.1rem;
-  margin: 0 20px; /* Space between the links */
-  font-weight: bold;
-}
-
-.nav-links a:hover {
-  color: #feeb29; /* Highlight color on hover */
-  text-decoration: underline; /* Underline on hover */
-}
-
-
 
 .image {
-  width: 250px;
+  width: 150px;
   height: auto;
   border-radius: 8px;
   object-fit: cover;
   max-width: 100%;
 }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .banner {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
 
 /* story */
 .stories-container {
@@ -1173,29 +1056,6 @@ button:hover {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Profile picture and input box */
-.post-input-container {
-    display: flex;
-    align-items: center;
-}
-
-.profile-pic {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    margin-right: 10px;
-}
-
-#postBox {
-    width: 100%;
-    height: 40px;
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    resize: none;
-    outline: none;
-}
-
 /* Style the post form */
 .post-form {
     display: flex;
@@ -1210,7 +1070,7 @@ button:hover {
 
 .post-form textarea {
     width: 90%;
-    height: 50px;
+    height: 80px;
     padding: 10px;
     border-radius: 5px;
     border: 1px solid #ddd;
@@ -1218,8 +1078,7 @@ button:hover {
 }
 
 .post-form input[type="file"] {
-    margin-top: 10px;
-    padding: 5px;
+    border: none;
 }
 
 .post-form button {
@@ -1326,38 +1185,13 @@ video.post-media {
     flex: 2;
 }
 
-/* Sidebar Section Styling */
 .sidebar-section {
-    max-width: 100%; /* Prevents it from exceeding the screen width */
-    width: 300px; /* Default width for larger screens */
+    flex: 1;
     display: flex;
     flex-direction: column;
     gap: 20px;
-    padding: 10px; /* Optional: Adds some padding inside the sidebar */
-    background-color: #f3f3f3;
-    border-radius: 10px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Optional: Adds a subtle shadow for depth */
-    box-sizing: border-box; /* Includes padding and border in the element's total width */
-    overflow: hidden; /* Ensures no overflow happens */
-    margin-right: 20px;
 }
 
-/* Responsive Styles for Smaller Screens */
-@media (max-width: 768px) {
-    .sidebar-section {
-        width: 250px; /* Slightly smaller width for tablets or smaller screens */
-    }
-}
-
-@media (max-width: 480px) {
-    .sidebar-section {
-        width: 100%; /* Full width on very small screens like mobile */
-        margin-right: 0; /* Removes right margin on small screens */
-    }
-}
-
-
-/* Suggested Users Section and Chat Panel */
 .suggested-users-section, .chat-panel {
     background: #f3f3f3;
     padding: 15px;
@@ -1367,20 +1201,17 @@ video.post-media {
     margin-left: 0;
 }
 
-/* Suggested Users List */
 .suggested-users-section ul {
     list-style: none;
     padding: 0;
 }
 
-/* Suggested Users List Items */
 .suggested-users-section li {
     display: flex;
     align-items: center;
     margin-bottom: 10px;
 }
 
-/* User Avatar Styling */
 .user-avatar {
     width: 40px;
     height: 40px;
@@ -1388,14 +1219,12 @@ video.post-media {
     margin-right: 10px;
 }
 
-/* Chat Panel Styling */
 .chat-panel {
     position: relative;
-    width: 100%; /* Ensures the chat panel fits within the sidebar */
+    width: 90%;
     margin-bottom: 15px;
 }
 
-/* Chat Header Styling */
 .chat-header {
     display: flex;
     justify-content: space-between;
@@ -1403,7 +1232,6 @@ video.post-media {
     margin-bottom: 10px;
 }
 
-/* Chat Messages Styling */
 .chat-messages {
     height: 150px;
     overflow-y: auto;
@@ -1411,46 +1239,35 @@ video.post-media {
     margin-bottom: 10px;
 }
 
-/* Chat Input Field Styling */
 #chatInput {
     width: 80%;
     padding: 5px;
 }
 
-/* Button Styling */
 .chat-button, .send-button {
     margin-left: 20px;
     border-radius: 5px;
-    align-items: right;
 }
 
-/* Send Button Styling */
 .send-button, .post-comments button {
     margin-top: 15px;
 }
 
-
 /* Basic modal styling */
 .modal {
-    width: 700px; /* Adjusted for better spacing */
-    height: auto; /* Let content define height */
-    max-width: 90vw;
-    max-height: 90vh;
-    overflow: auto;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: #f5fac7;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-    z-index: 1100;
     display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
 }
 
 .modal-content {
-    background-color: #f5fac7;
+    background-color: white;
     padding: 20px;
     border-radius: 10px;
     text-align: center;
