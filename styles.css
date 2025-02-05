@@ -240,6 +240,14 @@ button img {
     gap: 15px;
 }
 
+/* Left-side Inputs */
+.create-story-modal .input-section #storyTitle {
+    width: 94%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
 /* Input Fields */
 .create-story-modal input {
     width: 90%;
@@ -280,13 +288,26 @@ button img {
 
 /* Edit Button */
 .create-story-modal .edit-button {
-    background: #f6f0f0;
+    background: #4CAF50;
     padding: 10px 20px;
     border-radius: 5px;
     text-align: center;
     cursor: pointer;
     border: none;
     margin-top: 15px;
+}
+
+/* Buttons */
+.create-story-modal .post-button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 15px;
+    text-align: center;
 }
 
 /* Buttons */
@@ -316,6 +337,81 @@ button img {
     flex: 1;
     margin-left: 20px;
 }
+
+.create-story-modal .button-section {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    gap: 40px;
+}
+
+.close-modal-button {
+    position: absolute;
+    top: 10px;
+    right: 50px; /* Adjusted for proper alignment */
+    background: none;
+    border: none;
+    font-size: 24px; /* Increased for better visibility */
+    cursor: pointer;
+    color: #333; /* Adjust color as needed */
+    width: 32px; /* Ensures proper size */
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%; /* Optional: Makes it circular */
+    max-width: 32px; /* Ensures proper size */
+}
+
+.close-modal-button:hover {
+    background: rgba(0, 0, 0, 0.1); /* Optional hover effect */
+    color: red;
+}
+
+.story-input-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Align text to the left */
+    gap: 5px; /* Space between elements */
+    width: 100%;
+    max-width: 290px; /* Adjust as needed */
+    padding: 10px;
+    border: 1px solid #ccc; /* Light border */
+    border-radius: 8px;
+    background-color: #f9f9f9; /* Light background */
+    height: 110px;
+}
+
+textarea#storyDescription {
+    width: 100%;
+    min-height: 70px;
+    max-width: 270px;
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    resize: none; /* Prevent resizing */
+}
+
+.char-counter {
+    font-size: 12px;
+    color: #666; /* Subtle text color */
+    align-self: flex-start; /* Align character count to the right */
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /* Editor Styles */

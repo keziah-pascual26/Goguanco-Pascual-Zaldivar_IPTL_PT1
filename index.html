@@ -149,6 +149,7 @@
     <!-- Create Story Modal -->
     <div id="createStoryModal" class="create-story-modal">
         <div id="modal-content" class="modal-content">
+            <button class="close-modal-button" onclick="closeCreateStoryModal()">✖</button>
             <!-- Title -->
             <h2>Create Your Smiski Story</h2>
 
@@ -190,8 +191,11 @@
                 </div>
             </div>
 
-            <!-- Edit Button -->
-            <button class="edit-button" onclick="editStory()">Edit</button>
+            <!-- Button -->
+            <div class="button-section">
+                <button class="edit-button" onclick="editStory()">Edit</button>
+                <button class="post-button" onclick="addStories();">Post Story</button>
+            </div>
 
             <!-- Image and Video Editing Section (Initially Hidden) -->
             <div id="editorSection" style="display: none;">
@@ -244,8 +248,6 @@
 
 
 
-            <button onclick="addStories();">Post Story</button>
-            <button onclick="closeCreateStoryModal()">Cancel</button>
         </div>
     </div>
 
