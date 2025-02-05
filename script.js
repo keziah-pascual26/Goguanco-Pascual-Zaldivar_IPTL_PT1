@@ -1110,7 +1110,11 @@ function closeStoryViewer() {
     isStoryViewed = false;
 }
 
-// Update Progress Bar function with dynamic time duration
+let progressPaused = false;
+let remainingTime = 0;
+let progressStartTime = 0;
+
+
 function updateProgressBar(duration, callback) {
     if (!progressBar) return;
 
@@ -1121,9 +1125,45 @@ function updateProgressBar(duration, callback) {
     setTimeout(() => {
         progressBar.style.transition = `width ${duration}ms linear`;
         progressBar.style.width = '100%';
-    }, 50); // Small delay to ensure smooth transition
+    }, 50);
 
-    progressTimeout = setTimeout(callback, duration);
+    progressStartTime = Date.now();
+    remainingTime = duration;
+    progressPaused = false;
+
+    progressTimeout = setTimeout(() => {
+        progressPaused = false;
+        callback();
+    }, duration);
+}
+
+function pauseProgressBar() {
+    if (!progressBar || progressPaused) return;
+
+    const elapsedTime = Date.now() - progressStartTime;
+    remainingTime -= elapsedTime;
+
+    progressBar.style.transition = 'none';
+    const currentPercentage = (elapsedTime / (elapsedTime + remainingTime)) * 100;
+    progressBar.style.width = `${currentPercentage}%`;
+
+    progressPaused = true;
+    clearTimeout(progressTimeout);
+}
+
+function resumeProgressBar() {
+    if (!progressBar || !progressPaused) return;
+
+    progressBar.style.transition = `width ${remainingTime}ms linear`;
+    progressBar.style.width = '100%';
+
+    progressStartTime = Date.now();
+    progressTimeout = setTimeout(() => {
+        progressPaused = false;
+        showStory(currentStoryIndex + 1);
+    }, remainingTime);
+
+    progressPaused = false;
 }
 
 // Story number indicators
@@ -1318,17 +1358,26 @@ document.addEventListener('keydown', function(event) {
         // Handle Spacebar - Play/Pause video
         case ' ':
             case 'Spacebar':
-                event.preventDefault(); // Prevent default spacebar behavior (scrolling)
-                const video = document.querySelector('#storyViewerContent video');
-                if (video) {
-                    // Toggle play/pause
-                    if (video.paused) {
-                        video.play();
-                    } else {
-                        video.pause();
-                    }
+            event.preventDefault();
+            const video = document.querySelector('#storyViewerContent video');
+
+            if (video) {
+                if (video.paused) {
+                    video.play();
+                    resumeProgressBar();
+                } else {
+                    video.pause();
+                    pauseProgressBar();
                 }
-                break;
+            } else {
+                // If it's an image, just toggle the progress bar
+                if (progressPaused) {
+                    resumeProgressBar();
+                } else {
+                    pauseProgressBar();
+                }
+            }
+            break;
         
         // Handle Enter key - View the current story
         case 'Enter':
